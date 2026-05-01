@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="sicoain.api/sicoain.api.csproj" />
+  <Project Path="sicoain.client/sicoain.client.csproj" />
+</Solution>

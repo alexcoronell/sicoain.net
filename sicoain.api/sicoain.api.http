@@ -1,0 +1,6 @@
+@sicoain.api_HostAddress = http://localhost:5078
+
+GET {{sicoain.api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
