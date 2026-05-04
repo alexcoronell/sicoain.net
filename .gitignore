@@ -412,6 +412,13 @@ FodyWeavers.xsd
 .history
 .ionide
 
+
+# IntelliJ
+.idea
+
+# ATL Skill Registry (auto-generated, not committed)
+.atl/
+
 # End of https://www.toptal.com/developers/gitignore/api/csharp,visualstudiocode
 
 
