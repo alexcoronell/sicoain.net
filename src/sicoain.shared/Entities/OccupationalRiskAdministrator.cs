@@ -14,5 +14,7 @@ namespace sicoain.shared.Entities
 
         public ICollection<OccupationalRiskAdministratorPhone>? Phones { get; }
         public ICollection<OccupationalRiskAdministratorEmail>? Emails { get; }
+
+        public ICollection<Employee>? Employees { get; }
     }
 }

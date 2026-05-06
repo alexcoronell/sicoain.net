@@ -18,5 +18,7 @@ namespace sicoain.shared.Entities
 
         public ICollection<BranchPhone>? Phones { get; }
         public ICollection<BranchEmail>? Emails { get; }
+
+        public ICollection<Employee>? Employees { get; }
     }
 }

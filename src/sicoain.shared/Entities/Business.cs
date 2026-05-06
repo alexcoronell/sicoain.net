@@ -16,5 +16,7 @@ namespace sicoain.shared.Entities
         public ICollection<BusinessEmail>? Emails { get; }
 
         public ICollection<Branch>? Branches { get; }
+
+        public ICollection<Employee>? Employees { get; }
     }
 }

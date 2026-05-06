@@ -13,5 +13,7 @@ namespace sicoain.shared.Entities
         public string? AddressStreet { get; set; }
 
         public string? Notes { get; set; }
+
+        public ICollection<Employee>? Employees { get; }
     }
 }
