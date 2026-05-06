@@ -1,14 +1,20 @@
+
+
 using System.ComponentModel.DataAnnotations;
 
 namespace sicoain.shared.Entities
 {
-    public class Department : BaseEntity
+    public class Position: BaseEntity
     {
         [Required]
         public required string Name { get; set; }
 
         public string? Description { get; set; }
 
-        public ICollection<Position>? Positions { get; }
+        public required int DepartmentId { get; set; }
+
+        public required Department Department { get; set; }
+
+        public RiskClass? RiskClass { get; set; }
     }
 }

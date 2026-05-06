@@ -11,5 +11,10 @@ namespace sicoain.shared.Entities
         [Column("address_street", TypeName = "varchar(200)")]
         [MaxLength(200)]
         public string? AddressStreet { get; set; }
+
+        public ICollection<BusinessPhone>? Phones { get; }
+        public ICollection<BusinessEmail>? Emails { get; }
+
+        public ICollection<Branch>? Branches { get; }
     }
 }

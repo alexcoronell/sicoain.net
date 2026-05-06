@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace sicoain.shared.Entities
 {
-    public class OccupationalRiskAdministrator : BaseEntity
+    public class Branch: BaseEntity
     {
         [Required]
         public required string Name { get; set; }
@@ -12,7 +12,11 @@ namespace sicoain.shared.Entities
         [MaxLength(200)]
         public string? AddressStreet { get; set; }
 
-        public ICollection<OccupationalRiskAdministratorPhone>? Phones { get; }
-        public ICollection<OccupationalRiskAdministratorEmail>? Emails { get; }
+        public required int BusinessId { get; set; }
+
+        public required Business Business { get; set; }
+
+        public ICollection<BranchPhone>? Phones { get; }
+        public ICollection<BranchEmail>? Emails { get; }
     }
 }
