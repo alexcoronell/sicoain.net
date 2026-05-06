@@ -83,10 +83,13 @@ namespace sicoain.shared.Entities
         public required int PositionId { get; set; }
         public Position? Position { get; set; }
 
-        public ICollection<EmployeePhone>? EmployeePhones { get; set; }
-        public ICollection<EmployeeEmail>? EmployeeEmails { get; set; }
+        /********** Collections **********/
+        public ICollection<EmployeePhone>? EmployeePhones { get; }
+        public ICollection<EmployeeEmail>? EmployeeEmails { get; }
 
-        public ICollection<EmployeeContact>? EmployeeContacts { get; set; }
+        public ICollection<EmployeeContact>? EmployeeContacts { get; }
+
+        public ICollection<Witness>? Witnesses { get; }
 
     }
 }
