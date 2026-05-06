@@ -421,4 +421,19 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,visualstudiocode
 
+# ============================================
+# Project-specific: src/ structure (sicoain.net)
+# ============================================
+
+# Explicit ignores for src/ layout (redundant but documents intent)
+src/**/[Bb]in/
+src/**/[Oo]bj/
+src/**/[Dd]ebug/
+src/**/[Rr]elease/
+src/**/publish/
+
+# Rider/IDE specific to src/
+src/**/.idea/
+src/**/.history/
+
 
