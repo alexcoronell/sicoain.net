@@ -25,6 +25,9 @@ namespace sicoain.shared.Entities
         public required EventCategory EventCategory { get; set; }
 
         /********** Collections **********/
+
+        public ICollection<DigitalEvidence>? DigitalEvidences { get; }
+
         public ICollection<Witness>? Witnesses { get; }
 
         public ICollection<CorrectiveAction>? CorrectiveActions { get; }
