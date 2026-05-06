@@ -1,0 +1,39 @@
+# ============================================
+# EditorConfig for SICOAIN
+# ============================================
+root = true
+
+# Global
+[*]
+indent_style = space
+indent_size = 4
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Files C#
+[*.cs]
+indent_size = 4
+csharp_new_line_before_open_brace = all
+csharp_using_directive_placement = outside_namespace
+
+# Style rules
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+csharp_style_expression_bodied_methods = true:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
+csharp_style_inlined_variable_declaration = true:suggestion
+csharp_style_throw_expression = true:suggestion
+
+# Blazor/Razor Files
+[*.razor]
+indent_size = 4
+
+# JSON Files
+[*.json]
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2

@@ -1,15 +1,13 @@
-﻿@page "/weather"
+@page "/weather"
 @inject HttpClient Http
-
 <PageTitle>Weather</PageTitle>
-
 <h1>Weather</h1>
-
 <p>This component demonstrates fetching data from the server.</p>
-
 @if (forecasts == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em>
+    </p>
 }
 else
 {
@@ -26,17 +24,26 @@ else
             @foreach (var forecast in forecasts)
             {
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <td>
+                    @forecast.Date.ToShortDateString()
+                    </td>
+                    <td>
+                    @forecast.TemperatureC
+                    </td>
+                    <td>
+                    @forecast.TemperatureF
+                    </td>
+                    <td>
+                    @forecast.Summary
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 }
 
-@code {
+@code
+{
     private WeatherForecast[]? forecasts;
 
     protected override async Task OnInitializedAsync()

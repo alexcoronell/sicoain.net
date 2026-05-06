@@ -1,0 +1,13 @@
+is_global = true
+
+# MA0047: Prefer StringComparison
+dotnet_diagnostic.MA0047.severity = silent
+
+# MA0048: Use NameOf
+dotnet_diagnostic.MA0048.severity = silent
+
+# CA5394: Use secure random
+dotnet_diagnostic.CA5394.severity = silent
+
+# SC5005: Security warning
+dotnet_diagnostic.SC5005.severity = silent

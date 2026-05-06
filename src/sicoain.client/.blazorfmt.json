@@ -1,0 +1,7 @@
+{
+  "IndentSize": 4,
+  "UseTabs": false,
+  "AttributeFormatting": "multilineWhenMany",
+  "AttributeBreakThreshold": 3,
+  "QuoteStyle": "double"
+}
