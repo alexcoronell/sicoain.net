@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace sicoain.shared.Entities
 {
-    public class Branch: BaseEntity
+    public class Branch : BaseEntity
     {
         [Required]
         public required string Name { get; set; }

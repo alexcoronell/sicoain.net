@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace sicoain.shared.Entities
 {
-    public class Position: BaseEntity
+    public class Position : BaseEntity
     {
         [Required]
         public required string Name { get; set; }

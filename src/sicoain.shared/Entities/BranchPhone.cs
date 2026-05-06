@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace sicoain.shared.Entities
 {
-    public class BranchPhone: BaseEntity
+    public class BranchPhone : BaseEntity
     {
         [Required]
         public required string Phone { get; set; }

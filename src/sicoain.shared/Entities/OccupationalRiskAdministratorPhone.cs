@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace sicoain.shared.Entities
 {
-    public class OccupationalRiskAdministratorPhone: BaseEntity
+    public class OccupationalRiskAdministratorPhone : BaseEntity
     {
         [Required]
         public required string Phone { get; set; }
