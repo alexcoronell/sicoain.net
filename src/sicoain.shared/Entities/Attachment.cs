@@ -5,7 +5,7 @@ using sicoain.shared.Enums;
 
 namespace sicoain.shared.Entities
 {
-    public class Attachment: BaseEntity
+    public class Attachment : BaseEntity
     {
         [Required]
         public required string FileName { get; set; }
