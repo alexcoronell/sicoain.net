@@ -60,6 +60,9 @@ namespace sicoain.api.Data
         public DbSet<HealthPromotionEntityEmail> HealthPromotionEntityEmails { get; set; }
         public DbSet<HealthPromotionEntityPhone> HealthPromotionEntityPhones { get; set; }
 
+        /* ========== REFRESH TOKENS ========== */
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

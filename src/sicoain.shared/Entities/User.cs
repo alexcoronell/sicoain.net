@@ -7,5 +7,7 @@ namespace sicoain.shared.Entities
     {
         [Required, MinLength(8), MaxLength(100)]
         public required string FullName { get; set; }
+
+        public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }

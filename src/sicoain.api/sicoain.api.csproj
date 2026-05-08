@@ -15,9 +15,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Antiforgery" Version="2.3.9" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.7" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.4" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.203">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -31,6 +31,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
