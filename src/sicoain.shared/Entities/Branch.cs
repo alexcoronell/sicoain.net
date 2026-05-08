@@ -16,9 +16,9 @@ namespace sicoain.shared.Entities
 
         public required Business Business { get; set; }
 
-        public ICollection<BranchPhone>? Phones { get; }
-        public ICollection<BranchEmail>? Emails { get; }
+        public ICollection<BranchPhone>? Phones { get; set; }
+        public ICollection<BranchEmail>? Emails { get; set; }
 
-        public ICollection<Employee>? Employees { get; }
+        public ICollection<Employee>? Employees { get; set; }
     }
 }

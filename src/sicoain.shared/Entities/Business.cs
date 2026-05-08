@@ -12,11 +12,11 @@ namespace sicoain.shared.Entities
         [MaxLength(200)]
         public string? AddressStreet { get; set; }
 
-        public ICollection<BusinessPhone>? Phones { get; }
-        public ICollection<BusinessEmail>? Emails { get; }
+        public ICollection<BusinessPhone>? Phones { get; set; }
+        public ICollection<BusinessEmail>? Emails { get; set; }
 
-        public ICollection<Branch>? Branches { get; }
+        public ICollection<Branch>? Branches { get; set; }
 
-        public ICollection<Employee>? Employees { get; }
+        public ICollection<Employee>? Employees { get; set; }
     }
 }

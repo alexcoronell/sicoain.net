@@ -33,6 +33,6 @@ namespace sicoain.shared.Entities
         public bool IsEffective { get; set; }
 
         /********** Collections **********/
-        public ICollection<CorrectiveActionTracking>? Trackings { get; }
+        public ICollection<CorrectiveActionTracking>? Trackings { get; set; }
     }
 }

@@ -12,9 +12,9 @@ namespace sicoain.shared.Entities
         [MaxLength(200)]
         public string? AddressStreet { get; set; }
 
-        public ICollection<OccupationalRiskAdministratorPhone>? Phones { get; }
-        public ICollection<OccupationalRiskAdministratorEmail>? Emails { get; }
+        public ICollection<OccupationalRiskAdministratorPhone>? Phones { get; set; }
+        public ICollection<OccupationalRiskAdministratorEmail>? Emails { get; set; }
 
-        public ICollection<Employee>? Employees { get; }
+        public ICollection<Employee>? Employees { get; set; }
     }
 }

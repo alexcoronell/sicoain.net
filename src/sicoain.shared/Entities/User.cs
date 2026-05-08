@@ -7,7 +7,5 @@ namespace sicoain.shared.Entities
     {
         [Required, MinLength(8), MaxLength(100)]
         public required string FullName { get; set; }
-
-        public string? Role { get; set; }
     }
 }

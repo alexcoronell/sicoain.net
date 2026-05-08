@@ -17,6 +17,6 @@ namespace sicoain.shared.Entities
 
         public RiskClass? RiskClass { get; set; }
 
-        public ICollection<Employee>? Employees { get; }
+        public ICollection<Employee>? Employees { get; set; }
     }
 }

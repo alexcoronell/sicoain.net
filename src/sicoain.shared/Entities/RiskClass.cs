@@ -16,7 +16,7 @@ namespace sicoain.shared.Entities
 
         public bool IsActive { get; set; } = true;
 
-        public ICollection<Position>? Positions { get; }
+        public ICollection<Position>? Positions { get; set; }
 
     }
 }

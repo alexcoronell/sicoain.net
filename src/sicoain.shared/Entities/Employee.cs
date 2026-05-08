@@ -84,12 +84,12 @@ namespace sicoain.shared.Entities
         public Position? Position { get; set; }
 
         /********** Collections **********/
-        public ICollection<EmployeePhone>? EmployeePhones { get; }
-        public ICollection<EmployeeEmail>? EmployeeEmails { get; }
+        public ICollection<EmployeePhone>? EmployeePhones { get; set; }
+        public ICollection<EmployeeEmail>? EmployeeEmails { get; set; }
 
-        public ICollection<EmployeeContact>? EmployeeContacts { get; }
+        public ICollection<EmployeeContact>? EmployeeContacts { get; set; }
 
-        public ICollection<Witness>? Witnesses { get; }
+        public ICollection<Witness>? Witnesses { get; set; }
 
     }
 }

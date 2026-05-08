@@ -26,10 +26,10 @@ namespace sicoain.shared.Entities
 
         /********** Collections **********/
 
-        public ICollection<DigitalEvidence>? DigitalEvidences { get; }
+        public ICollection<DigitalEvidence>? DigitalEvidences { get; set; }
 
-        public ICollection<Witness>? Witnesses { get; }
+        public ICollection<Witness>? Witnesses { get; set; }
 
-        public ICollection<CorrectiveAction>? CorrectiveActions { get; }
+        public ICollection<CorrectiveAction>? CorrectiveActions { get; set; }
     }
 }
