@@ -21,5 +21,7 @@ namespace sicoain.shared.Entities
 
         [Required]
         public required string Comments { get; set; } = string.Empty;
+
+        public CorrectiveAction? CorrectiveAction { get; set; }
     }
 }

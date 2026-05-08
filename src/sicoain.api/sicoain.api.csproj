@@ -33,4 +33,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\sicoain.shared\sicoain.shared.csproj" />
+  </ItemGroup>
+
 </Project>

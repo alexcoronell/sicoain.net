@@ -91,5 +91,7 @@ namespace sicoain.shared.Entities
 
         public ICollection<Witness>? Witnesses { get; set; }
 
+        public ICollection<Accident>? Accidents { get; set; }
+
     }
 }

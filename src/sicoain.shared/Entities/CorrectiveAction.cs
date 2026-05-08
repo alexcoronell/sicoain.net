@@ -32,7 +32,12 @@ namespace sicoain.shared.Entities
         [Column("is_effective", TypeName = "bit")]
         public bool IsEffective { get; set; }
 
+        [Required]
+        public int AccidentId { get; set; }
+
         /********** Collections **********/
         public ICollection<CorrectiveActionTracking>? Trackings { get; set; }
+
+        public Accident? Accident { get; set; }
     }
 }
