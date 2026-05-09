@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using sicoain.api.Data;
+using sicoain.api.Services;
+using sicoain.api.Abstractions;
 using sicoain.shared.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -105,9 +107,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Controllers
-builder.Services.AddControllers();
-
 // ========== SWAGGER CONFIGURATION (Swashbuckle) ==========
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -145,6 +144,13 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+// Services for application logic (e.g., UserService, AccidentService) would be registered here
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Controllers
+builder.Services.AddControllers();
+
 
 var app = builder.Build();
 

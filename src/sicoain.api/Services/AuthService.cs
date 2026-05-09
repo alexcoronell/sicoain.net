@@ -9,6 +9,7 @@ using sicoain.api.Data;
 using sicoain.shared.DTOs;
 using sicoain.shared.Entities;
 using System.Security.Cryptography;
+using sicoain.api.Abstractions;
 
 namespace sicoain.api.Services;
 

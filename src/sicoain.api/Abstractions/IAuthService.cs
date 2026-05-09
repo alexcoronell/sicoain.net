@@ -2,7 +2,7 @@ using System.Security.Claims;
 using sicoain.shared.DTOs;
 using sicoain.shared.Entities;
 
-namespace sicoain.api.Services
+namespace sicoain.api.Abstractions
 {
     internal interface IAuthService
     {
