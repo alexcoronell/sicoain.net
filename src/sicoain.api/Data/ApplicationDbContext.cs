@@ -5,7 +5,7 @@ using sicoain.shared.Entities;
 
 namespace sicoain.api.Data
 {
-    class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
+    internal class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

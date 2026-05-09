@@ -11,3 +11,12 @@ dotnet_diagnostic.CA5394.severity = silent
 
 # SC5005: Security warning
 dotnet_diagnostic.SC5005.severity = silent
+
+# MA0132: Security warning
+dotnet_diagnostic.MA0132.severity = silent
+
+# MA0011: Security warning
+dotnet_diagnostic.MA0011.severity = silent
+
+# CA1852: Type can be sealed - prevents dotnet format from changing public to internal
+dotnet_diagnostic.CA1852.severity = silent
