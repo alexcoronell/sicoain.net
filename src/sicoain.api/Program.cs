@@ -152,6 +152,10 @@ builder.Services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<ICookieManager, CookieManager>();
 builder.Services.AddScoped<IIpAddressProvider, IpAddressProvider>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
+// HttpContextAccessor (Necessary for CookieManager and IpAddressProvider
+builder.Services.AddHttpContextAccessor();
 
 // Controllers
 builder.Services.AddControllers();

@@ -20,7 +20,7 @@ namespace sicoain.api.Services
             }
 
             // Check for forwarded IP (when behind a proxy or load balancer)
-            var forwadedIp = httpContext.Request.Headers["X-Forwaded-For"].FirstOrDefault();
+            var forwadedIp = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
             if (!string.IsNullOrEmpty(forwadedIp))
             {
                 return forwadedIp.Split(",").First().Trim();

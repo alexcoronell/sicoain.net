@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace sicoain.api.Abstractions
 {
     internal interface ICookieManager
