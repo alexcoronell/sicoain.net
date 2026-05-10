@@ -20,3 +20,6 @@ dotnet_diagnostic.MA0011.severity = silent
 
 # CA1852: Type can be sealed - prevents dotnet format from changing public to internal
 dotnet_diagnostic.CA1852.severity = silent
+
+
+dotnet_diagnostic.MA0004.severity = silent

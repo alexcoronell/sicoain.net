@@ -8,6 +8,7 @@ using sicoain.api.Data;
 using sicoain.api.Services;
 using sicoain.api.Abstractions;
 using sicoain.shared.Entities;
+using sicoain.api.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -147,6 +148,10 @@ builder.Services.AddSwaggerGen(c =>
 
 // Services for application logic (e.g., UserService, AccidentService) would be registered here
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<ICookieManager, CookieManager>();
+builder.Services.AddScoped<IIpAddressProvider, IpAddressProvider>();
 
 // Controllers
 builder.Services.AddControllers();

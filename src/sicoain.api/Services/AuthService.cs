@@ -1,90 +1,41 @@
 using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using sicoain.api.Data;
+using sicoain.api.Abstractions;
 using sicoain.shared.DTOs;
 using sicoain.shared.Entities;
-using System.Security.Cryptography;
-using sicoain.api.Abstractions;
 
 namespace sicoain.api.Services;
 
+/// <summary>
+/// Service for authentication, token management, and user session handling.
+/// </summary>
 internal class AuthService : IAuthService
 {
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
-    private readonly IConfiguration _configuration;
-    private readonly ApplicationDbContext _context;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IJwtTokenGenerator _jwtGenerator;
+    private readonly IRefreshTokenGenerator _refreshTokenGenerator;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly ICookieManager _cookieManager;
+    private readonly IIpAddressProvider _ipProvider;
 
     public AuthService(
         UserManager<User> userManager,
         SignInManager<User> signInManager,
-        IConfiguration configuration,
-        ApplicationDbContext context,
-        IHttpContextAccessor httpContextAccessor)
+        IJwtTokenGenerator jwtGenerator,
+        IRefreshTokenGenerator refreshTokenGenerator,
+        IRefreshTokenRepository refreshTokenRepository,
+        ICookieManager cookieManager,
+        IIpAddressProvider ipProvider)
     {
         _userManager = userManager;
         _signInManager = signInManager;
-        _configuration = configuration;
-        _context = context;
-        _httpContextAccessor = httpContextAccessor;
-    }
-
-    private string GenerateRefreshToken()
-    {
-        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-    }
-
-    private string GenerateJwtToken(User user)
-    {
-        var jwtSettings = _configuration.GetSection("JwtSettings");
-        var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!);
-
-        var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString(CultureInfo.InvariantCulture)),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("fullName", user.FullName)
-        };
-
-        var expirationMinutes = double.Parse(jwtSettings["ExpirationMinutes"]!, CultureInfo.InvariantCulture);
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(expirationMinutes),
-            Issuer = jwtSettings["Issuer"],
-            Audience = jwtSettings["Audience"],
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(secretKey),
-                SecurityAlgorithms.HmacSha256Signature)
-        };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
-    }
-
-    private string GetIpAddress()
-    {
-        return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-    }
-
-    private void SetTokenCookie(string key, string token, int minutes)
-    {
-        var cookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = !_httpContextAccessor.HttpContext!.Request.IsHttps,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(minutes, CultureInfo.InvariantCulture))
-        };
-        _httpContextAccessor.HttpContext?.Response.Cookies.Append(key, token, cookieOptions);
+        _jwtGenerator = jwtGenerator;
+        _refreshTokenGenerator = refreshTokenGenerator;
+        _refreshTokenRepository = refreshTokenRepository;
+        _cookieManager = cookieManager;
+        _ipProvider = ipProvider;
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
@@ -101,22 +52,22 @@ internal class AuthService : IAuthService
             return new AuthResponse { Success = false, Message = "Invalid email or password." };
         }
 
-        var accessToken = GenerateJwtToken(user);
-        var refreshToken = GenerateRefreshToken();
+        var accessToken = _jwtGenerator.GenerateToken(user);
+        var refreshToken = _refreshTokenGenerator.GenerateToken();
 
         var refreshTokenEntity = new RefreshToken
         {
             Token = refreshToken,
             UserId = user.Id,
             ExpiresAt = DateTime.UtcNow.AddDays(7),
-            CreatedByIp = GetIpAddress(),
+            CreatedByIp = _ipProvider.GetCurrentIpAddress(),
             CreatedAt = DateTime.UtcNow
         };
-        await _context.RefreshTokens.AddAsync(refreshTokenEntity).ConfigureAwait(false);
-        await _context.SaveChangesAsync().ConfigureAwait(false);
+        await _refreshTokenRepository.AddAsync(refreshTokenEntity).ConfigureAwait(false);
+        await _refreshTokenRepository.SaveChangesAsync().ConfigureAwait(false);
 
-        SetTokenCookie("access_token", accessToken, 15);
-        SetTokenCookie("refresh_token", refreshToken, 7 * 24 * 60);
+        _cookieManager.SetTokenCookie("access_token", accessToken, 15);
+        _cookieManager.SetTokenCookie("refresh_token", refreshToken, 7 * 24 * 60);
 
         return new AuthResponse
         {
@@ -130,41 +81,38 @@ internal class AuthService : IAuthService
 
     public async Task<AuthResponse> RefreshTokenAsync()
     {
-        var refreshToken = _httpContextAccessor.HttpContext?.Request.Cookies["refresh_token"];
+        var refreshToken = _cookieManager.GetCookieValue("refresh_token");
         if (string.IsNullOrEmpty(refreshToken))
         {
             return new AuthResponse { Success = false, Message = "No refresh token provided." };
         }
 
-        var storedToken = await _context.RefreshTokens
-            .Include(rt => rt.User)
-            .FirstOrDefaultAsync(rt => rt.Token == refreshToken).ConfigureAwait(false);
-
+        var storedToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken).ConfigureAwait(false);
         if (storedToken == null || !storedToken.IsActive)
         {
             return new AuthResponse { Success = false, Message = "Invalid or expired refresh token." };
         }
 
-        storedToken.Revoke(GetIpAddress(), "Refreshed");
+        await _refreshTokenRepository.RevokeAsync(storedToken, _ipProvider.GetCurrentIpAddress(), "Refreshed").ConfigureAwait(false);
 
         var user = storedToken.User;
-        var newAccessToken = GenerateJwtToken(user);
-        var newRefreshToken = GenerateRefreshToken();
+        var newAccessToken = _jwtGenerator.GenerateToken(user);
+        var newRefreshToken = _refreshTokenGenerator.GenerateToken();
 
         var newRefreshTokenEntity = new RefreshToken
         {
             Token = newRefreshToken,
             UserId = user.Id,
             ExpiresAt = DateTime.UtcNow.AddDays(7),
-            CreatedByIp = GetIpAddress(),
+            CreatedByIp = _ipProvider.GetCurrentIpAddress(),
             CreatedAt = DateTime.UtcNow,
             ReplacedByTokenId = storedToken.Id
         };
-        await _context.RefreshTokens.AddAsync(newRefreshTokenEntity).ConfigureAwait(false);
-        await _context.SaveChangesAsync().ConfigureAwait(false);
+        await _refreshTokenRepository.AddAsync(newRefreshTokenEntity).ConfigureAwait(false);
+        await _refreshTokenRepository.SaveChangesAsync().ConfigureAwait(false);
 
-        SetTokenCookie("access_token", newAccessToken, 15);
-        SetTokenCookie("refresh_token", newRefreshToken, 7 * 24 * 60);
+        _cookieManager.SetTokenCookie("access_token", newAccessToken, 15);
+        _cookieManager.SetTokenCookie("refresh_token", newRefreshToken, 7 * 24 * 60);
 
         return new AuthResponse
         {
@@ -178,20 +126,19 @@ internal class AuthService : IAuthService
 
     public async Task<bool> RevokeTokenAsync()
     {
-        var refreshToken = _httpContextAccessor.HttpContext?.Request.Cookies["refresh_token"];
+        var refreshToken = _cookieManager.GetCookieValue("refresh_token");
         if (string.IsNullOrEmpty(refreshToken))
             return false;
 
-        var storedToken = await _context.RefreshTokens
-            .FirstOrDefaultAsync(rt => rt.Token == refreshToken).ConfigureAwait(false);
+        var storedToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken).ConfigureAwait(false);
         if (storedToken == null || !storedToken.IsActive)
             return false;
 
-        storedToken.Revoke(GetIpAddress(), "Logout");
-        await _context.SaveChangesAsync().ConfigureAwait(false);
+        await _refreshTokenRepository.RevokeAsync(storedToken, _ipProvider.GetCurrentIpAddress(), "Logout").ConfigureAwait(false);
+        await _refreshTokenRepository.SaveChangesAsync().ConfigureAwait(false);
 
-        _httpContextAccessor.HttpContext?.Response.Cookies.Delete("access_token");
-        _httpContextAccessor.HttpContext?.Response.Cookies.Delete("refresh_token");
+        _cookieManager.DeleteCookie("access_token");
+        _cookieManager.DeleteCookie("refresh_token");
 
         return true;
     }
@@ -207,10 +154,7 @@ internal class AuthService : IAuthService
 
     public async Task<User?> ValidateRefreshTokenAsync(string refreshToken)
     {
-        var storedToken = await _context.RefreshTokens
-            .Include(rt => rt.User)
-            .FirstOrDefaultAsync(rt => rt.Token == refreshToken).ConfigureAwait(false);
-
+        var storedToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken).ConfigureAwait(false);
         if (storedToken == null || !storedToken.IsActive)
             return null;
 
@@ -219,14 +163,6 @@ internal class AuthService : IAuthService
 
     public async Task<int> RevokeAllUserTokensAsync(int userId)
     {
-        var tokens = await _context.RefreshTokens
-            .Where(rt => rt.UserId == userId && rt.RevokedAt == null)
-            .ToListAsync().ConfigureAwait(false);
-
-        foreach (var token in tokens)
-            token.Revoke(GetIpAddress(), "Revoked all by administrator");
-
-        await _context.SaveChangesAsync().ConfigureAwait(false);
-        return tokens.Count;
+        return await _refreshTokenRepository.RevokeAllForUserAsync(userId, _ipProvider.GetCurrentIpAddress(), "Revoked all by administrator").ConfigureAwait(false);
     }
 }

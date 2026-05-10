@@ -9,5 +9,6 @@ namespace sicoain.api.Abstractions
         Task RevokeAsync(RefreshToken token, string revokedByIp, string? reason = null);
         Task<int> RevokeAllForUserAsync(int userId, string revokedByIp, string? reason = null);
         Task UpdateAsync(RefreshToken refreshToken);
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }
