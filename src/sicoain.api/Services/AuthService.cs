@@ -43,13 +43,25 @@ internal class AuthService : IAuthService
         var user = await _userManager.FindByEmailAsync(request.Email).ConfigureAwait(false);
         if (user == null)
         {
-            return new AuthResponse { Success = false, Message = "Invalid email or password." };
+            return new AuthResponse(
+                Success: false,
+                Message: "Invalid email or password.",
+                Email: null,
+                FullName: null,
+                ExpiresAt: DateTime.UtcNow.AddMinutes(15)
+                );
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true).ConfigureAwait(false);
         if (!result.Succeeded)
         {
-            return new AuthResponse { Success = false, Message = "Invalid email or password." };
+            return new AuthResponse(
+                Success: false,
+                Message: "Invalid email or password.",
+                Email: null,
+                FullName: null,
+                ExpiresAt: DateTime.UtcNow.AddMinutes(15)
+                );
         }
 
         var accessToken = _jwtGenerator.GenerateToken(user);
@@ -69,14 +81,13 @@ internal class AuthService : IAuthService
         _cookieManager.SetTokenCookie("access_token", accessToken, 15);
         _cookieManager.SetTokenCookie("refresh_token", refreshToken, 7 * 24 * 60);
 
-        return new AuthResponse
-        {
-            Success = true,
-            Message = "Login successful",
-            Email = user.Email,
-            FullName = user.FullName,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(15)
-        };
+        return new AuthResponse(
+            Success: true,
+            Message: "Login successful",
+            Email: user.Email,
+            FullName: user.FullName,
+            ExpiresAt: DateTime.UtcNow.AddMinutes(15)
+        );
     }
 
     public async Task<AuthResponse> RefreshTokenAsync()
@@ -84,13 +95,25 @@ internal class AuthService : IAuthService
         var refreshToken = _cookieManager.GetCookieValue("refresh_token");
         if (string.IsNullOrEmpty(refreshToken))
         {
-            return new AuthResponse { Success = false, Message = "No refresh token provided." };
+            return new AuthResponse(
+                Success: false,
+                Message: "No refresh token provided.",
+                 Email: null,
+                FullName: null,
+                ExpiresAt: DateTime.UtcNow.AddMinutes(15)
+            );
         }
 
         var storedToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken).ConfigureAwait(false);
         if (storedToken == null || !storedToken.IsActive)
         {
-            return new AuthResponse { Success = false, Message = "Invalid or expired refresh token." };
+            return new AuthResponse(
+                Success: false,
+                Message: "Invalid or expired refresh token.",
+                Email: null,
+                FullName: null,
+                ExpiresAt: DateTime.UtcNow.AddMinutes(15)
+            );
         }
 
         await _refreshTokenRepository.RevokeAsync(storedToken, _ipProvider.GetCurrentIpAddress(), "Refreshed").ConfigureAwait(false);
@@ -114,14 +137,13 @@ internal class AuthService : IAuthService
         _cookieManager.SetTokenCookie("access_token", newAccessToken, 15);
         _cookieManager.SetTokenCookie("refresh_token", newRefreshToken, 7 * 24 * 60);
 
-        return new AuthResponse
-        {
-            Success = true,
-            Message = "Token refreshed",
-            Email = user.Email,
-            FullName = user.FullName,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(15)
-        };
+        return new AuthResponse(
+            Success: true,
+            Message: "Login successful",
+            Email: user.Email,
+            FullName: user.FullName,
+            ExpiresAt: DateTime.UtcNow.AddMinutes(15)
+        );
     }
 
     public async Task<bool> RevokeTokenAsync()
