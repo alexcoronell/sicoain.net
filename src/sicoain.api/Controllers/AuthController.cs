@@ -5,7 +5,7 @@ using sicoain.shared.DTOs;
 
 namespace sicoain.api.Controllers
 {
-    internal class AuthController : BaseApiController
+    public class AuthController : BaseApiController
     {
         private readonly IAuthService _authService;
 
@@ -64,7 +64,5 @@ namespace sicoain.api.Controllers
                 user.FullName
             });
         }
-
-
     }
 }

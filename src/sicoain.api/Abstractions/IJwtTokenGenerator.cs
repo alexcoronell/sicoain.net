@@ -2,7 +2,7 @@ using sicoain.shared.Entities;
 
 namespace sicoain.api.Abstractions
 {
-    internal interface IJwtTokenGenerator
+    public interface IJwtTokenGenerator
     {
         string GenerateToken(User user);
     }

@@ -2,7 +2,7 @@ using sicoain.shared.Entities;
 
 namespace sicoain.api.Abstractions
 {
-    internal interface IRefreshTokenRepository
+    public interface IRefreshTokenRepository
     {
         Task AddAsync(RefreshToken refreshToken);
         Task<RefreshToken?> GetByTokenAsync(string token);

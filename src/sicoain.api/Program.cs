@@ -184,6 +184,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
 // CORS must come before Authentication and Authorization
 app.UseCors("StrictCors");
 

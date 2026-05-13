@@ -1,6 +1,6 @@
 namespace sicoain.api.Abstractions
 {
-    internal interface IIpAddressProvider
+    public interface IIpAddressProvider
     {
         string GetCurrentIpAddress();
     }

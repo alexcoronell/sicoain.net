@@ -1,6 +1,6 @@
 namespace sicoain.api.Abstractions
 {
-    internal interface IRefreshTokenGenerator
+    public interface IRefreshTokenGenerator
     {
         string GenerateToken();
     }

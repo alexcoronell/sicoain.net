@@ -5,7 +5,7 @@ using sicoain.shared.Entities;
 
 namespace sicoain.api.Repositories
 {
-    internal class RefreshTokenRepository : IRefreshTokenRepository
+    public class RefreshTokenRepository : IRefreshTokenRepository
     {
         private readonly ApplicationDbContext _context;
 

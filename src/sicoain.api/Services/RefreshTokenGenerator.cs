@@ -3,7 +3,7 @@ using sicoain.api.Abstractions;
 
 namespace sicoain.api.Services
 {
-    internal class RefreshTokenGenerator : IRefreshTokenGenerator
+    public class RefreshTokenGenerator : IRefreshTokenGenerator
     {
         public string GenerateToken()
         {

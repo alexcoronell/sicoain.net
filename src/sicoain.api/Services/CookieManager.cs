@@ -3,7 +3,7 @@ using sicoain.api.Abstractions;
 
 namespace sicoain.api.Services;
 
-internal class CookieManager : ICookieManager
+public class CookieManager : ICookieManager
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 

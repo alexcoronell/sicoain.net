@@ -2,7 +2,7 @@ using sicoain.api.Abstractions;
 
 namespace sicoain.api.Services
 {
-    internal class IpAddressProvider : IIpAddressProvider
+    public class IpAddressProvider : IIpAddressProvider
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 

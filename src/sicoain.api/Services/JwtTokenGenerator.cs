@@ -8,7 +8,7 @@ using sicoain.shared.Entities;
 
 namespace sicoain.api.Services;
 
-internal class JwtTokenGenerator : IJwtTokenGenerator
+public class JwtTokenGenerator : IJwtTokenGenerator
 {
     private readonly IConfiguration _configuration;
 

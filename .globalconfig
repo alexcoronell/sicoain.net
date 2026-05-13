@@ -24,3 +24,6 @@ dotnet_diagnostic.CA1852.severity = silent
 
 dotnet_diagnostic.MA0004.severity = silent
 dotnet_diagnostic.CA1812.severity = silent
+
+# Disable CA1515: Make types internal (false positive for API controllers)
+dotnet_diagnostic.CA1515.severity = none

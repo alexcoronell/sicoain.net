@@ -10,7 +10,7 @@ namespace sicoain.api.Services;
 /// <summary>
 /// Service for authentication, token management, and user session handling.
 /// </summary>
-internal class AuthService : IAuthService
+public class AuthService : IAuthService
 {
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;

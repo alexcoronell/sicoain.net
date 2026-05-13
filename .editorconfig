@@ -37,3 +37,6 @@ indent_size = 2
 # YAML files
 [*.{yml,yaml}]
 indent_size = 2
+
+# Disable CA1515: Make types internal (API controllers need to be public)
+dotnet_diagnostic.CA1515.severity = none

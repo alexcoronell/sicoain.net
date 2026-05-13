@@ -4,7 +4,7 @@ using sicoain.shared.Entities;
 
 namespace sicoain.api.Abstractions
 {
-    internal interface IAuthService
+    public interface IAuthService
     {
         /// <summary>
         /// Authenticates a user and generates access/refresh tokens as HttpOnly cookies
