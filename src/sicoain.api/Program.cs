@@ -12,6 +12,16 @@ using sicoain.api.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// API Versioning
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new Asp.Versioning.ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new Asp.Versioning.UrlSegmentApiVersionReader();
+})
+.AddMvc();
+
 // ========== SERVICES CONFIGURATION ==========
 
 // Database Context
