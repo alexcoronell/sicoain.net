@@ -27,3 +27,6 @@ dotnet_diagnostic.CA1812.severity = silent
 
 # Disable CA1515: Make types internal (false positive for API controllers)
 dotnet_diagnostic.CA1515.severity = none
+
+# MA0006: Disable Use string.Equals instead of NotEquals operator
+dotnet_diagnostic.MA0006.severity = silent
