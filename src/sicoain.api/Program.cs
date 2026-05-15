@@ -9,6 +9,7 @@ using sicoain.api.Services;
 using sicoain.api.Abstractions;
 using sicoain.shared.Entities;
 using sicoain.api.Repositories;
+using sicoain.api.Data.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -197,5 +198,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    Console.WriteLine("Running Seeder");
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await PermissionSeeder.SeedAsync(dbContext).ConfigureAwait(false);
+
+}
 
 app.Run();
