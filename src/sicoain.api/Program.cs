@@ -158,6 +158,7 @@ builder.Services.AddSwaggerGen(c =>
 
 // Services for application logic (e.g., UserService, AccidentService) would be registered here
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<ICookieManager, CookieManager>();
@@ -169,6 +170,9 @@ builder.Services.AddHttpContextAccessor();
 
 // Controllers
 builder.Services.AddControllers();
+
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(Program));
 
 
 var app = builder.Build();

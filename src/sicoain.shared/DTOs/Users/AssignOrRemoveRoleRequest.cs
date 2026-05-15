@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace sicoain.shared.DTOs.Users
 {
-    public class AssignRoleRequest
+    public class AssignOrRemoveRoleRequest
     {
         [Required]
         public string RoleName { get; set; } = string.Empty;

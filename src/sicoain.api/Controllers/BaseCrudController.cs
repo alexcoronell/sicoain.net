@@ -4,9 +4,7 @@ using sicoain.shared.DTOs;
 
 namespace sicoain.api.Controllers
 {
-    [ApiController]
-    [Route("api/v1/[controller]")]
-    public abstract class BaseCrudController<TDto, TCreateRequest, TUpdateRequest> : ControllerBase
+    public abstract class BaseCrudController<TDto, TCreateRequest, TUpdateRequest> : BaseApiController
         where TDto : class
         where TCreateRequest : class
         where TUpdateRequest : class
