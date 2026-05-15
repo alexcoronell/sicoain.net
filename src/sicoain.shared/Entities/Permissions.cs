@@ -4,6 +4,9 @@ namespace sicoain.shared.Entities
 {
     public class Permissions : BaseEntity
     {
+        [Required, MaxLength(100)]
+        public required string Name { get; set; } = string.Empty;
+
         [Required]
         public required string Module { get; set; } /* "Accidents", "Employees", "Reports" */
 
