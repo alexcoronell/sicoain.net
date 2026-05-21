@@ -12,8 +12,8 @@ using sicoain.api.Data;
 namespace sicoain.api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260515042931_AddPermissionName")]
-    partial class AddPermissionName
+    [Migration("20260521033402_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1739,6 +1739,12 @@ namespace sicoain.api.Migrations
 
                     b.Property<int?>("DeletedBy")
                         .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
