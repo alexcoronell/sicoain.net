@@ -165,6 +165,7 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<ICookieManager, CookieManager>();
 builder.Services.AddScoped<IIpAddressProvider, IpAddressProvider>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IRoleSyncService, RoleSyncService>();
 
 // HttpContextAccessor (Necessary for CookieManager and IpAddressProvider
 builder.Services.AddHttpContextAccessor();
@@ -202,9 +203,25 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     Console.WriteLine("Running Seeder");
+    var services = scope.ServiceProvider;
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await PermissionSeeder.SeedAsync(dbContext).ConfigureAwait(false);
 
+    /* Create roles in Identity if they don't exist */
+    await RoleSeeder.SeedAsync(services).ConfigureAwait(false);
+    Console.WriteLine("Base roles seed in Identity");
+
+    /* Synchronize Identity -> CustomRoles */
+    var roleSyncService = services.GetRequiredService<IRoleSyncService>();
+    await roleSyncService.SynchronizeRoleAsync().ConfigureAwait(false);
+    Console.WriteLine("Synchronized Roles");
+
+    /* Seed permissions */
+    await PermissionSeeder.SeedAsync(dbContext).ConfigureAwait(false);
+    Console.WriteLine("Seeded Permissions");
+
+    /* Asign permissions to roles (in RolePermissions) */
+    await RolePermissionSeeder.SeedAsync(dbContext).ConfigureAwait(false);
+    Console.WriteLine("Role-Permission assignments completed");
 }
 
 app.Run();

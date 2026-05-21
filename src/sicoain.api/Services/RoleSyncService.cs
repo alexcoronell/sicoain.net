@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using sicoain.api.Abstractions;
 using sicoain.api.Data;
 using sicoain.shared.Entities;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace sicoain.api.Services
 {
@@ -27,25 +25,25 @@ namespace sicoain.api.Services
             // 1. Get all roles from Identity
             var identityRoles = await _roleManager.Roles.ToListAsync().ConfigureAwait(false);
 
-            // 2. Get all custom roles from our custom Roles table (DbSet CustomRoles)
-            var customRoles = await _context.CustomRoles.ToListAsync().ConfigureAwait(false);  // <-- Usar CustomRoles
+            // 2. Get all custom roles from our custom Roles table
+            var customRoles = await _context.CustomRoles.ToListAsync().ConfigureAwait(false);
 
-            // 3. For each identity role, ensure there's a corresponding custom role with the same Id
+            // 3. For each identity role, ensure there's a corresponding custom role
             foreach (var identityRole in identityRoles)
             {
-                var existingCustomRole = customRoles.FirstOrDefault(r => r.Id == identityRole.Id);
+                var existingCustomRole = customRoles.FirstOrDefault(r => r.IdentityRoleId == identityRole.Id);
                 if (existingCustomRole == null)
                 {
                     // Create missing custom role
                     var newCustomRole = new Roles
                     {
-                        Id = identityRole.Id,          // Use same Id
                         Name = identityRole.Name ?? string.Empty,
                         NormalizedName = identityRole.NormalizedName,
+                        IdentityRoleId = identityRole.Id,
                         CreatedAt = DateTime.UtcNow,
                         IsActive = true
                     };
-                    await _context.CustomRoles.AddAsync(newCustomRole).ConfigureAwait(false);  // <-- Usar CustomRoles
+                    await _context.CustomRoles.AddAsync(newCustomRole).ConfigureAwait(false);
                 }
                 else
                 {
@@ -55,21 +53,20 @@ namespace sicoain.api.Services
                         existingCustomRole.Name = identityRole.Name ?? string.Empty;
                         existingCustomRole.NormalizedName = identityRole.NormalizedName;
                         existingCustomRole.UpdatedAt = DateTime.UtcNow;
-                        _context.CustomRoles.Update(existingCustomRole); // <-- Usar CustomRoles
+                        _context.CustomRoles.Update(existingCustomRole);
                     }
                 }
             }
 
-            // 4. (Optional) Remove custom roles that no longer exist in Identity
-            var customRoleIds = customRoles.Select(r => r.Id).ToList();
-            var identityRoleIds = identityRoles.Select(r => r.Id).ToList();
-            var orphans = customRoleIds.Where(id => !identityRoleIds.Contains(id)).ToList();
+            // 4. Remove custom roles that no longer exist in Identity (orphans)
+            var identityRoleIds = identityRoles.Select(r => r.Id).ToHashSet();
+            var orphans = customRoles.Where(r => !identityRoleIds.Contains(r.IdentityRoleId)).ToList();
             if (orphans.Any())
             {
-                var rolesToRemove = customRoles.Where(r => orphans.Contains(r.Id)).ToList();
-                _context.CustomRoles.RemoveRange(rolesToRemove); // <-- Usar CustomRoles
+                _context.CustomRoles.RemoveRange(orphans);
             }
 
+            // 5. Save all changes
             await _context.SaveChangesAsync().ConfigureAwait(false);
         }
     }

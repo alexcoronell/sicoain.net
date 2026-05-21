@@ -4,6 +4,8 @@ namespace sicoain.shared.Entities
 {
     public class Roles : BaseEntity
     {
+        public int IdentityRoleId { get; set; }
+
         [Required]
         public required string Name { get; set; }
 
