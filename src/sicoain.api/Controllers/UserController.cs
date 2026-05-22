@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using sicoain.api.Abstractions;
+using sicoain.shared.DTOs;
 using sicoain.shared.DTOs.Users;
 
 namespace sicoain.api.Controllers
@@ -14,8 +15,23 @@ namespace sicoain.api.Controllers
             _userService = userService;
         }
 
+        [HttpGet]
+        [Authorize(Policy = "Users.View")]
+        public override async Task<ActionResult<PagedResponse<UserDto>>> GetAll([FromQuery] int pageNumber = 1, int pageSize = 10)
+        {
+            return await base.GetAll(pageNumber, pageSize).ConfigureAwait(false);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(Policy = "Users.View")]
+        public override async Task<ActionResult<UserDto>> GetById([FromRoute] int id)
+        {
+            return await base.GetById(id).ConfigureAwait(false);
+        }
+
+
         [HttpGet("email/{email}")]
-        [Authorize]
+        [Authorize(Policy = "Users.View")]
         public async Task<IActionResult> GetByEmailAsync([FromRoute] string email)
         {
             var user = await _userService.GetByEmailAsync(email).ConfigureAwait(false);
@@ -24,15 +40,39 @@ namespace sicoain.api.Controllers
         }
 
         [HttpGet("email-exists/{email}")]
-        [Authorize]
+        [Authorize(Policy = "Users.View")]
         public async Task<IActionResult> EmailExistsAsync([FromRoute] string email)
         {
             var exists = await _userService.EmailExistsAsync(email).ConfigureAwait(false);
             return Ok(new { exists });
         }
 
+        [HttpGet("roles/{id}")]
+        [Authorize(Policy = "Users.View")]
+        public async Task<IActionResult> GetUserRolesAsync([FromRoute] int id)
+        {
+            var result = await _userService.GetUserRolesAsync(id).ConfigureAwait(false);
+            return Ok(result ?? Enumerable.Empty<string>());
+        }
+
+
+        [HttpPost]
+        [Authorize(Policy = "Users.Create")]
+        public override async Task<ActionResult<UserDto>> Create([FromBody] CreateUserRequest request)
+        {
+            return await base.Create(request).ConfigureAwait(false);
+        }
+
+        [HttpPatch("{id}")]
+        [Authorize(Policy = "Users.Edit")]
+        public override async Task<ActionResult<UserDto>> Update(int id, [FromBody] UpdateUserRequest request)
+        {
+            return await base.Update(id, request).ConfigureAwait(false);
+        }
+
+
         [HttpPatch("assign-role/{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "Users.Edit")]
         public async Task<IActionResult> AssignRoleAsync([FromRoute] int id, [FromBody] AssignOrRemoveRoleRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -44,7 +84,7 @@ namespace sicoain.api.Controllers
         }
 
         [HttpPatch("remove-role/{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "Users.Edit")]
         public async Task<IActionResult> RemoveRoleAsync([FromRoute] int id, [FromBody] AssignOrRemoveRoleRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -56,7 +96,7 @@ namespace sicoain.api.Controllers
         }
 
         [HttpPatch("change-password/{id}")]
-        [Authorize]
+        [Authorize(Policy = "Users.Edit")]
         public async Task<IActionResult> ChangePasswordAsync([FromRoute] int id, [FromBody] ChangePasswordRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -78,12 +118,11 @@ namespace sicoain.api.Controllers
             return Ok(new { message = "Password changed successfully" });
         }
 
-        [HttpGet("roles/{id}")]
-        [Authorize]
-        public async Task<IActionResult> GetUserRolesAsync([FromRoute] int id)
+        [HttpDelete("{id}")]
+        [Authorize(Policy = "Users.Delete")]
+        public override async Task<IActionResult> Delete(int id)
         {
-            var result = await _userService.GetUserRolesAsync(id).ConfigureAwait(false);
-            return Ok(result ?? Enumerable.Empty<string>());
+            return await base.Delete(id).ConfigureAwait(false);
         }
     }
 }

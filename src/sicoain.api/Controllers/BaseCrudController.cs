@@ -44,8 +44,8 @@ namespace sicoain.api.Controllers
         [HttpPatch("{id}")]
         public virtual async Task<ActionResult<TDto>> Update(int id, [FromBody] TUpdateRequest request)
         {
-            var exists = await GetById(id).ConfigureAwait(false);
-            if (exists == null) return NotFound();
+            var dto = await _service.GetByIdAsync(id).ConfigureAwait(false);
+            if (dto == null) return NotFound();
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var updated = await _service.UpdateAsync(id, request).ConfigureAwait(false);
@@ -62,7 +62,7 @@ namespace sicoain.api.Controllers
         }
 
         // Helper to extract Id from DTO
-        private int GetId(TDto dto)
+        protected int GetId(TDto dto)
         {
             var property = dto?.GetType().GetProperty("Id");
             if (property == null) return 0;
