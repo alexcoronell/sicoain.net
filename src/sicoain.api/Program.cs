@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -107,6 +108,19 @@ builder.Services.AddAntiforgery(options =>
 // Authorization
 builder.Services.AddAuthorization();
 
+#pragma warning disable ASP0000
+using (var scope = builder.Services.BuildServiceProvider().CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var permissions = dbContext.Permissions.Select(p => p.Name).ToList();
+    foreach (var perm in permissions)
+    {
+        builder.Services.AddAuthorizationBuilder()
+            .AddPolicy(perm, policy => policy.RequireClaim("Permission", perm));
+    }
+}
+#pragma warning restore ASP0000
+
 // CORS - restrict to specific origins only
 builder.Services.AddCors(options =>
 {
@@ -166,6 +180,7 @@ builder.Services.AddScoped<ICookieManager, CookieManager>();
 builder.Services.AddScoped<IIpAddressProvider, IpAddressProvider>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IRoleSyncService, RoleSyncService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 
 // HttpContextAccessor (Necessary for CookieManager and IpAddressProvider
 builder.Services.AddHttpContextAccessor();

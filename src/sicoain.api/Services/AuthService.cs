@@ -19,6 +19,7 @@ public class AuthService : IAuthService
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly ICookieManager _cookieManager;
     private readonly IIpAddressProvider _ipProvider;
+    private readonly IPermissionService _permissionService;
 
     public AuthService(
         UserManager<User> userManager,
@@ -27,7 +28,8 @@ public class AuthService : IAuthService
         IRefreshTokenGenerator refreshTokenGenerator,
         IRefreshTokenRepository refreshTokenRepository,
         ICookieManager cookieManager,
-        IIpAddressProvider ipProvider)
+        IIpAddressProvider ipProvider,
+        IPermissionService permissionService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -36,6 +38,7 @@ public class AuthService : IAuthService
         _refreshTokenRepository = refreshTokenRepository;
         _cookieManager = cookieManager;
         _ipProvider = ipProvider;
+        _permissionService = permissionService;
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
@@ -64,7 +67,10 @@ public class AuthService : IAuthService
                 );
         }
 
-        var accessToken = _jwtGenerator.GenerateToken(user);
+        var permissionNames = await _permissionService.GetUserPermissionNameAsync(user).ConfigureAwait(false);
+        var permissionClaims = permissionNames.Select(pn => new Claim("Permission", pn)).ToList();
+
+        var accessToken = _jwtGenerator.GenerateToken(user, permissionClaims);
         var refreshToken = _refreshTokenGenerator.GenerateToken();
 
         var refreshTokenEntity = new RefreshToken

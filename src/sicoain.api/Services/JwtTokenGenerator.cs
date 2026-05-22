@@ -17,7 +17,7 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         _configuration = configuration;
     }
 
-    public string GenerateToken(User user)
+    public string GenerateToken(User user, List<Claim>? additionalClaims = null)
     {
         var jwtSettings = _configuration.GetSection("JwtSettings");
         var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!);
@@ -29,6 +29,11 @@ public class JwtTokenGenerator : IJwtTokenGenerator
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim("fullName", user.FullName)
         };
+
+        if (additionalClaims != null)
+        {
+            claims.AddRange(additionalClaims);
+        }
 
         var expirationMinutes = double.Parse(jwtSettings["ExpirationMinutes"]!, CultureInfo.InvariantCulture);
         var tokenDescriptor = new SecurityTokenDescriptor

@@ -33,3 +33,6 @@ dotnet_diagnostic.MA0006.severity = silent
 
 # MA0051: Disable Method is too long
 dotnet_diagnostic.MA0051.severity = silent
+
+# MA0016: Disable Prefer using collection abstraction instead of implementation
+dotnet_diagnostic.MA0016.severity = silent
