@@ -2,15 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace sicoain.shared.DTOs.Users
 {
-    public class UpdateUserRequest
+    public record UpdateUserRequest
     {
         [EmailAddress]
-        public string? Email { get; set; }
+        public string? Email { get; init; }
 
         [MinLength(2)]
         [MaxLength(100)]
-        public string? FullName { get; set; }
+        public string? FullName { get; init; }
 
-        public bool? IsActive { get; set; }
+        public bool? IsActive { get; init; }
     }
 }

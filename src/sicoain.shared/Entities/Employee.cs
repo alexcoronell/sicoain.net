@@ -47,11 +47,13 @@ namespace sicoain.shared.Entities
         [Column("alternative_address_street", TypeName = "varchar(200)")]
         public string? AlternativeAddressStreet { get; set; }
 
+        [Required]
         [Column("postal_code", TypeName = "varchar(20)")]
         public string? PostalCode { get; set; }
 
+        [Required]
         [Column("hiring_date", TypeName = "datetime")]
-        public DateTime? HiringDate { get; set; }
+        public required DateTime HiringDate { get; set; }
 
         [Column("termination_date", TypeName = "datetime")]
         public DateTime? TerminationDate { get; set; }

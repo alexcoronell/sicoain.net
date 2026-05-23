@@ -1,9 +1,9 @@
 namespace sicoain.shared.DTOs.Users
 {
-    public class UserDto : BaseDto
+    public record UserDto : BaseDto
     {
-        public string Email { get; set; } = string.Empty;
-        public string FullName { get; set; } = string.Empty;
-        public bool IsActive { get; set; }
+        public string Email { get; init; } = string.Empty;
+        public string FullName { get; init; } = string.Empty;
+        public bool IsActive { get; init; }
     }
 }
