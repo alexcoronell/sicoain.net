@@ -15,6 +15,8 @@ namespace sicoain.shared.Entities
 
         public required Department Department { get; set; }
 
+        public required int RiskClassId { get; set; }
+
         public RiskClass? RiskClass { get; set; }
 
         public ICollection<Employee>? Employees { get; set; }
