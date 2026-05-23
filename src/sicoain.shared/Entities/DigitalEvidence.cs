@@ -29,6 +29,7 @@ namespace sicoain.shared.Entities
 
         public string ChainOfCustody { get; set; } = string.Empty;
 
+        [Required]
         public int? AccidentId { get; set; }
 
         public Accident? Accident { get; set; }
