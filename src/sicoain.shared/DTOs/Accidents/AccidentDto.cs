@@ -1,5 +1,3 @@
-using sicoain.shared.Entities;
-
 namespace sicoain.shared.DTOs.Accident
 {
     public record AccidentDto : BaseDto
