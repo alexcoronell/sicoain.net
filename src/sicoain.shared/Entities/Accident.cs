@@ -5,7 +5,7 @@ namespace sicoain.shared.Entities
 {
     public class Accident : BaseEntity
     {
-        [Column("event_date", TypeName = "datetime")]
+        [Column("event_date", TypeName = "datetime2")]
         [Required]
         public DateTime EventDate { get; set; }
 

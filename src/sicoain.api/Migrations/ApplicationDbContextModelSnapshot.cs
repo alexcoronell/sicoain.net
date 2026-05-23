@@ -190,7 +190,7 @@ namespace sicoain.api.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("EventDate")
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("event_date");
 
                     b.Property<bool>("IsDeleted")
@@ -441,6 +441,10 @@ namespace sicoain.api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("PhoneType")
+                        .HasColumnType("int")
+                        .HasColumnName("phone_type");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -570,6 +574,10 @@ namespace sicoain.api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("PhoneType")
+                        .HasColumnType("int")
+                        .HasColumnName("phone_type");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -595,7 +603,7 @@ namespace sicoain.api.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("CompletionDate")
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("completion_date");
 
                     b.Property<DateTime>("CreatedAt")
@@ -615,7 +623,7 @@ namespace sicoain.api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DueDate")
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("due_date");
 
                     b.Property<bool>("IsDeleted")
@@ -880,8 +888,8 @@ namespace sicoain.api.Migrations
                     b.Property<int>("HealthPromotionEntityId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("HiringDate")
-                        .HasColumnType("datetime")
+                    b.Property<DateTime>("HiringDate")
+                        .HasColumnType("datetime2")
                         .HasColumnName("hiring_date");
 
                     b.Property<bool>("IsDeleted")
@@ -908,6 +916,7 @@ namespace sicoain.api.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PostalCode")
+                        .IsRequired()
                         .HasColumnType("varchar(20)")
                         .HasColumnName("postal_code");
 
@@ -931,7 +940,7 @@ namespace sicoain.api.Migrations
                         .HasColumnName("surname");
 
                     b.Property<DateTime?>("TerminationDate")
-                        .HasColumnType("datetime")
+                        .HasColumnType("datetime2")
                         .HasColumnName("termination_date");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -1075,6 +1084,10 @@ namespace sicoain.api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("PhoneType")
+                        .HasColumnType("int")
+                        .HasColumnName("phone_type");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -1157,9 +1170,13 @@ namespace sicoain.api.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PhoneNumber")
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PhoneType")
+                        .HasColumnType("int")
+                        .HasColumnName("phone_type");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1337,6 +1354,10 @@ namespace sicoain.api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("PhoneType")
+                        .HasColumnType("int")
+                        .HasColumnName("phone_type");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -1465,6 +1486,10 @@ namespace sicoain.api.Migrations
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PhoneType")
+                        .HasColumnType("int")
+                        .HasColumnName("phone_type");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1713,6 +1738,10 @@ namespace sicoain.api.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("RolePermissions");
                 });
@@ -2251,6 +2280,25 @@ namespace sicoain.api.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("sicoain.shared.Entities.RolePermissions", b =>
+                {
+                    b.HasOne("sicoain.shared.Entities.Permissions", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("sicoain.shared.Entities.Roles", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("sicoain.shared.Entities.Witness", b =>

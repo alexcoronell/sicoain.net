@@ -110,15 +110,23 @@ builder.Services.AddAuthorization();
 
 #pragma warning disable ASP0000
 using (var scope = builder.Services.BuildServiceProvider().CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    var permissions = dbContext.Permissions.Select(p => p.Name).ToList();
-    foreach (var perm in permissions)
+    try
     {
-        builder.Services.AddAuthorizationBuilder()
-            .AddPolicy(perm, policy => policy.RequireClaim("Permission", perm));
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var permissions = dbContext.Permissions.Select(p => p.Name).ToList();
+            foreach (var perm in permissions)
+            {
+                builder.Services.AddAuthorizationBuilder()
+                    .AddPolicy(perm, policy => policy.RequireClaim("Permission", perm));
+            }
+        }
     }
-}
+    catch
+    {
+        // Handle exceptions (e.g., database not available during startup)
+        Console.WriteLine("Warning: Could not load permissions from database. Authorization policies will not be registered.");
+    }
 #pragma warning restore ASP0000
 
 // CORS - restrict to specific origins only

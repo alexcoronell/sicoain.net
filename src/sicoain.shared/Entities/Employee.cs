@@ -52,10 +52,10 @@ namespace sicoain.shared.Entities
         public string? PostalCode { get; set; }
 
         [Required]
-        [Column("hiring_date", TypeName = "datetime")]
+        [Column("hiring_date", TypeName = "datetime2")]
         public required DateTime HiringDate { get; set; }
 
-        [Column("termination_date", TypeName = "datetime")]
+        [Column("termination_date", TypeName = "datetime2")]
         public DateTime? TerminationDate { get; set; }
 
         [Column(TypeName = "varchar(200)")]
