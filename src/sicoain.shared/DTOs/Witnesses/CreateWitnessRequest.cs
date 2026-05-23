@@ -12,7 +12,7 @@ namespace sicoain.shared.DTOs.Witnesses
 
         public string? WitnessName { get; init; }
         public string? WitnessContact { get; init; }
-        
+
         [Required, MinLength(50), MaxLength(500)]
         public required string Statement { get; init; }
     }
