@@ -9,6 +9,10 @@ namespace sicoain.shared.Entities
 
         public string? Description { get; set; }
 
+        public string? Email { get; set; }
+
+        public string? Phone { get; set; }
+
         public ICollection<Position>? Positions { get; set; }
     }
 }
