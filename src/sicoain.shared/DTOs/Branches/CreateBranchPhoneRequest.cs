@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace sicoain.shared.DTOs.Branch
+namespace sicoain.shared.DTOs.Branches
 {
     public record CreateBranchPhoneRequest : CreateEntityPhoneRequest
     {

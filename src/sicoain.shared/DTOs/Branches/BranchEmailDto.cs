@@ -1,4 +1,4 @@
-namespace sicoain.shared.DTOs.Branch
+namespace sicoain.shared.DTOs.Branches
 {
     public record BranchEmailDto : EntityEmailDto
     {

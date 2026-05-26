@@ -26,6 +26,7 @@ namespace sicoain.shared.DTOs.Employees
         public int? BranchId { get; init; }
         public int? HealthPromotionEntityId { get; init; }
         public int? OccupationalRiskAdministratorId { get; init; }
+        public int? DepartmentId { get; init; }
         public int? PositionId { get; init; }
     }
 }

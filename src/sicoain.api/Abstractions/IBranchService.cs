@@ -1,4 +1,4 @@
-using sicoain.shared.DTOs.Branch;
+using sicoain.shared.DTOs.Branches;
 
 namespace sicoain.api.Abstractions
 {

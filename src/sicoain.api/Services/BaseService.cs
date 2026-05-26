@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using sicoain.api.Abstractions;
 using sicoain.shared.DTOs;
 
-namespace sicoain.api.Services.Implementations
+namespace sicoain.api.Services
 {
     /// <summary>
     /// Generic base service implementing CRUD operations with pagination

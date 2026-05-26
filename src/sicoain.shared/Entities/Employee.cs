@@ -82,6 +82,9 @@ namespace sicoain.shared.Entities
         public required int OccupationalRiskAdministratorId { get; set; }
         public OccupationalRiskAdministrator? OccupationalRiskAdministrator { get; set; }
 
+        public required int DepartmentId { get; set; }
+        public Department? Department { get; set; }
+
         public required int PositionId { get; set; }
         public Position? Position { get; set; }
 

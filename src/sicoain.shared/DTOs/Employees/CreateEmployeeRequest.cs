@@ -64,6 +64,9 @@ namespace sicoain.shared.DTOs.Employees
         public required int OccupationalRiskAdministratorId { get; init; }
 
         [Required, Range(1, int.MaxValue)]
+        public required int DepartmentId { get; init; }
+
+        [Required, Range(1, int.MaxValue)]
         public required int PositionId { get; init; }
     }
 }

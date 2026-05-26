@@ -31,6 +31,8 @@ namespace sicoain.shared.DTOs.Employees
         public string HealthPromotionEntityName { get; init; } = string.Empty;
         public int OccupationalRiskAdministratorId { get; init; }
         public string OccupationalRiskAdministratorName { get; init; } = string.Empty;
+        public int DepartmentId { get; init; }
+        public string DepartmentName { get; init; } = string.Empty;
         public int PositionId { get; init; }
         public string PositionName { get; init; } = string.Empty;
     }

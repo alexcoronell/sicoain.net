@@ -36,3 +36,6 @@ dotnet_diagnostic.MA0051.severity = silent
 
 # MA0016: Disable Prefer using collection abstraction instead of implementation
 dotnet_diagnostic.MA0016.severity = silent
+
+# MA0015: Disable Specify the parameter name in ArgumentException
+dotnet_diagnostic.MA0015.severity = silent
