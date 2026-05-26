@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace sicoain.shared.DTOs.Deparments
+namespace sicoain.shared.DTOs.Departments
 {
     public record CreateDepartmentRequest
     {

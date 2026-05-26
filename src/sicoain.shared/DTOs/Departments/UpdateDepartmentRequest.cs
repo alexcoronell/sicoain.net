@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace sicoain.shared.DTOs.Deparments
+namespace sicoain.shared.DTOs.Departments
 {
     public record UpdateDepartmentRequest
     {
