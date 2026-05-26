@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Abstractions;
+using sicoain.api.Data;
 using sicoain.shared.DTOs;
 using sicoain.shared.DTOs.DigitalEvidences;
 using sicoain.shared.Entities;
@@ -10,10 +11,10 @@ namespace sicoain.api.Services
 {
     public class DigitalEvidenceService : IDigitalEvidenceService
     {
-        private readonly DbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
 
-        public DigitalEvidenceService(DbContext context, IMapper mapper)
+        public DigitalEvidenceService(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;

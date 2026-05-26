@@ -12,7 +12,7 @@ using sicoain.api.Data;
 namespace sicoain.api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260523210406_InitialCreate")]
+    [Migration("20260526194841_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -741,11 +741,17 @@ namespace sicoain.api.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -767,7 +773,7 @@ namespace sicoain.api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AccidentId")
+                    b.Property<int>("AccidentId")
                         .HasColumnType("int");
 
                     b.Property<string>("ChainOfCustody")
@@ -802,9 +808,8 @@ namespace sicoain.api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FileSize")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -868,6 +873,9 @@ namespace sicoain.api.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Diseases")
@@ -957,6 +965,8 @@ namespace sicoain.api.Migrations
                     b.HasIndex("BranchId");
 
                     b.HasIndex("BusinessId");
+
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("HealthPromotionEntityId");
 
@@ -1590,7 +1600,7 @@ namespace sicoain.api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("RiskClassId")
+                    b.Property<int>("RiskClassId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -2110,7 +2120,8 @@ namespace sicoain.api.Migrations
                     b.HasOne("sicoain.shared.Entities.Accident", "Accident")
                         .WithMany("DigitalEvidences")
                         .HasForeignKey("AccidentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Accident");
                 });
@@ -2127,6 +2138,12 @@ namespace sicoain.api.Migrations
                         .WithMany("Employees")
                         .HasForeignKey("BusinessId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("sicoain.shared.Entities.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("sicoain.shared.Entities.HealthPromotionEntity", "HealthPromotionEntity")
@@ -2150,6 +2167,8 @@ namespace sicoain.api.Migrations
                     b.Navigation("Branch");
 
                     b.Navigation("Business");
+
+                    b.Navigation("Department");
 
                     b.Navigation("HealthPromotionEntity");
 
@@ -2267,7 +2286,9 @@ namespace sicoain.api.Migrations
 
                     b.HasOne("sicoain.shared.Entities.RiskClass", "RiskClass")
                         .WithMany("Positions")
-                        .HasForeignKey("RiskClassId");
+                        .HasForeignKey("RiskClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Department");
 

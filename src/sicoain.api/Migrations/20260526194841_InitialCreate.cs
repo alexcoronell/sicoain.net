@@ -113,6 +113,8 @@ namespace sicoain.api.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -522,7 +524,7 @@ namespace sicoain.api.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DepartmentId = table.Column<int>(type: "int", nullable: false),
-                    RiskClassId = table.Column<int>(type: "int", nullable: true),
+                    RiskClassId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -544,7 +546,8 @@ namespace sicoain.api.Migrations
                         name: "FK_Positions_RiskClasses_RiskClassId",
                         column: x => x.RiskClassId,
                         principalTable: "RiskClasses",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -763,6 +766,7 @@ namespace sicoain.api.Migrations
                     BranchId = table.Column<int>(type: "int", nullable: false),
                     HealthPromotionEntityId = table.Column<int>(type: "int", nullable: false),
                     OccupationalRiskAdministratorId = table.Column<int>(type: "int", nullable: false),
+                    DepartmentId = table.Column<int>(type: "int", nullable: false),
                     PositionId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -787,6 +791,12 @@ namespace sicoain.api.Migrations
                         principalTable: "Businesses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Employees_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Employees_HealthPromotionEntities_HealthPromotionEntityId",
                         column: x => x.HealthPromotionEntityId,
@@ -974,14 +984,14 @@ namespace sicoain.api.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FilePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileSize = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileSize = table.Column<long>(type: "bigint", nullable: false),
                     MimeType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TakenAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TakenByName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ChainOfCustody = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AccidentId = table.Column<int>(type: "int", nullable: true),
+                    AccidentId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -1211,6 +1221,11 @@ namespace sicoain.api.Migrations
                 name: "IX_Employees_BusinessId",
                 table: "Employees",
                 column: "BusinessId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_DepartmentId",
+                table: "Employees",
+                column: "DepartmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Employees_HealthPromotionEntityId",

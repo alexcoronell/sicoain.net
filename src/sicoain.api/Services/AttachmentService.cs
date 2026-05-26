@@ -6,15 +6,16 @@ using sicoain.shared.DTOs.Attachments;
 using sicoain.shared.Enums;
 using sicoain.shared.Entities;
 using System.Security.Cryptography;
+using sicoain.api.Data;
 
 namespace sicoain.api.Services
 {
     public class AttachmentService : IAttachmentService
     {
-        private readonly DbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
 
-        public AttachmentService(DbContext context, IMapper mapper)
+        public AttachmentService(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;

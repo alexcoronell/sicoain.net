@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Abstractions;
+using sicoain.api.Data;
 using sicoain.shared.DTOs;
 
 namespace sicoain.api.Services
@@ -19,10 +20,10 @@ namespace sicoain.api.Services
         where TCreateRequest : class
         where TUpdateRequest : class
     {
-        protected readonly DbContext _context;
+        protected readonly ApplicationDbContext _context;
         protected readonly IMapper _mapper;
 
-        protected BaseService(DbContext context, IMapper mapper)
+        protected BaseService(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;

@@ -1,6 +1,5 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -189,6 +188,21 @@ builder.Services.AddScoped<IIpAddressProvider, IpAddressProvider>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IRoleSyncService, RoleSyncService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IAccidentService, AccidentService>();
+builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<IBusinessService, BusinessService>();
+builder.Services.AddScoped<ICorrectiveActionService, CorrectiveActionService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IDigitalEvidenceService, DigitalEvidenceService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
+builder.Services.AddScoped<IHealthPromotionEntityService, HealthPromotionEntityService>();
+builder.Services.AddScoped<IOccupationalRiskAdministratorService, OccupationalRiskAdministratorService>();
+builder.Services.AddScoped<IPositionService, PositionService>();
+builder.Services.AddScoped<IRiskClassService, RiskClassService>();
+builder.Services.AddScoped<IWitnessService, WitnessService>();
+
 
 // HttpContextAccessor (Necessary for CookieManager and IpAddressProvider
 builder.Services.AddHttpContextAccessor();
