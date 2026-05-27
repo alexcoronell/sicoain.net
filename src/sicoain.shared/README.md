@@ -3,9 +3,9 @@
 > **Shared domain model library for SG-SST (Sistema de Gestión de Seguridad y Salud en el Trabajo)**
 > A robust, production-ready .NET class library providing comprehensive entity models for occupational health and safety management, tailored for Colombian labor regulations.
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-purple?style=flat-square&logo=.net)](https://dotnet.microsoft.com)
-[![C#](https://img.shields.io/badge/C%23-12.0-239120?style=flat-square&logo=csharp)](https://learn.microsoft.com/en-us/dotnet/csharp)
-[![Entity Framework Core](https://img.shields.io/badge/EF%20Core-8.0-purple?style=flat-square&logo=microsoft)](https://learn.microsoft.com/en-us/ef/core)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple?style=flat-square&logo=.net)](https://dotnet.microsoft.com)
+[![C#](https://img.shields.io/badge/C%23-13.0-239120?style=flat-square&logo=csharp)](https://learn.microsoft.com/en-us/dotnet/csharp)
+[![Entity Framework Core](https://img.shields.io/badge/EF%20Core-10.0-purple?style=flat-square&logo=microsoft)](https://learn.microsoft.com/en-us/ef/core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-.NET%20Core-blue?style=flat-square)](https://dotnet.microsoft.com)
 
@@ -19,7 +19,7 @@ This library is designed to be the shared foundation across multiple application
 
 | Feature | Description |
 |---------|-------------|
-| **Soft Delete Pattern** | Built-in `IsDeleted` flag and `MarkAsDeleted()` method for safe data removal |
+| **Soft Delete Pattern** | Built-in `IsDeleted` flag, `MarkAsDeleted()` and `Restore()` methods |
 | **Audit Trail** | Automatic tracking of `CreatedAt`, `UpdatedAt`, `CreatedBy`, `UpdatedBy` |
 | **Colombian Documents** | Native support for `Cédula`, `Cédula de Extranjería`, `NIT`, `Pasaporte`, etc. |
 | **Domain Relationships** | Full entity navigation properties for Business → Branch → Employee |
@@ -32,9 +32,9 @@ This library is designed to be the shared foundation across multiple application
 
 | Category | Technology |
 |----------|------------|
-| **Framework** | [.NET 8.0](https://dotnet.microsoft.com) |
-| **Language** | [C# 12.0](https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-12) |
-| **ORM** | [Entity Framework Core 8.0](https://learn.microsoft.com/en-us/ef/core) |
+| **Framework** | [.NET 10.0](https://dotnet.microsoft.com) |
+| **Language** | [C# 13.0](https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-13) |
+| **ORM** | [Entity Framework Core 10.0](https://learn.microsoft.com/en-us/ef/core) |
 | **Validation** | [DataAnnotations](https://learn.microsoft.com/en-us/aspnet/core/mvc/models/validation) |
 | **Identity** | [ASP.NET Core Identity](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity) |
 
@@ -100,6 +100,9 @@ Or via the .csproj reference:
 | `RiskClass` | OSHA risk classification | Name, Level, Description |
 | `HealthPromotionEntity` | ARP (Colombian EPS) | Name, Code, Address |
 | `OccupationalRiskAdministrator` | ARL administrator | Name, Code, Address |
+| `Permissions` | RBAC permission definition | Module, Action, Description |
+| `Roles` | Role entity | Name, NormalizedName |
+| `RolePermissions` | Role-permission junction | RoleId, PermissionId |
 
 ### Contact Information Pattern
 
@@ -245,6 +248,9 @@ src/sicoain.shared/
 │   ├── RiskClass.cs     # OSHA risk class
 │   ├── HealthPromotionEntity.cs  # Colombian EPS
 │   ├── OccupationalRiskAdministrator.cs  # Colombian ARL
+│   ├── Permissions.cs       # RBAC permissions (Module, Action)
+│   ├── Roles.cs           # Role definitions
+│   ├── RolePermissions.cs # Role-permission junction
 │   └── Contact/*         # Contact entities (Phone, Email)
 ├── Enums/
 │   ├── DocumentType.cs       # Colombian documents
@@ -261,9 +267,13 @@ src/sicoain.shared/
 
 ### 1. Soft Delete Pattern
 ```csharp
-// Instead of hard deletion, mark as deleted
+// Soft delete an entity
 employee.MarkAsDeleted(currentUserId);
-// Query automatically filters: WHERE DeletedBy IS NULL
+
+// Restore a soft-deleted entity
+employee.Restore();
+
+// Query automatically filters: WHERE IsDeleted = false
 ```
 
 ### 2. Audit Trail

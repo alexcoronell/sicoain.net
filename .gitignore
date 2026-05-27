@@ -436,4 +436,7 @@ src/**/publish/
 src/**/.idea/
 src/**/.history/
 
+# Rider Language Server Cache
+*.lscache
+
 

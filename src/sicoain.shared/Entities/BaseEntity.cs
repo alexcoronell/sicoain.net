@@ -19,7 +19,7 @@ namespace sicoain.shared.Entities
 
         public int? DeletedBy { get; set; }
 
-        public bool IsDeleted => DeletedBy != null;
+        public bool IsDeleted { get; set; } = false;
 
         public void UpdateTimestamps(int userId)
         {
@@ -31,6 +31,14 @@ namespace sicoain.shared.Entities
         {
             DeletedBy = userId;
             DeletedAt = DateTime.UtcNow;
+            IsDeleted = true;
+        }
+
+        public void Restore()
+        {
+            DeletedBy = null;
+            DeletedAt = null;
+            IsDeleted = false;
         }
     }
 }

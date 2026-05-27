@@ -11,7 +11,7 @@ namespace sicoain.shared.Entities
         public required string FilePath { get; set; }
 
         [Required]
-        public required string FileSize { get; set; }
+        public required long FileSize { get; set; }
 
         [Required]
         public required string MimeType { get; set; }
@@ -29,6 +29,7 @@ namespace sicoain.shared.Entities
 
         public string ChainOfCustody { get; set; } = string.Empty;
 
+        [Required]
         public int? AccidentId { get; set; }
 
         public Accident? Accident { get; set; }

@@ -15,7 +15,7 @@ namespace sicoain.shared.Entities
 
         public required Employee Employee { get; set; }
 
-        public ICollection<EmployeeContactPhone>? EmployeeContactPhones { get; }
-        public ICollection<EmployeeContactEmail>? EmployeeContactEmails { get; }
+        public ICollection<EmployeeContactPhone>? EmployeeContactPhones { get; set; }
+        public ICollection<EmployeeContactEmail>? EmployeeContactEmails { get; set; }
     }
 }

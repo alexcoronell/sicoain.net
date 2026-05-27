@@ -47,13 +47,15 @@ namespace sicoain.shared.Entities
         [Column("alternative_address_street", TypeName = "varchar(200)")]
         public string? AlternativeAddressStreet { get; set; }
 
+        [Required]
         [Column("postal_code", TypeName = "varchar(20)")]
         public string? PostalCode { get; set; }
 
-        [Column("hiring_date", TypeName = "datetime")]
-        public DateTime? HiringDate { get; set; }
+        [Required]
+        [Column("hiring_date", TypeName = "datetime2")]
+        public required DateTime HiringDate { get; set; }
 
-        [Column("termination_date", TypeName = "datetime")]
+        [Column("termination_date", TypeName = "datetime2")]
         public DateTime? TerminationDate { get; set; }
 
         [Column(TypeName = "varchar(200)")]
@@ -80,16 +82,21 @@ namespace sicoain.shared.Entities
         public required int OccupationalRiskAdministratorId { get; set; }
         public OccupationalRiskAdministrator? OccupationalRiskAdministrator { get; set; }
 
+        public required int DepartmentId { get; set; }
+        public Department? Department { get; set; }
+
         public required int PositionId { get; set; }
         public Position? Position { get; set; }
 
         /********** Collections **********/
-        public ICollection<EmployeePhone>? EmployeePhones { get; }
-        public ICollection<EmployeeEmail>? EmployeeEmails { get; }
+        public ICollection<EmployeePhone>? EmployeePhones { get; set; }
+        public ICollection<EmployeeEmail>? EmployeeEmails { get; set; }
 
-        public ICollection<EmployeeContact>? EmployeeContacts { get; }
+        public ICollection<EmployeeContact>? EmployeeContacts { get; set; }
 
-        public ICollection<Witness>? Witnesses { get; }
+        public ICollection<Witness>? Witnesses { get; set; }
+
+        public ICollection<Accident>? Accidents { get; set; }
 
     }
 }

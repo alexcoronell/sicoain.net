@@ -14,7 +14,7 @@ namespace sicoain.shared.Entities
         public required string FilePath { get; set; }
 
         [Required]
-        public required string FileSize { get; set; }
+        public required long FileSize { get; set; }
 
         [Required]
         public required string MimeType { get; set; }

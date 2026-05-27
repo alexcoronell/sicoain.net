@@ -13,7 +13,7 @@ namespace sicoain.shared.Entities
         [Required]
         public required string Description { get; set; } = string.Empty;
 
-        [Column("due_date", TypeName = "datetime")]
+        [Column("due_date", TypeName = "datetime2")]
         public DateTime? DueDate { get; set; }
 
         [Required]
@@ -24,7 +24,7 @@ namespace sicoain.shared.Entities
         [Column(TypeName = "varchar(100)")]
         public required Priority Priority { get; set; }
 
-        [Column("completion_date", TypeName = "datetime")]
+        [Column("completion_date", TypeName = "datetime2")]
         public DateTime? CompletionDate { get; set; }
 
         public string? VerificationNotes { get; set; } = string.Empty;
@@ -32,7 +32,12 @@ namespace sicoain.shared.Entities
         [Column("is_effective", TypeName = "bit")]
         public bool IsEffective { get; set; }
 
+        [Required]
+        public int AccidentId { get; set; }
+
         /********** Collections **********/
-        public ICollection<CorrectiveActionTracking>? Trackings { get; }
+        public ICollection<CorrectiveActionTracking>? Trackings { get; set; }
+
+        public Accident? Accident { get; set; }
     }
 }

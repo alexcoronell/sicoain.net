@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using sicoain.shared.Enums;
 
 namespace sicoain.shared.Entities
 {
@@ -8,9 +9,8 @@ namespace sicoain.shared.Entities
         [Required]
         public required string Name { get; set; }
 
-        [Column("level_of_severity", TypeName = "varchar(50)")]
         [Required]
-        public required string LevelOfSeverity { get; set; }
+        public required AccidentSeverity LevelOfSeverity { get; set; }
 
         public bool RequiresHospitalization { get; set; }
     }

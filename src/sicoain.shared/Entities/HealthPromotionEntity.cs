@@ -14,6 +14,6 @@ namespace sicoain.shared.Entities
 
         public string? Notes { get; set; }
 
-        public ICollection<Employee>? Employees { get; }
+        public ICollection<Employee>? Employees { get; set; }
     }
 }
