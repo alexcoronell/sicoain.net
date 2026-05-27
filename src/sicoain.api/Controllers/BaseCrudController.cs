@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using sicoain.api.Abstractions;
 using sicoain.shared.DTOs;
 
 namespace sicoain.api.Controllers
 {
+    [Authorize]
     public abstract class BaseCrudController<TDto, TCreateRequest, TUpdateRequest> : BaseApiController
         where TDto : class
         where TCreateRequest : class

@@ -29,7 +29,7 @@ namespace sicoain.api.Controllers
 
         [HttpPost("refresh")]
         [AllowAnonymous]
-        public async Task<IActionResult> Refrash()
+        public async Task<IActionResult> Refresh()
         {
             var response = await _authService.RefreshTokenAsync().ConfigureAwait(false);
 

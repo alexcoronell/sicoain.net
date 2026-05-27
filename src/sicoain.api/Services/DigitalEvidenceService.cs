@@ -44,7 +44,7 @@ namespace sicoain.api.Services
             return entity == null ? null : _mapper.Map<DigitalEvidenceDto>(entity);
         }
 
-        public async Task<IEnumerable<DigitalEvidenceDto>> GetByAccidenteIdAsync(int accidentId)
+        public async Task<IEnumerable<DigitalEvidenceDto>> GetByAccidentIdAsync(int accidentId)
         {
             var query = _context.Set<DigitalEvidence>()
                 .Where(a => a.AccidentId == accidentId)

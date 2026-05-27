@@ -10,6 +10,7 @@ using sicoain.api.Abstractions;
 using sicoain.shared.Entities;
 using sicoain.api.Repositories;
 using sicoain.api.Data.Seeders;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -208,7 +209,10 @@ builder.Services.AddScoped<IWitnessService, WitnessService>();
 builder.Services.AddHttpContextAccessor();
 
 // Controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
