@@ -1,7 +1,7 @@
 using FluentValidation;
 using sicoain.shared.DTOs.CorrectiveActions;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.CorrectiveActions
 {
     public class CreateCorrectiveActionRequestValidator : AbstractValidator<CreateCorrectiveActionRequest>
     {

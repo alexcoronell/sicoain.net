@@ -1,7 +1,7 @@
 using FluentValidation;
 using sicoain.shared.DTOs.Business;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.Businesses
 {
     public class UpdateBusinessEmailRequestValidator : AbstractValidator<UpdateBusinessEmailRequest>
     {
