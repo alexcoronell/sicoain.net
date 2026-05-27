@@ -11,6 +11,8 @@ using sicoain.shared.Entities;
 using sicoain.api.Repositories;
 using sicoain.api.Data.Seeders;
 using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -213,6 +215,19 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 });
+
+// FluentValidation
+builder.Services.AddFluentValidationAutoValidation(options =>
+{
+    options.DisableDataAnnotationsValidation = true;
+});
+
+// Validation client side (optional)
+builder.Services.AddFluentValidationClientsideAdapters();
+
+// Register Validators
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
