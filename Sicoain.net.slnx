@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="tests/sicoain.UnitTests/sicoain.UnitTests.csproj" />
   <Project Path="src/sicoain.api/sicoain.api.csproj" />
   <Project Path="src/sicoain.client/sicoain.client.csproj" />
   <Project Path="src/sicoain.shared/sicoain.shared.csproj" />
