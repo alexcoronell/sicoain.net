@@ -1,7 +1,7 @@
 using FluentValidation;
 using sicoain.shared.DTOs.RiskClasses;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.RiskClasses
 {
     public class CreateRiskClassRequestValidator : AbstractValidator<CreateRiskClassRequest>
     {

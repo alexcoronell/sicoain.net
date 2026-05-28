@@ -2,7 +2,7 @@ using FluentValidation;
 using sicoain.shared.DTOs.AccidentTypes;
 using sicoain.shared.Enums;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.AccidentTypes
 {
     public class UpdateAccidentTypeRequestValidator : AbstractValidator<UpdateAccidentTypeRequest>
     {

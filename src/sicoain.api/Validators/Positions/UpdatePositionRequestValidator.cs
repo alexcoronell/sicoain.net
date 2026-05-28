@@ -1,7 +1,7 @@
 using FluentValidation;
 using sicoain.shared.DTOs.Positions;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.Positions
 {
     public class UpdatePositionRequestValidator : AbstractValidator<UpdatePositionRequest>
     {

@@ -1,7 +1,7 @@
 using FluentValidation;
 using sicoain.shared.DTOs.AccidentTypes;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.AccidentTypes
 {
     public class CreateAccidentTypeRequestValidator : AbstractValidator<CreateAccidentTypeRequest>
     {

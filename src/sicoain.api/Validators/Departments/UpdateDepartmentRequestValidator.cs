@@ -1,18 +1,19 @@
 using FluentValidation;
 using sicoain.shared.DTOs.Departments;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.Departments
 {
-    public class CreateDepartmentRequestValidator : AbstractValidator<CreateDepartmentRequest>
+    public class UpdateDepartmentRequestValidator : AbstractValidator<UpdateDepartmentRequest>
     {
-        public CreateDepartmentRequestValidator()
+        public UpdateDepartmentRequestValidator()
         {
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Department name is required.")
-                .Length(3, 100).WithMessage("Department name must be between 3 and 100 characters.");
+                .Length(3, 100).When(x => !string.IsNullOrWhiteSpace(x.Name))
+                .WithMessage("Department name must be between 3 and 100 characters.");
 
             RuleFor(x => x.Description)
-                .MaximumLength(250).WithMessage("Description cannot exceed 250 characters.");
+                .MaximumLength(250).When(x => !string.IsNullOrWhiteSpace(x.Description))
+                .WithMessage("Description cannot exceed 250 characters.");
 
             RuleFor(x => x.Email)
                 .EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email))

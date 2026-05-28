@@ -1,8 +1,7 @@
 using FluentValidation;
 using sicoain.shared.DTOs.EventCategories;
-using sicoain.shared.Enums;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.EventCategories
 {
     public class UpdateEventCategoryRequestValidator : AbstractValidator<UpdateEventCategoryRequest>
     {
