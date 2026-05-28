@@ -1,7 +1,7 @@
 # sicoain.api
 
-> **RESTful Web API for SG-SST (Sistema de Gestión de Seguridad y Salud en el Trabajo)**
-> A production-grade ASP.NET Core Web API providing secure, permission-based access to occupational health and safety management data, built for Colombian labor regulations.
+> **RESTful Web API for SICOAIN — Sistema de Control de Accidentes e Incidentes**
+> A production-grade ASP.NET Core Web API providing secure, permission-based access to occupational accident and incident control data, built for Colombian labor regulations.
 
 [![.NET](https://img.shields.io/badge/.NET-10.0.7-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
 [![C#](https://img.shields.io/badge/C%23-13-239120?style=flat-square&logo=csharp)](https://learn.microsoft.com/en-us/dotnet/csharp)
@@ -57,7 +57,7 @@
 
 ## Overview
 
-**sicoain.api** is the RESTful API backend of the sicoain.net ecosystem, serving as the authoritative data layer for occupational health and safety management. It exposes a versioned HTTP API consumed by the Blazor WebAssembly client (`sicoain.client`) and integrates with `sicoain.shared` for domain entities and DTOs.
+**sicoain.api** is the RESTful API backend of the sicoain.net ecosystem, serving as the authoritative data layer for occupational accident and incident control. It exposes a versioned HTTP API consumed by the Blazor WebAssembly client (`sicoain.client`) and integrates with `sicoain.shared` for domain entities and DTOs.
 
 ### Key Capabilities
 

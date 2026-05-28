@@ -1,7 +1,7 @@
 # sicoain.shared
 
-> **Domain-driven shared library for SG-SST (Sistema de Gestión de Seguridad y Salud en el Trabajo)**
-> A .NET class library providing entities, DTOs, enumerations, and constants for building occupational health and safety management systems compliant with **Colombian labor regulations**.
+> **Domain-driven shared library for SICOAIN — Sistema de Control de Accidentes e Incidentes**
+> A .NET class library providing entities, DTOs, enumerations, and constants for building occupational accident and incident control systems compliant with **Colombian labor regulations**.
 
 [![.NET](https://img.shields.io/badge/.NET-10.0.7-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
 [![C#](https://img.shields.io/badge/C%23-13-239120?style=flat-square&logo=csharp)](https://learn.microsoft.com/en-us/dotnet/csharp)
