@@ -362,5 +362,48 @@ namespace sicoain.UnitTests.Services
             // Assert
             result.Should().BeEmpty();
         }
+
+        [Fact]
+        public async Task ChangePasswordAsync_WhenUserNotFoundOrDeleted_ReturnsFalse()
+        {
+            // Arrange - user not found
+            _userManagerMock.Setup(x => x.FindByIdAsync("999"))
+                .ReturnsAsync((User?)null);
+            var request = new ChangePasswordRequest
+            {
+                CurrentPassword = "old",
+                NewPassword = "new",
+                ConfirmNewPassword = "new"
+            };
+
+            // Act
+            var result = await _service.ChangePasswordAsync(999, request);
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task ChangePasswordAsync_WhenValid_ReturnsTrue()
+        {
+            // Arrange
+            var user = new User { Id = 15, FullName = "User Fifteen", IsDeleted = false };
+            _userManagerMock.Setup(x => x.FindByIdAsync("15"))
+                .ReturnsAsync(user);
+            _userManagerMock.Setup(x => x.ChangePasswordAsync(user, "old", "new"))
+                .ReturnsAsync(IdentityResult.Success);
+            var request = new ChangePasswordRequest
+            {
+                CurrentPassword = "old",
+                NewPassword = "new",
+                ConfirmNewPassword = "new"
+            };
+
+            // Act
+            var result = await _service.ChangePasswordAsync(15, request);
+
+            // Assert
+            result.Should().BeTrue();
+        }
     }
 }
