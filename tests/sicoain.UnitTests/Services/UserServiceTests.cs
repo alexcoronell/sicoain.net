@@ -1,9 +1,11 @@
 using AutoMapper;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using sicoain.api.Abstractions;
+using sicoain.api.Data;
 using sicoain.api.Services;
 using sicoain.shared.DTOs;
 using sicoain.shared.DTOs.Users;
@@ -182,6 +184,183 @@ namespace sicoain.UnitTests.Services
 
             // Assert
             result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task GetAllAsync_ShouldReturnPagedUsers()
+        {
+            // Arrange
+            var contextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            var context = new ApplicationDbContext(contextOptions);
+            context.Users.AddRange(
+                new User { Id = 1, UserName = "a@b.com", Email = "a@b.com", FullName = "User A", IsDeleted = false },
+                new User { Id = 2, UserName = "c@d.com", Email = "c@d.com", FullName = "User C", IsDeleted = false },
+                new User { Id = 3, UserName = "e@f.com", Email = "e@f.com", FullName = "User E", IsDeleted = false }
+            );
+            await context.SaveChangesAsync();
+
+            var userStore = new UserStore<User, IdentityRole<int>, ApplicationDbContext, int>(context);
+            var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+            var service = new UserService(userManager, _roleManagerMock.Object, _mapper);
+
+            // Act
+            var result = await service.GetAllAsync(1, 10);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Items.Should().HaveCount(3);
+            result.TotalCount.Should().Be(3);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_ShouldExcludeDeletedUsers()
+        {
+            // Arrange
+            var contextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            var context = new ApplicationDbContext(contextOptions);
+            context.Users.AddRange(
+                new User { Id = 1, UserName = "active@b.com", Email = "active@b.com", FullName = "Active", IsDeleted = false },
+                new User { Id = 2, UserName = "deleted@d.com", Email = "deleted@d.com", FullName = "Deleted", IsDeleted = true }
+            );
+            await context.SaveChangesAsync();
+
+            var userStore = new UserStore<User, IdentityRole<int>, ApplicationDbContext, int>(context);
+            var userManager = new UserManager<User>(userStore, null, null, null, null, null, null, null, null);
+            var service = new UserService(userManager, _roleManagerMock.Object, _mapper);
+
+            // Act
+            var result = await service.GetAllAsync(1, 10);
+
+            // Assert
+            result.Items.Should().HaveCount(1);
+            result.Items.Should().ContainSingle(u => u.Email == "active@b.com");
+        }
+
+        [Fact]
+        public async Task GetByEmailAsync_WhenExists_ReturnsUser()
+        {
+            // Arrange
+            var user = new User { Id = 10, Email = "find@me.com", FullName = "Find Me", IsDeleted = false };
+            _userManagerMock.Setup(x => x.FindByEmailAsync("find@me.com"))
+                .ReturnsAsync(user);
+
+            // Act
+            var result = await _service.GetByEmailAsync("find@me.com");
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.Email.Should().Be("find@me.com");
+        }
+
+        [Fact]
+        public async Task GetByEmailAsync_WhenNotFound_ReturnsNull()
+        {
+            // Arrange
+            _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync((User?)null);
+
+            // Act
+            var result = await _service.GetByEmailAsync("nonexistent@test.com");
+
+            // Assert
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task EmailExistsAsync_WhenExists_ReturnsTrue()
+        {
+            // Arrange
+            var user = new User { Id = 1, Email = "exists@test.com", FullName = "Exists" };
+            _userManagerMock.Setup(x => x.FindByEmailAsync("exists@test.com"))
+                .ReturnsAsync(user);
+
+            // Act
+            var result = await _service.EmailExistsAsync("exists@test.com");
+
+            // Assert
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task EmailExistsAsync_WhenNotExists_ReturnsFalse()
+        {
+            // Arrange
+            _userManagerMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync((User?)null);
+
+            // Act
+            var result = await _service.EmailExistsAsync("nobody@test.com");
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task RemoveRoleAsync_WhenUserAndRoleExist_ReturnsTrue()
+        {
+            // Arrange
+            var user = new User { Id = 11, FullName = "User Eleven", IsDeleted = false };
+            _userManagerMock.Setup(x => x.FindByIdAsync("11"))
+                .ReturnsAsync(user);
+            _userManagerMock.Setup(x => x.RemoveFromRoleAsync(user, "Editor"))
+                .ReturnsAsync(IdentityResult.Success);
+
+            // Act
+            var result = await _service.RemoveRoleAsync(11, "Editor");
+
+            // Assert
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task RemoveRoleAsync_WhenUserDeleted_ReturnsFalse()
+        {
+            // Arrange
+            var user = new User { Id = 12, FullName = "User Twelve", IsDeleted = true };
+            _userManagerMock.Setup(x => x.FindByIdAsync("12"))
+                .ReturnsAsync(user);
+
+            // Act
+            var result = await _service.RemoveRoleAsync(12, "Editor");
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task GetUserRolesAsync_WhenUserExists_ReturnsRoles()
+        {
+            // Arrange
+            var user = new User { Id = 13, FullName = "User Thirteen", IsDeleted = false };
+            _userManagerMock.Setup(x => x.FindByIdAsync("13"))
+                .ReturnsAsync(user);
+            _userManagerMock.Setup(x => x.GetRolesAsync(user))
+                .ReturnsAsync(new List<string> { "Admin", "User" });
+
+            // Act
+            var result = await _service.GetUserRolesAsync(13);
+
+            // Assert
+            result.Should().BeEquivalentTo(new[] { "Admin", "User" });
+        }
+
+        [Fact]
+        public async Task GetUserRolesAsync_WhenUserDeleted_ReturnsEmpty()
+        {
+            // Arrange
+            var user = new User { Id = 14, FullName = "User Fourteen", IsDeleted = true };
+            _userManagerMock.Setup(x => x.FindByIdAsync("14"))
+                .ReturnsAsync(user);
+
+            // Act
+            var result = await _service.GetUserRolesAsync(14);
+
+            // Assert
+            result.Should().BeEmpty();
         }
     }
 }
