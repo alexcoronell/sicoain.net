@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using sicoain.shared.Enums;
 
 namespace sicoain.shared.DTOs.EventCategories
 {
-    public class UpdateEventCategoryRequest
+    public record UpdateEventCategoryRequest
     {
         public string? Name { get; init; }
         public AccidentSeverity? LevelOfSeverity { get; init; }

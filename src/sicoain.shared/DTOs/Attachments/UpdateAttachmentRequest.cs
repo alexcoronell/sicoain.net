@@ -1,6 +1,6 @@
 namespace sicoain.shared.DTOs.Attachments
 {
-    public class UpdateAttachmentRequest
+    public record UpdateAttachmentRequest
     {
         public string? Description { get; init; }
     }
