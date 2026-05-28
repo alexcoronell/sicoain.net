@@ -1,7 +1,7 @@
 using FluentValidation;
 using sicoain.shared.DTOs.DigitalEvidences;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.DigitalEvidences
 {
     public class UpdateDigitalEvidenceRequestValidator : AbstractValidator<UpdateDigitalEvidenceRequest>
     {

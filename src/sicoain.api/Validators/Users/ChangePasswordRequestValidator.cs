@@ -1,7 +1,7 @@
 using FluentValidation;
 using sicoain.shared.DTOs.Users;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.Users
 {
     public class ChangePasswordRequestValidator : AbstractValidator<ChangePasswordRequest>
     {

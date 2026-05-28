@@ -1,11 +1,11 @@
 using FluentValidation;
-using sicoain.shared.DTOs.Attachments;
+using sicoain.shared.DTOs.DigitalEvidences;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.DigitalEvidences
 {
-    public class CreateAttachmentRequestValidator : AbstractValidator<CreateAttachmentRequest>
+    public class CreateDigitalEvidenceRequestValidator : AbstractValidator<CreateDigitalEvidenceRequest>
     {
-        public CreateAttachmentRequestValidator()
+        public CreateDigitalEvidenceRequestValidator()
         {
             RuleFor(x => x.FileName)
                 .NotEmpty().WithMessage("File name is required.")
@@ -18,11 +18,19 @@ namespace sicoain.api.Validators
             RuleFor(x => x.Description)
                 .MaximumLength(500).WithMessage("Description cannot exceed 500 characters.");
 
-            RuleFor(x => x.EntityType)
-                .IsInEnum().WithMessage("Invalid entity type.");
+            RuleFor(x => x.TakenAt)
+                .NotEmpty().WithMessage("Taken date is required.")
+                .LessThanOrEqualTo(DateTime.UtcNow).WithMessage("Taken date cannot be in the future.");
 
-            RuleFor(x => x.EntityId)
-                .GreaterThan(0).WithMessage("EntityId must be a valid identifier.");
+            RuleFor(x => x.TakenByName)
+                .MaximumLength(150).WithMessage("Taken by name cannot exceed 150 characters.");
+
+            RuleFor(x => x.ChainOfCustody)
+                .MaximumLength(500).WithMessage("Chain of custody cannot exceed 500 characters.");
+
+            RuleFor(x => x.AccidentId)
+                .GreaterThan(0).When(x => x.AccidentId.HasValue)
+                .WithMessage("AccidentId must be a valid identifier.");
 
             RuleFor(x => x.Base64Content)
                 .NotEmpty().WithMessage("File content is required.")

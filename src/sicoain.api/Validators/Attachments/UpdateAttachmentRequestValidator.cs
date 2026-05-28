@@ -1,7 +1,7 @@
 using FluentValidation;
 using sicoain.shared.DTOs.Attachments;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.Attachments
 {
     public class UpdateAttachmentRequestValidator : AbstractValidator<UpdateAttachmentRequest>
     {
