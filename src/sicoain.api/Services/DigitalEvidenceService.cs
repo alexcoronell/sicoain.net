@@ -57,6 +57,12 @@ namespace sicoain.api.Services
             return _mapper.Map<IEnumerable<DigitalEvidenceDto>>(items);
         }
 
+        /// <summary>
+        /// Returns the base path used for file storage. Override in tests to avoid
+        /// depending on the global current directory.
+        /// </summary>
+        protected virtual string GetCurrentBasePath() => Directory.GetCurrentDirectory();
+
         public async Task<DigitalEvidenceDto> UploadAsync(CreateDigitalEvidenceRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Base64Content)) throw new ArgumentException("File content is required");
@@ -73,7 +79,7 @@ namespace sicoain.api.Services
             var hashBytes = sha256.ComputeHash(fileBytes);
             var fileHash = Convert.ToHexString(hashBytes).ToLower();
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            var uploadsFolder = Path.Combine(GetCurrentBasePath(), "wwwroot", "uploads");
 
             if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
@@ -84,7 +90,7 @@ namespace sicoain.api.Services
             var digitalEvidence = new DigitalEvidence
             {
                 FileName = request.FileName,
-                FilePath = filePath,
+                FilePath = $"/uploads/{uniqueFileName}",
                 FileSize = fileBytes.Length,
                 MimeType = request.MimeType,
                 FileHash = fileHash,
@@ -104,6 +110,9 @@ namespace sicoain.api.Services
         {
             var digitalEvidence = await _context.Set<DigitalEvidence>().FindAsync(id).ConfigureAwait(false);
             if (digitalEvidence == null) throw new KeyNotFoundException("Digital evidence not found");
+
+            if (request.Description != null) digitalEvidence.Description = request.Description;
+
             _context.Set<DigitalEvidence>().Update(digitalEvidence);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return _mapper.Map<DigitalEvidenceDto>(digitalEvidence);
@@ -115,7 +124,7 @@ namespace sicoain.api.Services
 
             if (digitalEvidence == null) throw new KeyNotFoundException("Digital evidence not found");
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", digitalEvidence.FilePath.TrimStart('/'));
+            var filePath = Path.Combine(GetCurrentBasePath(), "wwwroot", digitalEvidence.FilePath.TrimStart('/'));
             if (File.Exists(filePath)) File.Delete(filePath);
 
             _context.Set<DigitalEvidence>().Remove(digitalEvidence);

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace sicoain.shared.DTOs.HealthPromotionEntities
 {
-    public class CreateHealthPromotionEntityRequest
+    public record CreateHealthPromotionEntityRequest
     {
         [Required, MinLength(3), MaxLength(100)]
         public string? Name { get; init; }

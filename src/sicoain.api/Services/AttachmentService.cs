@@ -54,6 +54,12 @@ namespace sicoain.api.Services
             return _mapper.Map<IEnumerable<AttachmentDto>>(attachments);
         }
 
+        /// <summary>
+        /// Returns the base path used for file storage. Override in tests to avoid
+        /// depending on the global current directory.
+        /// </summary>
+        protected virtual string GetCurrentBasePath() => Directory.GetCurrentDirectory();
+
         public async Task<AttachmentDto> UploadAsync(CreateAttachmentRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Base64Content)) throw new ArgumentException("File content is required");
@@ -72,7 +78,7 @@ namespace sicoain.api.Services
             var hashBytes = sha256.ComputeHash(fileBytes);
             var fileHash = Convert.ToHexString(hashBytes).ToLower();
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            var uploadsFolder = Path.Combine(GetCurrentBasePath(), "wwwroot", "uploads");
 
             if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
@@ -118,7 +124,7 @@ namespace sicoain.api.Services
 
             if (attachment == null) throw new KeyNotFoundException("Attachment not found");
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", attachment.FilePath.TrimStart('/'));
+            var filePath = Path.Combine(GetCurrentBasePath(), "wwwroot", attachment.FilePath.TrimStart('/'));
             if (File.Exists(filePath)) File.Delete(filePath);
 
             _context.Set<Attachment>().Remove(attachment);

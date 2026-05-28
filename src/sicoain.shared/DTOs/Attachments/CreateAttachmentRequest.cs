@@ -3,7 +3,7 @@ using sicoain.shared.Enums;
 
 namespace sicoain.shared.DTOs.Attachments
 {
-    public class CreateAttachmentRequest
+    public record CreateAttachmentRequest
     {
         [Required]
         public required string FileName { get; init; }
