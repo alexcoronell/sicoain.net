@@ -1,7 +1,7 @@
 using FluentValidation;
 using sicoain.shared.DTOs.HealthPromotionEntities;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.HealthPromotionEntities
 {
     public class CreateHealthPromotionEntityEmailRequestValidator : BaseCreateEntityEmailRequestValidator<CreateHealthPromotionEntityEmailRequest>
     {

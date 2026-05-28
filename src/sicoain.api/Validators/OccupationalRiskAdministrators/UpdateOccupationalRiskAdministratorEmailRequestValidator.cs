@@ -1,7 +1,7 @@
 using FluentValidation;
 using sicoain.shared.DTOs.OccupationalRiskAdministrators;
 
-namespace sicoain.api.Validators
+namespace sicoain.api.Validators.OccupationalRiskAdministrators
 {
     public class UpdateOccupationalRiskAdministratorEmailRequestValidator : AbstractValidator<UpdateOccupationalRiskAdministratorEmailRequest>
     {
