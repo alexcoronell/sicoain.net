@@ -23,6 +23,15 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <Using Include="Microsoft.AspNetCore.Hosting" />
+    <Using Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <Using Include="Microsoft.EntityFrameworkCore" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="System.Net" />
+    <Using Include="System.Net.Http" />
+    <Using Include="Microsoft.AspNetCore.TestHost" />
+    <Using Include="Microsoft.Extensions.Configuration" />
+    <Using Include="sicoain.api.Data" />
   </ItemGroup>
 
   <ItemGroup>
