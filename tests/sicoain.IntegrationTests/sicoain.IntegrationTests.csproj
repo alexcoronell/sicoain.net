@@ -32,11 +32,19 @@
     <Using Include="Microsoft.AspNetCore.TestHost" />
     <Using Include="Microsoft.Extensions.Configuration" />
     <Using Include="sicoain.api.Data" />
+    <Using Include="Microsoft.AspNetCore.Identity" />
+    <Using Include="sicoain.shared.Entities" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\sicoain.shared\sicoain.shared.csproj" />
     <ProjectReference Include="..\..\src\sicoain.api\sicoain.api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.IntegrationTests.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

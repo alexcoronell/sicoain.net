@@ -20,7 +20,7 @@ public class CookieManager : ICookieManager
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = !httpContext.Request.IsHttps,
+            Secure = httpContext.Request.IsHttps,
             SameSite = SameSiteMode.Strict,
             Expires = DateTime.UtcNow.AddMinutes(minutes)
         };
@@ -45,7 +45,7 @@ public class CookieManager : ICookieManager
         httpContext.Response.Cookies.Delete(key, new CookieOptions
         {
             HttpOnly = true,
-            Secure = !httpContext.Request.IsHttps,
+            Secure = httpContext.Request.IsHttps,
             SameSite = SameSiteMode.Strict
         });
     }

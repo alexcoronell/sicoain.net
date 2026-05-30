@@ -1,3 +1,11 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+
 namespace sicoain.IntegrationTests.Fixtures;
 
 public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
@@ -17,11 +25,37 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         builder.UseEnvironment("IntegrationTests");
         builder.ConfigureAppConfiguration((context, config) =>
         {
-            config.AddJsonFile("appsettings.IntegrationTests.json", optional: false, reloadOnChange: false);
+            var testAssemblyPath = Path.GetDirectoryName(typeof(IntegrationTestWebAppFactory).Assembly.Location)!;
+            var configPath = Path.Combine(testAssemblyPath, "appsettings.IntegrationTests.json");
+            config.AddJsonFile(configPath, optional: false, reloadOnChange: false);
         });
 
         builder.ConfigureTestServices(services =>
         {
+            // Override JWT validation key — Program.cs reads it from config before
+            // our test config is applied, so we need to set it here explicitly.
+            services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                var testSecretKey = Encoding.UTF8.GetBytes("TestSecretKeyForIntegrationTestsThatIsAtLeast32CharsLong");
+                options.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(testSecretKey);
+                options.TokenValidationParameters.ValidIssuer = "SICOAIN-API-Test";
+                options.TokenValidationParameters.ValidAudience = "SICOAIN-Frontend-Test";
+            });
+
+            services.PostConfigure<AntiforgeryOptions>(options =>
+            {
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            });
+
+            services.PostConfigure<MvcOptions>(options =>
+            {
+                var filter = options.Filters.FirstOrDefault(f => f is AutoValidateAntiforgeryTokenAttribute);
+                if (filter != null)
+                {
+                    options.Filters.Remove(filter);
+                }
+            });
+
             var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
             if (descriptor != null)
             {
@@ -35,15 +69,27 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         });
     }
 
-    public async Task InitializeAsync()
+    protected override IHost CreateHost(IHostBuilder builder)
     {
-        using var scope = Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await context.Database.EnsureDeletedAsync();
-        await context.Database.MigrateAsync();
+        // Create and migrate the database BEFORE the host is built.
+        // Program.cs runs seeders during host build that require an existing DB.
+        var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+        optionsBuilder.UseSqlServer(_connectionString);
+        using var context = new ApplicationDbContext(optionsBuilder.Options);
+        context.Database.EnsureDeleted();
+        context.Database.Migrate();
+
+        return base.CreateHost(builder);
     }
 
-    public async Task DisposeAsync()
+    public async Task InitializeAsync()
+    {
+        // Database was already created, migrated, and seeded in CreateHost.
+        // No additional setup needed.
+        await Task.CompletedTask;
+    }
+
+    public new async Task DisposeAsync()
     {
         using var scope = Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
