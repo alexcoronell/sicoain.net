@@ -1,10 +1,12 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using sicoain.shared.Constants;
 
 namespace sicoain.IntegrationTests.Fixtures;
 
@@ -41,6 +43,22 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
                 options.TokenValidationParameters.ValidIssuer = "SICOAIN-API-Test";
                 options.TokenValidationParameters.ValidAudience = "SICOAIN-Frontend-Test";
             });
+
+            // Register authorization policies from AppPermissions constants.
+            // Program.cs tries to load these from the DB but fails in tests because
+            // the DB doesn't exist yet when Program.cs runs (timing issue).
+            var permissionFields = typeof(AppPermissions)
+                .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+                .Where(f => f.FieldType == typeof(string));
+            foreach (var field in permissionFields)
+            {
+                var permName = field.GetValue(null)?.ToString();
+                if (!string.IsNullOrEmpty(permName))
+                {
+                    services.AddAuthorizationBuilder()
+                        .AddPolicy(permName, policy => policy.RequireClaim("Permission", permName));
+                }
+            }
 
             services.PostConfigure<AntiforgeryOptions>(options =>
             {
@@ -84,9 +102,28 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
 
     public async Task InitializeAsync()
     {
-        // Database was already created, migrated, and seeded in CreateHost.
-        // No additional setup needed.
-        await Task.CompletedTask;
+        // Seed an admin user for integration tests
+        using var scope = Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+        var adminEmail = "admin@test.com";
+        var adminPassword = "Admin123!";
+        if (!await userManager.Users.AnyAsync(u => u.Email == adminEmail))
+        {
+            var adminUser = new User
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                FullName = "Admin Test",
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            };
+            var result = await userManager.CreateAsync(adminUser, adminPassword);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+            }
+        }
     }
 
     public new async Task DisposeAsync()
