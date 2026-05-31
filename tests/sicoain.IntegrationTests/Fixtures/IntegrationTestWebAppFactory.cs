@@ -124,6 +124,13 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
                 await userManager.AddToRoleAsync(adminUser, "Admin");
             }
         }
+        using var seedScope = Services.CreateScope();
+        var seedContext = seedScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        if(!seedContext.RiskClasses.Any())
+        {
+            seedContext.RiskClasses.Add(new RiskClass { Name = "Clase I", Code = "I", ContributionRate = 0.005m, IsActive = true });
+            await seedContext.SaveChangesAsync();
+        }
     }
 
     public new async Task DisposeAsync()
