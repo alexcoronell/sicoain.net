@@ -51,22 +51,6 @@ namespace sicoain.UnitTests.Validators.Business
         }
 
         [Fact]
-        public void Should_Have_Error_When_Description_Is_Provided_And_Too_Long()
-        {
-            var model = new UpdateBusinessRequest { Description = new string('D', 501) };
-            var result = _validator.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.Description);
-        }
-
-        [Fact]
-        public void Should_Not_Have_Error_When_Description_Is_Provided_And_Valid()
-        {
-            var model = new UpdateBusinessRequest { Description = "Valid description" };
-            var result = _validator.TestValidate(model);
-            result.ShouldNotHaveValidationErrorFor(x => x.Description);
-        }
-
-        [Fact]
         public void Should_Have_Error_When_AddressStreet_Is_Provided_And_Too_Long()
         {
             var model = new UpdateBusinessRequest { AddressStreet = new string('A', 201) };

@@ -12,7 +12,6 @@ namespace sicoain.UnitTests.Validators.Business
         private CreateBusinessRequest CreateValidRequest() => new()
         {
             Name = "Test Business",
-            Description = "A valid description",
             AddressStreet = "123 Main St"
         };
 
@@ -46,23 +45,6 @@ namespace sicoain.UnitTests.Validators.Business
             var model = CreateValidRequest() with { Name = "Valid Name" };
             var result = _validator.TestValidate(model);
             result.ShouldNotHaveValidationErrorFor(x => x.Name);
-        }
-
-        [Fact]
-        public void Should_Have_Error_When_Description_Exceeds_MaxLength()
-        {
-            var model = CreateValidRequest() with { Description = new string('D', 501) };
-            var result = _validator.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.Description);
-        }
-
-        [Fact]
-        public void Should_Not_Have_Error_When_Description_Is_Null_Or_Within_Limit()
-        {
-            var modelNull = CreateValidRequest() with { Description = null };
-            var modelValid = CreateValidRequest() with { Description = new string('D', 500) };
-            _validator.TestValidate(modelNull).ShouldNotHaveValidationErrorFor(x => x.Description);
-            _validator.TestValidate(modelValid).ShouldNotHaveValidationErrorFor(x => x.Description);
         }
 
         [Fact]
