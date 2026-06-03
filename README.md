@@ -2,7 +2,7 @@
 
 > **A full-stack platform for occupational accident and incident control, investigation, and regulatory compliance in Colombia**
 >
-> Monorepo containing a .NET 10 Web API, Blazor WebAssembly client, shared domain library, and comprehensive test suite for managing workplace accidents, digital evidence, corrective actions, and regulatory compliance with ARL/EPS entities.
+> Monorepo containing a .NET 10 Web API, Blazor WebAssembly client, shared domain library, and comprehensive test suites (unit + integration) for managing workplace accidents, digital evidence, corrective actions, and regulatory compliance with ARL/EPS entities.
 
 [![.NET](https://img.shields.io/badge/.NET-10.0.7-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
 [![C#](https://img.shields.io/badge/C%23-13-239120?style=flat-square&logo=csharp)](https://learn.microsoft.com/en-us/dotnet/csharp)
@@ -15,6 +15,7 @@
 [![Swagger](https://img.shields.io/badge/API-Swagger%207.0.0-85EA2D?style=flat-square&logo=swagger)](https://swashbuckle.AspNetCore)
 [![SQL Server](https://img.shields.io/badge/Database-SQL%20Server%202022-CC2927?style=flat-square&logo=microsoftsqlserver)](https://www.microsoft.com/en-us/sql-server)
 [![Docker](https://img.shields.io/badge/Infra-Docker%20Compose-2496ED?style=flat-square&logo=docker)](https://www.docker.com)
+[![Testcontainers](https://img.shields.io/badge/Testcontainers-Integration-5063C5?style=flat-square&logo=docker)](https://testcontainers.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
 ---
@@ -172,7 +173,7 @@ The shared domain layer serving as the single source of truth across all project
 
 [![README](https://img.shields.io/badge/README-details-512BD4?style=flat-square)](tests/sicoain.UnitTests/README.md)
 
-Comprehensive test suite covering the entire service layer and all input validators.
+Comprehensive unit test suite covering the entire service layer and all input validators.
 
 | Metric | Count |
 |--------|-------|
@@ -183,7 +184,34 @@ Comprehensive test suite covering the entire service layer and all input validat
 | Test framework | xUnit 2.9.3 |
 | Coverage collector | coverlet 6.0.4 |
 
-**Testing patterns:** Mock-based (Moq 4.20.72) for auth utilities, EF Core InMemory for integration-style service tests, FluentAssertions 8.10.0 for expressive assertions.
+**Testing patterns:** Mock-based (Moq 4.20.72) for auth utilities, EF Core InMemory for integration-style service tests, FluentAssertions 10.0.0 for expressive assertions.
+
+### 5. `sicoain.IntegrationTests` — xUnit Integration Test Suite
+
+[![README](https://img.shields.io/badge/README-details-512BD4?style=flat-square)](tests/sicoain.IntegrationTests/README.md)
+
+End-to-end integration test suite exercising all 17 API controllers against a real SQL Server database via Docker Compose.
+
+| Metric | Count |
+|--------|-------|
+| Total tests | **347** |
+| Passed | 306 |
+| Skipped | 41 |
+| Controller test files | 17 |
+| Test framework | xUnit 2.9.3 |
+| Database | SQL Server 2022 (Docker) |
+| Infrastructure | Docker Compose (`docker-compose.test.yml`) |
+
+**Scope:** Every API endpoint is exercised through its full HTTP lifecycle — validation, business logic, authorization, and error handling. Tests authenticate via real login endpoint, exercise CSRF protection, and validate against a per-class isolated test database.
+
+**Key patterns:**
+- Custom `WebApplicationFactory<Program>` with mocked `IAntiforgery` (bypasses CSRF while keeping the filter pipeline)
+- Cookie-based auth via real `/api/auth/login` with a custom `CookieHandler` DelegatingHandler (works around `CookieContainer` Secure-flag bug over HTTP)
+- `BuildCreateForm()` / `BuildUpdateForm()` helpers for reusable authenticated request setup
+- `CreateUnauthenticatedClientAsync()` for authorization policy enforcement tests
+- `IAsyncLifetime` for per-class database creation/destruction via EF Core migrations
+
+**Controllers covered:** Accidents, AccidentTypes, Attachments, Auth, Branches, Businesses, CorrectiveActions, Departments, DigitalEvidences, Employees, EventCategories, HealthPromotionEntities, OccupationalRiskAdministrators, Positions, RiskClasses, User, Witnesses.
 
 ---
 
@@ -200,13 +228,16 @@ Comprehensive test suite covering the entire service layer and all input validat
 | **Identity** | ASP.NET Core Identity | `10.0.7` | API |
 | **Auth Tokens** | JWT Bearer | `10.0.7` | API |
 | **Validation** | FluentValidation | `12.1.1` | API |
-| **Object Mapping** | AutoMapper | `12.0.1` | API |
+| **Object Mapping** | AutoMapper | `16.1.1` | API |
 | **API Docs** | Swashbuckle (Swagger) | `7.0.0` | API |
 | **API Versioning** | Asp.Versioning.Mvc | `10.0.0` | API |
 | **Test Framework** | xUnit | `2.9.3` | Tests |
 | **Assertions** | FluentAssertions | `8.10.0` | Tests |
-| **Mocking** | Moq | `4.20.72` | Tests |
+| **Mocking** | Moq | `4.20.72` | Unit Tests |
 | **Code Coverage** | coverlet | `6.0.4` | Tests |
+| **Integration Test Framework** | WebApplicationFactory | `10.0.7` | Integration Tests |
+| **Integration DB** | Docker Compose + SQL Server | `2022-latest` | Integration Tests |
+| **Auth Bypass** | Custom DelegatingHandler (CookieHandler) | — | Integration Tests |
 | **Static Analysis** | Meziantou.Analyzer | `3.0.69` | API |
 | **Security Analysis** | SecurityCodeScan | `5.6.7` | API |
 | **Infrastructure** | Docker Compose | — | Root |
@@ -265,7 +296,13 @@ dotnet run --project src/sicoain.client
 dotnet test
 ```
 
-All 766 tests should pass.
+All **1,113 tests** (766 unit + 347 integration) should pass.  
+
+> **Note:** Integration tests require the test SQL Server container to be running:
+> ```bash
+> docker compose -f docker-compose.test.yml up -d
+> dotnet test tests/sicoain.IntegrationTests
+> ```
 
 ### Docker Compose Services
 
@@ -313,10 +350,11 @@ chore: update FluentValidation to 12.1.1
 ### Build Verification
 
 ```bash
-dotnet build                    # Build all projects
-dotnet build --no-restore       # Skip restore for speed
-dotnet test                     # Run all 766 tests (pre-commit)
-dotnet format                   # Enforce code style (pre-commit hook)
+dotnet build                                    # Build all projects
+dotnet build --no-restore                       # Skip restore for speed
+dotnet test tests/sicoain.UnitTests             # Run all 766 unit tests
+dotnet test tests/sicoain.IntegrationTests      # Run all 347 integration tests (requires Docker)
+dotnet format                                   # Enforce code style (pre-commit hook)
 ```
 
 The repository uses **Husky** for Git hooks, running `dotnet format` and `dotnet test` before every commit.
@@ -423,32 +461,60 @@ Business 1──N──▶ Branch 1──N──▶ Employee 1──N──▶ A
 
 ## Testing
 
+[![Unit Tests](https://img.shields.io/badge/Unit-766%20tests-1E8E3E?style=flat-square)](tests/sicoain.UnitTests/README.md)
+[![Integration Tests](https://img.shields.io/badge/Integration-347%20tests-5063C5?style=flat-square)](tests/sicoain.IntegrationTests/README.md)
+
+The project contains **two test suites** totaling **1,113 tests** across 95 test files.
+
+### Unit Tests (`sicoain.UnitTests`)
+
 [![README](https://img.shields.io/badge/README-details-512BD4?style=flat-square)](tests/sicoain.UnitTests/README.md)
 
-The test suite covers **100% of service interfaces** (23 services × 23 test files) and **100% of validators** (55 validator test files).
+Covers **100% of service interfaces** (23 services × 23 test files) and **100% of validators** (55 validator test files).
 
 ```bash
-# Run all tests
-dotnet test
+# Run unit tests
+dotnet test tests/sicoain.UnitTests
 
 # Run with detailed output
-dotnet test --verbosity detailed
+dotnet test tests/sicoain.UnitTests --verbosity detailed
 
 # Run specific test class
-dotnet test --filter "FullyQualifiedName~UserServiceTests"
+dotnet test tests/sicoain.UnitTests --filter "FullyQualifiedName~UserServiceTests"
 
 # Generate coverage report
-dotnet test --collect:"XPlat Code Coverage"
+dotnet test tests/sicoain.UnitTests --collect:"XPlat Code Coverage"
+```
+
+### Integration Tests (`sicoain.IntegrationTests`)
+
+[![README](https://img.shields.io/badge/README-details-512BD4?style=flat-square)](tests/sicoain.IntegrationTests/README.md)
+
+End-to-end HTTP-level tests exercising all 17 API controllers against a real SQL Server instance.
+
+```bash
+# Start the test database
+docker compose -f docker-compose.test.yml up -d
+
+# Run integration tests
+dotnet test tests/sicoain.IntegrationTests
+
+# Run tests for a specific controller
+dotnet test tests/sicoain.IntegrationTests --filter "FullyQualifiedName~AccidentsControllerTests"
 ```
 
 ### Testing Patterns
 
-| Pattern | Tools | Used For |
-|---------|-------|----------|
-| **Mock-based** | Moq | Auth utilities (CookieManager, JwtTokenGenerator, IpAddressProvider, RefreshTokenGenerator) |
-| **EF InMemory** | EF Core InMemory | Service layer with full CRUD (UserService, AccidentService, BaseService entities) |
-| **Testable inner classes** | Virtual methods | File path generation, date-dependent logic |
-| **Direct validation** | FluentValidation test | All 40+ validators with valid/invalid cases |
+| Suite | Pattern | Tools | Used For |
+|-------|---------|-------|----------|
+| Unit | **Mock-based** | Moq | Auth utilities (CookieManager, JwtTokenGenerator, IpAddressProvider, RefreshTokenGenerator) |
+| Unit | **EF InMemory** | EF Core InMemory | Service layer with full CRUD (UserService, AccidentService, BaseService entities) |
+| Unit | **Testable inner classes** | Virtual methods | File path generation, date-dependent logic |
+| Unit | **Direct validation** | FluentValidation test | All 40+ validators with valid/invalid cases |
+| Integration | **Real HTTP + DB** | WebApplicationFactory, Docker Compose | Full HTTP lifecycle (validation, auth, business logic, error handling) |
+| Integration | **Cookie auth** | Custom DelegatingHandler | Authentication via real `/api/auth/login` endpoint |
+| Integration | **CSRF bypass** | Mocked `IAntiforgery` | Maintains filter pipeline while bypassing token challenge |
+| Integration | **Per-class DB** | `IAsyncLifetime` + EF migrations | Isolated test databases created/destroyed per test class |
 
 ---
 
@@ -460,15 +526,18 @@ dotnet test --collect:"XPlat Code Coverage"
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                      │
 │  Total source files:          ~361  (.cs + .razor)                   │
-│  Solution projects:           4                                      │
-│  Test count:                  766  (78 files)                        │
+│  Solution projects:           5                                      │
+│  Test count:                  1,113 (95 files)                       │
+│    ├─ Unit tests:             766   (78 files)                       │
+│    └─ Integration tests:      347   (17 files)                       │
+│  AutoMapper profiles:         16                                     │
 │  Entity classes:              37                                     │
 │  API controllers:             19                                     │
 │  API endpoints:               ~80                                    │
 │  Permission constants:        18                                     │
-│  NuGet packages:              ~25                                    │
-│  Git branches:                5                                      │
-│  Commits:                     ~50+                                    │
+│  NuGet packages:              ~26                                    │
+│  Git branches:                5+                                     │
+│  Commits:                     60+                                    │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -485,6 +554,7 @@ Each project has a detailed README with full architecture documentation, usage e
 | **sicoain.client** | [📄 src/sicoain.client/README.md](src/sicoain.client/README.md) | *(coming soon)* |
 | **sicoain.shared** | [📄 src/sicoain.shared/README.md](src/sicoain.shared/README.md) | ~734 lines |
 | **sicoain.UnitTests** | [📄 tests/sicoain.UnitTests/README.md](tests/sicoain.UnitTests/README.md) | ~416 lines |
+| **sicoain.IntegrationTests** | [📄 tests/sicoain.IntegrationTests/README.md](tests/sicoain.IntegrationTests/README.md) | ~688 lines |
 
 ---
 
@@ -496,7 +566,9 @@ This project follows a **feature branch workflow** with conventional commits and
 
 1. Create a branch from `master`: `git checkout -b feat/your-feature`
 2. Make your changes following the established patterns
-3. Run tests: `dotnet test` (all 766 must pass)
+3. Run tests:
+   - Unit: `dotnet test tests/sicoain.UnitTests` (all 766 must pass)
+   - Integration: `dotnet test tests/sicoain.IntegrationTests` (all 347 must pass, requires Docker)
 4. Commit using conventional commits: `git commit -m "feat: description"`
 5. Push and open a Pull Request
 
