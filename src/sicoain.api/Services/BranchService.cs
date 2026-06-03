@@ -14,6 +14,18 @@ namespace sicoain.api.Services
         {
         }
 
+        public override async Task<BranchDto> CreateAsync(CreateBranchRequest request)
+        {
+            var entity = _mapper.Map<Branch>(request);
+            _context.Set<Branch>().Add(entity);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+
+            // Load navigation properties so the response DTO includes BusinessName
+            await _context.Entry(entity).Reference(e => e.Business).LoadAsync().ConfigureAwait(false);
+
+            return _mapper.Map<BranchDto>(entity);
+        }
+
         public override async Task<PagedResponse<BranchDto>> GetAllAsync(int pageNumber = 1, int pageSize = 10)
         {
             var query = _context.Set<Branch>()

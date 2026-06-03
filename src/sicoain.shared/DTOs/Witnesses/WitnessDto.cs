@@ -1,6 +1,6 @@
 namespace sicoain.shared.DTOs.Witnesses
 {
-    public record WitnessDto
+    public record WitnessDto : BaseDto
     {
         public int AccidentId { get; init; }
         public int EmployeeId { get; init; }

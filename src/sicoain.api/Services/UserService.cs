@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Abstractions;
+using sicoain.api.Exceptions;
 using sicoain.shared.DTOs;
 using sicoain.shared.DTOs.Users;
 using sicoain.shared.Entities;
@@ -58,6 +59,11 @@ namespace sicoain.api.Services
 
         public async Task<UserDto> CreateAsync(CreateUserRequest request)
         {
+            // Check for duplicate email before attempting creation
+            var existingUser = await _userManager.FindByEmailAsync(request.Email).ConfigureAwait(false);
+            if (existingUser != null)
+                throw new ConflictException($"A user with email '{request.Email}' already exists.");
+
             var user = new User
             {
                 UserName = request.Email,
@@ -69,7 +75,7 @@ namespace sicoain.api.Services
 
             var result = await _userManager.CreateAsync(user, request.Password).ConfigureAwait(false);
             if (!result.Succeeded)
-                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+                throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
 
             if (request.Roles != null && request.Roles.Any())
             {
@@ -87,6 +93,11 @@ namespace sicoain.api.Services
             // Actualizar solo campos proporcionados
             if (!string.IsNullOrEmpty(request.Email) && request.Email != user.Email)
             {
+                // Check for duplicate email before updating
+                var existingUser = await _userManager.FindByEmailAsync(request.Email).ConfigureAwait(false);
+                if (existingUser != null)
+                    throw new ConflictException($"A user with email '{request.Email}' already exists.");
+
                 user.Email = request.Email;
                 user.UserName = request.Email;
                 user.NormalizedEmail = _userManager.NormalizeEmail(request.Email);
@@ -103,7 +114,7 @@ namespace sicoain.api.Services
 
             var result = await _userManager.UpdateAsync(user).ConfigureAwait(false);
             if (!result.Succeeded)
-                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+                throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
 
             return _mapper.Map<UserDto>(user);
         }

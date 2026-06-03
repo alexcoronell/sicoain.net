@@ -192,6 +192,7 @@ builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IRoleSyncService, RoleSyncService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IAccidentService, AccidentService>();
+builder.Services.AddScoped<IAccidentTypeService, AccidentTypeService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<IBranchService, BranchService>();
 builder.Services.AddScoped<IBusinessService, BusinessService>();

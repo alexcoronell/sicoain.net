@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using sicoain.api.Abstractions;
+using sicoain.api.Exceptions;
 using sicoain.shared.DTOs;
 using sicoain.shared.DTOs.Users;
 
@@ -60,14 +61,28 @@ namespace sicoain.api.Controllers
         [Authorize(Policy = "Users.Create")]
         public override async Task<ActionResult<UserDto>> Create([FromBody] CreateUserRequest request)
         {
-            return await base.Create(request).ConfigureAwait(false);
+            try
+            {
+                return await base.Create(request).ConfigureAwait(false);
+            }
+            catch (ConflictException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         [HttpPatch("{id}")]
         [Authorize(Policy = "Users.Edit")]
         public override async Task<ActionResult<UserDto>> Update(int id, [FromBody] UpdateUserRequest request)
         {
-            return await base.Update(id, request).ConfigureAwait(false);
+            try
+            {
+                return await base.Update(id, request).ConfigureAwait(false);
+            }
+            catch (ConflictException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
 
 

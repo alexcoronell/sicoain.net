@@ -35,6 +35,20 @@ namespace sicoain.api.Services
             };
         }
 
+        public override async Task<AccidentDto> CreateAsync(CreateAccidentRequest request)
+        {
+            var entity = _mapper.Map<Accident>(request);
+            _context.Set<Accident>().Add(entity);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+
+            // Load navigation properties so the response DTO includes related names
+            await _context.Entry(entity).Reference(e => e.Employee).LoadAsync().ConfigureAwait(false);
+            await _context.Entry(entity).Reference(e => e.AccidentType).LoadAsync().ConfigureAwait(false);
+            await _context.Entry(entity).Reference(e => e.EventCategory).LoadAsync().ConfigureAwait(false);
+
+            return _mapper.Map<AccidentDto>(entity);
+        }
+
         public override async Task<AccidentDto?> GetByIdAsync(int id)
         {
             var entity = await _context.Set<Accident>()
