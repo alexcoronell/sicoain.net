@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
 using sicoain.shared.Constants;
 
 namespace sicoain.IntegrationTests.Fixtures;
@@ -63,6 +64,30 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             services.PostConfigure<AntiforgeryOptions>(options =>
             {
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            });
+
+            // Register ViewFeatures services needed by [ValidateAntiForgeryToken]
+            // on controllers (AddControllers() alone doesn't register the
+            // ValidateAntiforgeryTokenAuthorizationFilter service).
+            // AddControllersWithViews() calls AddMvcViewFeatures() internally
+            // which registers this filter type.
+            services.AddControllersWithViews();
+
+            // Override IAntiforgery with a mock that always validates successfully,
+            // so tests don't need to generate real CSRF tokens.
+            services.AddSingleton<IAntiforgery>(_ =>
+            {
+                var mock = new Mock<IAntiforgery>();
+                var tokenSet = new AntiforgeryTokenSet(
+                    requestToken: "test-request-token",
+                    cookieToken: "test-cookie-token",
+                    formFieldName: "__RequestVerificationToken",
+                    headerName: "X-CSRF-TOKEN");
+                mock.Setup(x => x.GetAndStoreTokens(It.IsAny<HttpContext>())).Returns(tokenSet);
+                mock.Setup(x => x.GetTokens(It.IsAny<HttpContext>())).Returns(tokenSet);
+                mock.Setup(x => x.IsRequestValidAsync(It.IsAny<HttpContext>())).ReturnsAsync(true);
+                mock.Setup(x => x.ValidateRequestAsync(It.IsAny<HttpContext>())).Returns(Task.CompletedTask);
+                return mock.Object;
             });
 
             services.PostConfigure<MvcOptions>(options =>
