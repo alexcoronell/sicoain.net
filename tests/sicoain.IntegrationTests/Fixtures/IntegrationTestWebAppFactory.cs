@@ -126,7 +126,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         }
         using var seedScope = Services.CreateScope();
         var seedContext = seedScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        if(!seedContext.RiskClasses.Any())
+        if (!seedContext.RiskClasses.Any())
         {
             seedContext.RiskClasses.Add(new RiskClass { Name = "Clase I", Code = "I", ContributionRate = 0.005m, IsActive = true });
             await seedContext.SaveChangesAsync();
