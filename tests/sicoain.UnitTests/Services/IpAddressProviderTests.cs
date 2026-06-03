@@ -7,6 +7,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for IpAddressProviderTests.
+    /// </summary>
     public class IpAddressProviderTests
     {
         private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;

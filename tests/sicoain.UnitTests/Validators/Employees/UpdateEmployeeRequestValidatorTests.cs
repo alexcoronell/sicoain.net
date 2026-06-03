@@ -6,6 +6,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Employees
 {
+    /// <summary>
+    /// Unit tests for the UpdateEmployeeRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdateEmployeeRequestValidatorTests
     {
         private readonly UpdateEmployeeRequestValidator _validator = new();

@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.HealthPromotionEntities
 {
+    /// <summary>
+    /// Unit tests for the UpdateHealthPromotionEntityPhoneRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdateHealthPromotionEntityPhoneRequestValidatorTests
     {
         private readonly UpdateHealthPromotionEntityPhoneRequestValidator _validator = new();

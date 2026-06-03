@@ -10,6 +10,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the Permission service covering permission CRUD, role-permission assignment, and policy-based authorization queries.
+    /// </summary>
     public class PermissionServiceTests
     {
         private readonly Mock<UserManager<User>> _userManagerMock;

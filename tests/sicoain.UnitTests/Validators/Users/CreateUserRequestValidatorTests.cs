@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Users
 {
+    /// <summary>
+    /// Unit tests for the CreateUserRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class CreateUserRequestValidatorTests
     {
         private readonly CreateUserRequestValidator _validator = new();

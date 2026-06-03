@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Branches
 {
+    /// <summary>
+    /// Unit tests for the CreateBranchRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class CreateBranchRequestValidatorTests
     {
         private readonly CreateBranchRequestValidator _validator = new();

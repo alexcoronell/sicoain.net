@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Branches
 {
+    /// <summary>
+    /// Unit tests for the UpdateBranchPhoneRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdateBranchPhoneRequestValidatorTests
     {
         private readonly UpdateBranchPhoneRequestValidator _validator = new();

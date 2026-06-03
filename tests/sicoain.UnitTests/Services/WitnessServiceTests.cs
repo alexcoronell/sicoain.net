@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -11,6 +12,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the Witness service covering CRUD operations, employee/external witness validation, statement constraints, and navigation property loading.
+    /// </summary>
     public class WitnessServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -24,14 +28,13 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Witness, WitnessDto>()
-                    .ForMember(dest => dest.EmployeeFullname, opt => opt.MapFrom(src =>
-                        src.Employee != null ? $"{src.Employee.FirstName} {src.Employee.Surname}" : null));
-                cfg.CreateMap<CreateWitnessRequest, Witness>();
-                cfg.CreateMap<UpdateWitnessRequest, Witness>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<Witness, WitnessDto>()
+                .ForMember(dest => dest.EmployeeFullname, opt => opt.MapFrom(src =>
+                    src.Employee != null ? $"{src.Employee.FirstName} {src.Employee.Surname}" : null));
+            expression.CreateMap<CreateWitnessRequest, Witness>();
+            expression.CreateMap<UpdateWitnessRequest, Witness>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new WitnessService(_context, _mapper);

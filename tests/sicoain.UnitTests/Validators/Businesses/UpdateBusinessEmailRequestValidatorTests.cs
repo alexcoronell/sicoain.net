@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Business
 {
+    /// <summary>
+    /// Unit tests for the UpdateBusinessEmailRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdateBusinessEmailRequestValidatorTests
     {
         private readonly UpdateBusinessEmailRequestValidator _validator = new();

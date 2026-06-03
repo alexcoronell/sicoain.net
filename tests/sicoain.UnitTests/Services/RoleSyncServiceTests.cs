@@ -9,6 +9,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the Role synchronization service covering identity role mapping, permission seeding, and role-permission assignment.
+    /// </summary>
     public class RoleSyncServiceTests
     {
         private readonly ApplicationDbContext _context;

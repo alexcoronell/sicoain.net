@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Departments
 {
+    /// <summary>
+    /// Unit tests for the UpdateDepartmentRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdateDepartmentRequestValidatorTests
     {
         private readonly UpdateDepartmentRequestValidator _validator = new();

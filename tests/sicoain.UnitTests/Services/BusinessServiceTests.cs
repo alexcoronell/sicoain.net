@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -10,6 +11,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the Business service covering CRUD operations, duplicate name handling, and contact entity management.
+    /// </summary>
     public class BusinessServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -23,12 +27,11 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Business, BusinessDto>();
-                cfg.CreateMap<CreateBusinessRequest, Business>();
-                cfg.CreateMap<UpdateBusinessRequest, Business>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<Business, BusinessDto>();
+            expression.CreateMap<CreateBusinessRequest, Business>();
+            expression.CreateMap<UpdateBusinessRequest, Business>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new BusinessService(_context, _mapper);

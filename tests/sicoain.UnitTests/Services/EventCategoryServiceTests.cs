@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -10,6 +11,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the EventCategory service covering CRUD operations, severity level validation, and name/length constraints.
+    /// </summary>
     public class EventCategoryServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -23,12 +27,11 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<EventCategory, EventCategoryDto>();
-                cfg.CreateMap<CreateEventCategoryRequest, EventCategory>();
-                cfg.CreateMap<UpdateEventCategoryRequest, EventCategory>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<EventCategory, EventCategoryDto>();
+            expression.CreateMap<CreateEventCategoryRequest, EventCategory>();
+            expression.CreateMap<UpdateEventCategoryRequest, EventCategory>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new EventCategoryService(_context, _mapper);

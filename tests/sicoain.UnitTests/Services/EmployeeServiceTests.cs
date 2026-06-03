@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -11,6 +12,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the Employee service covering CRUD operations, document number uniqueness, hiring date validation, and business/position assignments.
+    /// </summary>
     public class EmployeeServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -24,16 +28,15 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Employee, EmployeeDto>()
-                    .ForMember(dest => dest.BusinessName, opt => opt.MapFrom(src => src.Business.Name))
-                    .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.Branch.Name))
-                    .ForMember(dest => dest.PositionName, opt => opt.MapFrom(src => src.Position.Name))
-                    .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Position.Department.Name));
-                cfg.CreateMap<CreateEmployeeRequest, Employee>();
-                cfg.CreateMap<UpdateEmployeeRequest, Employee>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<Employee, EmployeeDto>()
+                .ForMember(dest => dest.BusinessName, opt => opt.MapFrom(src => src.Business.Name))
+                .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.Branch.Name))
+                .ForMember(dest => dest.PositionName, opt => opt.MapFrom(src => src.Position.Name))
+                .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Position.Department.Name));
+            expression.CreateMap<CreateEmployeeRequest, Employee>();
+            expression.CreateMap<UpdateEmployeeRequest, Employee>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new EmployeeService(_context, _mapper);

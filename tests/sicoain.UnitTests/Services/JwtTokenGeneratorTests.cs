@@ -11,6 +11,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for JwtTokenGeneratorTests.
+    /// </summary>
     public class JwtTokenGeneratorTests
     {
         private readonly JwtTokenGenerator _sut;

@@ -6,6 +6,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Attachments
 {
+    /// <summary>
+    /// Unit tests for the CreateAttachmentRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class CreateAttachmentRequestValidatorTests
     {
         private readonly CreateAttachmentRequestValidator _validator = new();

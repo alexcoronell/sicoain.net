@@ -14,6 +14,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the authentication service covering login, token refresh, logout, and account lockout scenarios.
+    /// </summary>
     public class AuthServiceTests
     {
         private readonly Mock<UserManager<User>> _userManagerMock;

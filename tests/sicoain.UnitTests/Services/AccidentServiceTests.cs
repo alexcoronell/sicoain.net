@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -11,6 +12,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the Accident service covering CRUD operations, soft delete, navigation property loading, and validation edge cases.
+    /// </summary>
     public class AccidentServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -24,15 +28,14 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Accident, AccidentDto>()
-                    .ForMember(dest => dest.EmployeeFullname, opt => opt.MapFrom(src => $"{src.Employee.FirstName} {src.Employee.Surname}"))
-                    .ForMember(dest => dest.AccidentTypeName, opt => opt.MapFrom(src => src.AccidentType.Name))
-                    .ForMember(dest => dest.EventCategoryName, opt => opt.MapFrom(src => src.EventCategory.Name));
-                cfg.CreateMap<CreateAccidentRequest, Accident>();
-                cfg.CreateMap<UpdateAccidentRequest, Accident>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<Accident, AccidentDto>()
+                .ForMember(dest => dest.EmployeeFullname, opt => opt.MapFrom(src => $"{src.Employee.FirstName} {src.Employee.Surname}"))
+                .ForMember(dest => dest.AccidentTypeName, opt => opt.MapFrom(src => src.AccidentType.Name))
+                .ForMember(dest => dest.EventCategoryName, opt => opt.MapFrom(src => src.EventCategory.Name));
+            expression.CreateMap<CreateAccidentRequest, Accident>();
+            expression.CreateMap<UpdateAccidentRequest, Accident>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new AccidentService(_context, _mapper);

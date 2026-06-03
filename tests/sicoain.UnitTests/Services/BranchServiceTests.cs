@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -10,6 +11,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the Branch service covering CRUD operations, navigation property (Business) loading on create, and business validation.
+    /// </summary>
     public class BranchServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -23,13 +27,12 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Branch, BranchDto>()
-                    .ForMember(dest => dest.BusinessName, opt => opt.MapFrom(src => src.Business.Name));
-                cfg.CreateMap<CreateBranchRequest, Branch>();
-                cfg.CreateMap<UpdateBranchRequest, Branch>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<Branch, BranchDto>()
+                .ForMember(dest => dest.BusinessName, opt => opt.MapFrom(src => src.Business.Name));
+            expression.CreateMap<CreateBranchRequest, Branch>();
+            expression.CreateMap<UpdateBranchRequest, Branch>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new BranchService(_context, _mapper);

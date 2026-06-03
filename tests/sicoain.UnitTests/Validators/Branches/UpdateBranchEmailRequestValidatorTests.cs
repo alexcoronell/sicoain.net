@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Branches
 {
+    /// <summary>
+    /// Unit tests for the UpdateBranchEmailRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdateBranchEmailRequestValidatorTests
     {
         private readonly UpdateBranchEmailRequestValidator _validator = new();

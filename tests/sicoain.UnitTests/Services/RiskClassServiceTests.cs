@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -9,6 +10,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the RiskClass service covering CRUD operations, duplicate code handling, contribution rate validation, and soft delete.
+    /// </summary>
     public class RiskClassServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -22,12 +26,11 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<RiskClass, RiskClassDto>();
-                cfg.CreateMap<CreateRiskClassRequest, RiskClass>();
-                cfg.CreateMap<UpdateRiskClassRequest, RiskClass>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<RiskClass, RiskClassDto>();
+            expression.CreateMap<CreateRiskClassRequest, RiskClass>();
+            expression.CreateMap<UpdateRiskClassRequest, RiskClass>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new RiskClassService(_context, _mapper);

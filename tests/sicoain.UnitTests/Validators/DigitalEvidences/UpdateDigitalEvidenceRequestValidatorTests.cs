@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.DigitalEvidences
 {
+    /// <summary>
+    /// Unit tests for the UpdateDigitalEvidenceRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdateDigitalEvidenceRequestValidatorTests
     {
         private readonly UpdateDigitalEvidenceRequestValidator _validator = new();

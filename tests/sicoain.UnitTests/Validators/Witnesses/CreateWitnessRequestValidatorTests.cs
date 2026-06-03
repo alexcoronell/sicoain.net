@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Witnesses
 {
+    /// <summary>
+    /// Unit tests for the CreateWitnessRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class CreateWitnessRequestValidatorTests
     {
         private readonly CreateWitnessRequestValidator _validator = new();
