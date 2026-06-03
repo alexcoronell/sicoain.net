@@ -6,6 +6,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for CookieManagerTests.
+    /// </summary>
     public class CookieManagerTests
     {
         private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;

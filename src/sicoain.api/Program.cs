@@ -11,6 +11,7 @@ using sicoain.shared.Entities;
 using sicoain.api.Repositories;
 using sicoain.api.Data.Seeders;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 
@@ -230,8 +231,17 @@ builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 
-// AutoMapper
-builder.Services.AddAutoMapper(typeof(Program));
+// AutoMapper — manually registered for AutoMapper 16.x compatibility.
+// AddAutoMapper internally calls the single-parameter MapperConfiguration(expression)
+// constructor, which was removed in AutoMapper 16.x.
+builder.Services.AddSingleton<MapperConfiguration>(sp =>
+{
+    var expression = new MapperConfigurationExpression();
+    expression.AddMaps(typeof(Program));
+    return new MapperConfiguration(expression, sp.GetRequiredService<ILoggerFactory>());
+});
+builder.Services.AddSingleton<IMapper>(sp =>
+    new Mapper(sp.GetRequiredService<MapperConfiguration>()));
 
 
 var app = builder.Build();

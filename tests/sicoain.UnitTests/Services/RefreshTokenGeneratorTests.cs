@@ -4,6 +4,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for RefreshTokenGeneratorTests.
+    /// </summary>
     public class RefreshTokenGeneratorTests
     {
         private readonly RefreshTokenGenerator _sut = new();

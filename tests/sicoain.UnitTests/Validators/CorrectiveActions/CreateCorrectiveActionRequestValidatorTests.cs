@@ -6,6 +6,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.CorrectiveActions
 {
+    /// <summary>
+    /// Unit tests for the CreateCorrectiveActionRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class CreateCorrectiveActionRequestValidatorTests
     {
         private readonly CreateCorrectiveActionRequestValidator _validator = new();

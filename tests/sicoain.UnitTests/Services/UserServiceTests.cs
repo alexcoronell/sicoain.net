@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -14,6 +15,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the User service covering CRUD operations, role assignment, password management, and duplicate email handling.
+    /// </summary>
     public class UserServiceTests
     {
         private readonly Mock<UserManager<User>> _userManagerMock;
@@ -34,13 +38,12 @@ namespace sicoain.UnitTests.Services
                 roleStoreMock.Object, null, null, null, null);
 
             // Setup AutoMapper
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<User, UserDto>()
-                    .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => !src.IsDeleted));
-                cfg.CreateMap<CreateUserRequest, User>();
-                cfg.CreateMap<UpdateUserRequest, User>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<User, UserDto>()
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => !src.IsDeleted));
+            expression.CreateMap<CreateUserRequest, User>();
+            expression.CreateMap<UpdateUserRequest, User>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new UserService(_userManagerMock.Object, _roleManagerMock.Object, _mapper);
@@ -123,7 +126,7 @@ namespace sicoain.UnitTests.Services
                 .ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _service.CreateAsync(request));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateAsync(request));
         }
 
         [Fact]

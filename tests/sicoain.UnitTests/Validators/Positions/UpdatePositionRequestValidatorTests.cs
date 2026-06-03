@@ -4,6 +4,9 @@ using sicoain.shared.DTOs.Positions;
 
 namespace sicoain.UnitTests.Validators.Positions
 {
+    /// <summary>
+    /// Unit tests for the UpdatePositionRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdatePositionRequestValidatorTests
     {
         private readonly UpdatePositionRequestValidator _validator = new();

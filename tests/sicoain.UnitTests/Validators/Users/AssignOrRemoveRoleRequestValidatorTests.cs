@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Users
 {
+    /// <summary>
+    /// Unit tests for the AssignOrRemoveRoleRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class AssignOrRemoveRoleRequestValidatorTests
     {
         private readonly AssignOrRemoveRoleRequestValidator _validator = new();

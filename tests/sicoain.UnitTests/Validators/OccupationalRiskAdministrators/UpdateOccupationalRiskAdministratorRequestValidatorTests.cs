@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.OccupationalRiskAdministrators
 {
+    /// <summary>
+    /// Unit tests for the UpdateOccupationalRiskAdministratorRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdateOccupationalRiskAdministratorRequestValidatorTests
     {
         private readonly UpdateOccupationalRiskAdministratorRequestValidator _validator = new();

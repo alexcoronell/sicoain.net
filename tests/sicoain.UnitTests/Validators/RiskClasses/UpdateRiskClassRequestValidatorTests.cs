@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.RiskClasses
 {
+    /// <summary>
+    /// Unit tests for the UpdateRiskClassRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdateRiskClassRequestValidatorTests
     {
         private readonly UpdateRiskClassRequestValidator _validator = new();

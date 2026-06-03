@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -9,6 +10,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the HealthPromotionEntity (EPS) service covering CRUD operations, partial address updates, and contact management.
+    /// </summary>
     public class HealthPromotionEntityServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -22,12 +26,11 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<HealthPromotionEntity, HealthPromotionEntityDto>();
-                cfg.CreateMap<CreateHealthPromotionEntityRequest, HealthPromotionEntity>();
-                cfg.CreateMap<UpdateHealthPromotionEntityRequest, HealthPromotionEntity>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<HealthPromotionEntity, HealthPromotionEntityDto>();
+            expression.CreateMap<CreateHealthPromotionEntityRequest, HealthPromotionEntity>();
+            expression.CreateMap<UpdateHealthPromotionEntityRequest, HealthPromotionEntity>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new HealthPromotionEntityService(_context, _mapper);

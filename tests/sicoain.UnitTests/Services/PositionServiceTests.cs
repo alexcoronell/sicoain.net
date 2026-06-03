@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -10,6 +11,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the Position service covering CRUD operations, department/risk-class foreign key validation, and partial updates.
+    /// </summary>
     public class PositionServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -23,12 +27,11 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Position, PositionDto>();
-                cfg.CreateMap<CreatePositionRequest, Position>();
-                cfg.CreateMap<UpdatePositionRequest, Position>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<Position, PositionDto>();
+            expression.CreateMap<CreatePositionRequest, Position>();
+            expression.CreateMap<UpdatePositionRequest, Position>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new PositionService(_context, _mapper);

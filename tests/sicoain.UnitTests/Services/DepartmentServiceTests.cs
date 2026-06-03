@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -10,6 +11,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the Department service covering CRUD operations, email/phone validation, duplicate name handling, and partial updates.
+    /// </summary>
     public class DepartmentServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -23,12 +27,11 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Department, DepartmentDto>();
-                cfg.CreateMap<CreateDepartmentRequest, Department>();
-                cfg.CreateMap<UpdateDepartmentRequest, Department>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<Department, DepartmentDto>();
+            expression.CreateMap<CreateDepartmentRequest, Department>();
+            expression.CreateMap<UpdateDepartmentRequest, Department>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new DepartmentService(_context, _mapper);

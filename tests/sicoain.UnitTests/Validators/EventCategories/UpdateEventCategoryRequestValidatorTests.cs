@@ -6,6 +6,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.EventCategories
 {
+    /// <summary>
+    /// Unit tests for the UpdateEventCategoryRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdateEventCategoryRequestValidatorTests
     {
         private readonly UpdateEventCategoryRequestValidator _validator = new();

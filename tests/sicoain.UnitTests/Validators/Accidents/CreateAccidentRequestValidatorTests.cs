@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Accidents
 {
+    /// <summary>
+    /// Unit tests for the CreateAccidentRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class CreateAccidentRequestValidatorTests
     {
         private readonly CreateAccidentRequestValidator _validator = new();

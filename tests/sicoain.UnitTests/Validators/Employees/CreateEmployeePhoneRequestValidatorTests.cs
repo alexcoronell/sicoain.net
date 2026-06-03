@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Employees
 {
+    /// <summary>
+    /// Unit tests for the CreateEmployeePhoneRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class CreateEmployeePhoneRequestValidatorTests
     {
         private readonly CreateEmployeePhoneRequestValidator _validator = new();

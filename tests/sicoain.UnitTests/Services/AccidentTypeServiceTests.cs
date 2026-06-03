@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -9,6 +10,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the AccidentType service covering CRUD operations, soft delete, and validation of severity levels and description limits.
+    /// </summary>
     public class AccidentTypeServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -22,12 +26,11 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<AccidentType, AccidentTypeDto>();
-                cfg.CreateMap<CreateAccidentTypeRequest, AccidentType>();
-                cfg.CreateMap<UpdateAccidentTypeRequest, AccidentType>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<AccidentType, AccidentTypeDto>();
+            expression.CreateMap<CreateAccidentTypeRequest, AccidentType>();
+            expression.CreateMap<UpdateAccidentTypeRequest, AccidentType>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new AccidentTypeService(_context, _mapper);

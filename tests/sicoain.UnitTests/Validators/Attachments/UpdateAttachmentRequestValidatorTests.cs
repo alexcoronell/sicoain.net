@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Attachments
 {
+    /// <summary>
+    /// Unit tests for the UpdateAttachmentRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class UpdateAttachmentRequestValidatorTests
     {
         private readonly UpdateAttachmentRequestValidator _validator = new();

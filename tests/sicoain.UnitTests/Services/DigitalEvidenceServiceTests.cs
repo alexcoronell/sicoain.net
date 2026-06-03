@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -9,6 +10,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the DigitalEvidence service covering CRUD operations, file upload with SHA-256 hashing, chain of custody logging, and validation.
+    /// </summary>
     public class DigitalEvidenceServiceTests : IDisposable
     {
         private readonly ApplicationDbContext _context;
@@ -27,12 +31,11 @@ namespace sicoain.UnitTests.Services
             _testUploadFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(_testUploadFolder);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<DigitalEvidence, DigitalEvidenceDto>();
-                cfg.CreateMap<CreateDigitalEvidenceRequest, DigitalEvidence>();
-                cfg.CreateMap<UpdateDigitalEvidenceRequest, DigitalEvidence>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<DigitalEvidence, DigitalEvidenceDto>();
+            expression.CreateMap<CreateDigitalEvidenceRequest, DigitalEvidence>();
+            expression.CreateMap<UpdateDigitalEvidenceRequest, DigitalEvidence>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new TestableDigitalEvidenceService(_context, _mapper, _testUploadFolder);

@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators.Users
 {
+    /// <summary>
+    /// Unit tests for the ChangePasswordRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class ChangePasswordRequestValidatorTests
     {
         private readonly ChangePasswordRequestValidator _validator = new();

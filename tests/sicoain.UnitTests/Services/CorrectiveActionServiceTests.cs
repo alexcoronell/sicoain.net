@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using sicoain.api.Data;
@@ -11,6 +12,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Services
 {
+    /// <summary>
+    /// Unit tests for the CorrectiveAction service covering CRUD operations, status transitions, partial updates, and priority/due date validation.
+    /// </summary>
     public class CorrectiveActionServiceTests
     {
         private readonly ApplicationDbContext _context;
@@ -24,12 +28,11 @@ namespace sicoain.UnitTests.Services
                 .Options;
             _context = new ApplicationDbContext(options);
 
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<CorrectiveAction, CorrectiveActionDto>();
-                cfg.CreateMap<CreateCorrectiveActionRequest, CorrectiveAction>();
-                cfg.CreateMap<UpdateCorrectiveActionRequest, CorrectiveAction>();
-            });
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<CorrectiveAction, CorrectiveActionDto>();
+            expression.CreateMap<CreateCorrectiveActionRequest, CorrectiveAction>();
+            expression.CreateMap<UpdateCorrectiveActionRequest, CorrectiveAction>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
             _mapper = config.CreateMapper();
 
             _service = new CorrectiveActionService(_context, _mapper);

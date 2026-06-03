@@ -5,6 +5,9 @@ using Xunit;
 
 namespace sicoain.UnitTests.Validators
 {
+    /// <summary>
+    /// Unit tests for the LoginRequest validation rules covering required fields, length constraints, format validation, and boundary conditions.
+    /// </summary>
     public class LoginRequestValidatorTests
     {
         private readonly LoginRequestValidator _validator = new();
