@@ -1,0 +1,17 @@
+<MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors" OnEnterPressed="@(() => _form.ValidateAsync())" Class="mx-auto w-100" Style="padding: 1.5rem;">
+    <MudText Typo="Typo.h3" Class="text-center">Ingresar</MudText>
+    <MudTextField Class="w-100 mb-3" T="string" Label="Usuario" HelperText="Escribe tu usuario" Required="true" RequiredError="El usuario es requerido!" />
+    <MudTextField Class="w-100 mb-6" T="string" @bind-Value="@_password" Label="Contraseña" HelperText="Escribe tu contraseña"
+                  InputType="InputType.Password" Required="true" RequiredError="La contraseña es requerida!" />
+    <div class="d-flex align-center justify-center pt-3">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_success)">Ingresar
+        </MudButton>
+    </div>
+</MudForm>
+
+@code {
+    private bool _success;
+    private MudForm _form;
+    private string _password;
+    private string[] _errors = [];
+}
