@@ -289,6 +289,40 @@ using (var scope = app.Services.CreateScope())
     /* Asign permissions to roles (in RolePermissions) */
     await RolePermissionSeeder.SeedAsync(dbContext).ConfigureAwait(false);
     Console.WriteLine("Role-Permission assignments completed");
+
+    // Crear usuario administrador por defecto si no existe
+    const string adminEmail = "admin@sicoain.net";
+    const string adminPassword = "Admin123!";
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    var adminUser = await userManager.FindByEmailAsync(adminEmail).ConfigureAwait(false);
+    if (adminUser == null)
+    {
+        adminUser = new User
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            FullName = "Administrador del Sistema",
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true
+        };
+        var createResult = await userManager.CreateAsync(adminUser, adminPassword).ConfigureAwait(false);
+        if (createResult.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin").ConfigureAwait(false);
+            Console.WriteLine("Usuario administrador creado exitosamente.");
+        }
+        else
+        {
+            Console.WriteLine("Error al crear usuario administrador: " +
+                string.Join(", ", createResult.Errors.Select(e => e.Description)));
+        }
+    }
+    else
+    {
+        // Asegurar que tenga el rol Admin (por si acaso)
+        if (!await userManager.IsInRoleAsync(adminUser, "Admin").ConfigureAwait(false))
+            await userManager.AddToRoleAsync(adminUser, "Admin").ConfigureAwait(false);
+    }
 }
 
 app.Run();
