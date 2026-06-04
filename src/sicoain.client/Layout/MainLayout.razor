@@ -1,41 +1,41 @@
 @inherits LayoutComponentBase
-@* Required *@
 <MudThemeProvider />
 <MudPopoverProvider />
-
-@* Needed for dialogs *@
 <MudDialogProvider />
-
-@* Needed for snackbars *@
 <MudSnackbarProvider />
-
 <MudLayout>
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+    <MudAppBar Elevation="2" Color="Color.Tertiary">
+        <MudIconButton
+            Icon="@Icons.Material.Filled.Menu"
+            Color="Color.Dark"
+            Edge="Edge.Start"
+            OnClick="@ToggleDrawer" />
         <MudSpacer />
-        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
+        <MudText Typo="Typo.h6" Class="text-dark">
+            Sistema de Control de Accidentes e Incidentes
+        </MudText>
+        <MudSpacer />
+        <MudText Typo="Typo.subtitle1" Class="mr-2 text-dark">
+            Hola
+        </MudText>
+        <MudChip Color="Color.Dark">Nombre de Usuario</MudChip>
+        <MudButton Variant="Text">Salir</MudButton>
     </MudAppBar>
-    <MudDrawer @bind-Open="@_open" Elevation="1">
+    <MudDrawer @bind-Open="@_open" Elevation="2">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h6">My App</MudText>
+            <MudText Typo="Typo.h6">SICOAIN</MudText>
         </MudDrawerHeader>
-        <MudNavMenu>
-            <MudNavLink Match="NavLinkMatch.All">Empresas</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All">Sedes</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All">EPS</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All">ARL</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All">Empleados</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All">Usuarios</MudNavLink>
-        </MudNavMenu>
+        <NavMenu />
     </MudDrawer>
     <MudMainContent Class="pt-16 px-16">
-        <MudContainer Class="d-flex justify-center align-center" style="min-height: 75vh;">
+        <MudContainer Class="d-flex justify-center align-center" Style="min-height: 75vh;">
             @Body
         </MudContainer>
     </MudMainContent>
 </MudLayout>
 
-@code{
+@code
+{
     private bool _open = false;
 
     private void ToggleDrawer()
