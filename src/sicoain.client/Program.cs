@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 using sicoain.client;
+using sicoain.client.Abstractions;
 using sicoain.client.Handlers;
+using sicoain.client.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -16,7 +17,7 @@ builder.Services.AddTransient<CsrfHandler>();
 // Configure an HttpClient with a name that includes the CSRF handler
 builder.Services.AddHttpClient("SicoainApi", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5078");
+    client.BaseAddress = new Uri("http://localhost:5078/api/v1");
 })
 .AddHttpMessageHandler<CsrfHandler>();
 
@@ -26,5 +27,8 @@ builder.Services.AddScoped(sp =>
     var factory = sp.GetRequiredService<IHttpClientFactory>();
     return factory.CreateClient("SicoainApi");
 });
+
+//Services
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 await builder.Build().RunAsync();
