@@ -215,7 +215,7 @@ builder.Services.AddHttpContextAccessor();
 // Controllers
 builder.Services.AddControllers(options =>
 {
-    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+    //options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 });
 
 // FluentValidation

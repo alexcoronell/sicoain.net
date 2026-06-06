@@ -16,7 +16,7 @@
                   HelperText="Escribe tu contraseña" InputType="InputType.Password" Required="true"
                   RequiredError="La contraseña es requerida!" For="@(() => _password)" />
     <div class="d-flex align-center justify-center pt-3">
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_success || _isLoading)" OnClick="@(async () => await HandleLoginAsync())">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(_isLoading)" OnClick="@(async () => await HandleLoginAsync())">
             Ingresar
         </MudButton>
     </div>
