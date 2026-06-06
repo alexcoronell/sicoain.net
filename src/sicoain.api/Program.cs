@@ -137,7 +137,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("StrictCors", policy =>
     {
-        policy.WithOrigins("http://localhost:5000", "http://localhost:5001")
+        policy.WithOrigins("http://localhost:5250")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();

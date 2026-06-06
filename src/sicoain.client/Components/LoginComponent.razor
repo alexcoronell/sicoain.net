@@ -1,46 +1,82 @@
-<MudForm
-    @ref="_form"
-    @bind-IsValid="@_success"
-    @bind-Errors="@_errors"
-    OnEnterPressed="@(() => _form.ValidateAsync())"
-    Class="mx-auto w-100"
-    Style="padding: 1.5rem;">
+@using sicoain.client.Abstractions
+@using sicoain.shared.DTOs
+
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors" OnEnterPressed="@(() => { if (_form is not null) _form.ValidateAsync(); })"
+         Class="mx-auto w-100" Style="padding: 1.5rem;">
     <MudText Typo="Typo.h3" Class="text-center">
         Ingresar
     </MudText>
-    <MudTextField
-        Class="w-100 mb-3"
-        T="string"
-        Label="Usuario"
-        HelperText="Escribe tu usuario"
-        Required="true"
-        RequiredError="El usuario es requerido!" />
-    <MudTextField
-        Class="w-100 mb-6"
-        T="string"
-        @bind-Value="@_password"
-        Label="Contraseña"
-        HelperText="Escribe tu contraseña"
-        InputType="InputType.Password"
-        Required="true"
-        RequiredError="La contraseña es requerida!" />
+    <MudTextField Class="w-100 mb-3" T="string" @bind-Value="@_email" Label="Correo Electrónico"
+                  HelperText="Ingresa tu correo electrónico" Required="true" RequiredError="El email es requerido!"
+                  For="@(() => _email)" />
+    <MudTextField Class="w-100 mb-6" T="string" @bind-Value="@_password" Label="Contraseña"
+                  HelperText="Escribe tu contraseña" InputType="InputType.Password" Required="true"
+                  RequiredError="La contraseña es requerida!" For="@(() => _password)" />
     <div class="d-flex align-center justify-center pt-3">
-        <MudButton
-            Variant="Variant.Filled"
-            Color="Color.Primary"
-            Disabled="@(!_success)">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_success || _isLoading)" OnClick="@(async () => await HandleLoginAsync())">
             Ingresar
         </MudButton>
     </div>
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-3">
+            @_errorMessage
+        </MudAlert>
+    }
 </MudForm>
 
 @code
 {
+    private MudForm? _form;
     private bool _success;
+    private string[] _errors = Array.Empty<string>();
+    private string _email = string.Empty;
+    private string _password = string.Empty;
+    private string _errorMessage = string.Empty;
+    private bool _isLoading = false;
 
-    private MudForm _form;
+    private async Task HandleLoginAsync()
+    {
+        _errorMessage = string.Empty;
+        _isLoading = true;
+        StateHasChanged();
 
-    private string _password;
+        var request = new LoginRequest
+        (
+            Email: _email,
+            Password: _password
+        );
 
-    private string[] _errors = [];
+        try
+        {
+            var result = await AuthService.LoginAsync(request);
+
+            if (result.Success)
+            {
+                Navigation.NavigateTo("/dashboard", true);
+            }
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _errorMessage = ex.Message;
+            _success = false;
+            if (_form is not null) await _form.ValidateAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.";
+            Console.Error.WriteLine($"Login error: {ex.Message}");
+            _success = false;
+            if (_form is not null) await _form.ValidateAsync();
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
 }

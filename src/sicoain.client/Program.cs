@@ -17,7 +17,7 @@ builder.Services.AddTransient<CsrfHandler>();
 // Configure an HttpClient with a name that includes the CSRF handler
 builder.Services.AddHttpClient("SicoainApi", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5078/api/v1");
+    client.BaseAddress = new Uri("http://localhost:5078");
 })
 .AddHttpMessageHandler<CsrfHandler>();
 

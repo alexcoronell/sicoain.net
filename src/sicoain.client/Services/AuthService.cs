@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using sicoain.client.Abstractions;
+using sicoain.client.Constants;
 using sicoain.shared.DTOs;
 using sicoain.shared.DTOs.Users;
 
@@ -9,6 +10,7 @@ namespace sicoain.client.Services
     public class AuthService : IAuthService
     {
         private readonly HttpClient _httpClient;
+        private readonly string path = $"{ApiPath.Path}/auth";
 
         public AuthService(HttpClient httpClient)
         {
@@ -17,7 +19,7 @@ namespace sicoain.client.Services
 
         public async Task<AuthResponse> LoginAsync(LoginRequest request)
         {
-            var response = await _httpClient.PostAsJsonAsync("/auth/login", request);
+            var response = await _httpClient.PostAsJsonAsync($"{path}/login", request);
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
@@ -31,7 +33,7 @@ namespace sicoain.client.Services
 
         public async Task<UserDto> GetCurrentUserAsync()
         {
-            var response = await _httpClient.GetAsync("/auth/me");
+            var response = await _httpClient.GetAsync($"{path}/me");
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
@@ -45,7 +47,7 @@ namespace sicoain.client.Services
 
         public async Task<bool> RefreshTokenAsync()
         {
-            var response = await _httpClient.PostAsync("/auth/refresh", null);
+            var response = await _httpClient.PostAsync($"{path}/refresh", null);
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
@@ -58,7 +60,7 @@ namespace sicoain.client.Services
 
         public async Task LogoutAsync()
         {
-            var response = await _httpClient.PostAsync("/auth/logout", null);
+            var response = await _httpClient.PostAsync($"{path}/logout", null);
             response.EnsureSuccessStatusCode();
         }
 
