@@ -1,7 +1,11 @@
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
 @using sicoain.client.Abstractions
+@using sicoain.client.Providers
 @using sicoain.shared.DTOs
 
 @inject IAuthService AuthService
+@inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager Navigation
 
 <MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors" OnEnterPressed="@(() => { if (_form is not null) _form.ValidateAsync(); })"
@@ -56,6 +60,18 @@
 
             if (result.Success)
             {
+                var customProvider = AuthProvider as CustomAuthenticationStateProvider;
+                if (customProvider is not null)
+                {
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Email, request.Email),
+                        new Claim(ClaimTypes.Name, result.FullName ?? request.Email)
+                    };
+                    var identity = new ClaimsIdentity(claims, "apiauth");
+                    var user = new ClaimsPrincipal(identity);
+                    customProvider.MarkUserAsAuthenticated(user);
+                }
                 Navigation.NavigateTo("/dashboard", true);
             }
         }

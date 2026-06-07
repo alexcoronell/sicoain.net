@@ -19,9 +19,9 @@ public class CookieManager : ICookieManager
 
         var cookieOptions = new CookieOptions
         {
-            HttpOnly = true,
+            HttpOnly = false,
             Secure = httpContext.Request.IsHttps,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = DateTime.UtcNow.AddMinutes(minutes)
         };
         httpContext.Response.Cookies.Append(key, token, cookieOptions);

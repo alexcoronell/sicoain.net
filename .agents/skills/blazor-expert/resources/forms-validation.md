@@ -57,7 +57,7 @@ public class RegistrationModel
 ### EditForm Events
 
 ```csharp
-<EditForm Model="@model" 
+<EditForm Model="@model"
           OnValidSubmit="@OnValidSubmit"
           OnInvalidSubmit="@OnInvalidSubmit"
           OnSubmit="@OnSubmit">
@@ -104,7 +104,7 @@ public class RegistrationModel
     {
         // Manually trigger validation and submission
         await form!.RequestValidationAsync();
-        
+
         // Check if valid
         if (form!.EditContext.IsModified() && form!.EditContext.Validate())
         {
@@ -121,7 +121,6 @@ public class RegistrationModel
     private void CheckValid()
     {
         bool isValid = form!.EditContext.Validate();
-        Console.WriteLine($"Form valid: {isValid}");
     }
 }
 ```
@@ -239,11 +238,11 @@ Accept terms of service?
     private async Task HandleFileSelect(InputFileChangeEventArgs e)
     {
         var file = e.File;
-        
+
         using var stream = file.OpenReadStream();
         var buffer = new byte[stream.Length];
         await stream.ReadAsync(buffer);
-        
+
         // Process file
     }
 }
@@ -332,7 +331,7 @@ public class UserModel : IValidatableObject
 {
     public string Email { get; set; } = "";
     public string ConfirmEmail { get; set; } = "";
-    
+
     [Range(18, 100)]
     public int Age { get; set; }
 
@@ -478,7 +477,7 @@ else
 ```csharp
 <EditForm Model="@model" OnValidSubmit="@SubmitAsync">
     <DataAnnotationsValidator />
-    
+
     @if (!string.IsNullOrEmpty(errorMessage))
     {
         <div class="alert alert-danger">@errorMessage</div>

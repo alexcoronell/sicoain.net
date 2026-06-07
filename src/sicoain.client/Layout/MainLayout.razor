@@ -21,13 +21,7 @@
             Sistema de Control de Accidentes e Incidentes
         </MudText>
         <MudSpacer />
-        <MudText Typo="Typo.subtitle1" Class="mr-2 text-dark">
-            Hola
-        </MudText>
-        <MudChip T="string" Color="Color.Dark">
-            Nombre de Usuario
-        </MudChip>
-        <MudButton Variant="@Variant.Text">Salir</MudButton>
+        <StatusSessionComponent />
     </MudAppBar>
     <MudDrawer @bind-Open="@_open" Elevation="2">
         <MudDrawerHeader>

@@ -49,7 +49,7 @@ namespace sicoain.api.Controllers
             return Ok(new { message = "Logout successful" });
         }
 
-        [HttpPost("me")]
+        [HttpGet("me")]
         [Authorize]
         public async Task<IActionResult> GetCurrentUser()
         {

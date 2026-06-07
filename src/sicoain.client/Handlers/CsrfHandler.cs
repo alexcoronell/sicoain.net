@@ -14,7 +14,8 @@ namespace sicoain.client.Handlers
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (request.Method == HttpMethod.Post ||
+            if (request.Method == HttpMethod.Get ||
+            request.Method == HttpMethod.Post ||
                 request.Method == HttpMethod.Put ||
                 request.Method == HttpMethod.Patch ||
                 request.Method == HttpMethod.Delete)
