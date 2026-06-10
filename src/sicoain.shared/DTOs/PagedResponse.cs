@@ -2,7 +2,7 @@ namespace sicoain.shared.DTOs
 {
     public record PagedResponse<T>
     {
-        public List<T> Items { get; init; } = new();
+        public List<T> Items { get; init; } = new List<T>();
         public int TotalCount { get; init; }
         public int PageNumber { get; init; }
         public int PageSize { get; init; }
