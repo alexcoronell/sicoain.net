@@ -1,18 +1,21 @@
-@using System.Net.Http.Json
-@inject HttpClient httpClient
 @using sicoain.client.Abstractions
 @using sicoain.client.Services
 @using sicoain.shared.DTOs
 @using sicoain.shared.DTOs.Users
-@using static MudBlazor.CategoryTypes
+@using sicoain.client.Components
 
 @inject IUserService UserService
 @page "/usuarios"
-<PageTitle>SICOAIN | Sistema de Control de Accidentes e Incidentes | Usuarios</PageTitle>
 
-<div style="padding: 20px; border-radius: 8px; background-color: #f5f5f5;">
-    <h1>Usuarios</h1>
-    <MudDivider />
+<TableComponent TitlePage="Usuarios" 
+                @bind-CurrentPage="_currentPage" 
+                @bind-CurrentPage:after="OnPageChanged"
+                TotalItems="_totalItems" 
+                PageSize="_pageSize" 
+                TotalPages="_totalPages" 
+                HasPreviousPage="_hasPreviousPage" 
+                HasNextPage="_hasNextPage">
+    
     <MudTable Items="@Elements" Hover="true" Loading="@_loading" LoadingProgressColor="Color.Info">
         <HeaderContent>
             <MudTh>Id</MudTh>
@@ -25,7 +28,7 @@
             <MudTd DataLabel="Email">@context.Email</MudTd>
         </RowTemplate>
     </MudTable>
-</div>
+</TableComponent>
 
 @code {
     private bool _loading;
@@ -57,6 +60,11 @@
         {
             _loading = false;
         }
+    }
+
+    private async Task OnPageChanged()
+    {
+        await LoadDataAsync(_currentPage, _pageSize);
     }
 
     protected override async Task OnInitializedAsync()
