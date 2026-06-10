@@ -4,7 +4,7 @@ using sicoain.shared.DTOs;
 namespace sicoain.client.Abstractions
 {
     public interface IBaseService<TDto, TCreateRequest, TUpdateRequest>
-        where TDto : class
+         where TDto : class
         where TCreateRequest : class
         where TUpdateRequest : class
     {
