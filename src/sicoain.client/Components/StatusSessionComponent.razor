@@ -5,30 +5,43 @@
 @inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager Navigation
 
-<MudText Typo="Typo.subtitle1" Class="mr-2 text-dark">
-    Hola @_userName
-</MudText>
-<MudButton Variant="@Variant.Text" OnClick="HandleLogoutAsync">Salir</MudButton>
+@if (_isAuthenticated)
+{
+    <MudText Typo="Typo.subtitle1" Class="mr-2 text-dark">
+        Hola @_userName
+    </MudText>
+    <MudButton Variant="@Variant.Text" OnClick="HandleLogoutAsync">Salir</MudButton>
+}
 
 @code
 {
     private string _userName = string.Empty;
     private bool _isAuthenticated = false;
 
+    [Parameter]
+    public EventCallback<bool> sendIsAuthenticated { get; set; }
+
+    private async Task sendAuthStatusToParent()
+    {
+        await sendIsAuthenticated.InvokeAsync(_isAuthenticated);
+    }
+
     private async Task LoadUserFromState()
     {
         var authState = await AuthProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
-        if(user.Identity?.IsAuthenticated == true)
+        if (user.Identity?.IsAuthenticated == true)
         {
-            Console.WriteLine("Usuario autenticado: " + user);
             _userName = user.FindFirst("Fullname")?.Value ?? user.Identity.Name ?? "Usuario";
+            _isAuthenticated = true;
         }
         else
         {
             _userName = string.Empty;
+            _isAuthenticated = false;
         }
+        await sendAuthStatusToParent();
     }
 
     protected override async Task OnInitializedAsync()

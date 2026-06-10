@@ -19,9 +19,9 @@ public class CookieManager : ICookieManager
 
         var cookieOptions = new CookieOptions
         {
-            HttpOnly = false,
+            HttpOnly = true,
             Secure = httpContext.Request.IsHttps,
-            SameSite = SameSiteMode.None,
+            SameSite = SameSiteMode.Unspecified,
             Expires = DateTime.UtcNow.AddMinutes(minutes)
         };
         httpContext.Response.Cookies.Append(key, token, cookieOptions);
@@ -46,7 +46,7 @@ public class CookieManager : ICookieManager
         {
             HttpOnly = true,
             Secure = httpContext.Request.IsHttps,
-            SameSite = SameSiteMode.Strict
+            SameSite = SameSiteMode.Unspecified
         });
     }
 
