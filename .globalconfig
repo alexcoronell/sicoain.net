@@ -39,3 +39,9 @@ dotnet_diagnostic.MA0016.severity = silent
 
 # MA0015: Disable Specify the parameter name in ArgumentException
 dotnet_diagnostic.MA0015.severity = silent
+
+# MUD0002: Disable Illefal Attribute Autocomplete (Blazor)
+dotnet_diagnostic.MUD0002.severity = silent
+
+# CS8974 Disable to non-delegate type 'object'
+dotnet_diagnostic.CS8974.severity = silent

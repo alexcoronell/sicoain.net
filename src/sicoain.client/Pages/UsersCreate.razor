@@ -1,0 +1,15 @@
+@using sicoain.client.Abstractions
+@using sicoain.client.Services
+@using sicoain.shared.DTOs
+@using sicoain.shared.DTOs.Users
+@using sicoain.client.Components
+
+@inject IUserService UserService
+@page "/usuarios/crear"
+
+<div>
+    <MudText Typo="Typo.h2" Class="text-center block">
+        Crear Usuario
+    </MudText>
+    <UserForm />
+</div>
