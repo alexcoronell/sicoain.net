@@ -7,26 +7,28 @@
 @inject IUserService UserService
 @page "/usuarios"
 
-<TableComponent TitlePage="Usuarios" 
-                @bind-CurrentPage="_currentPage" 
-                @bind-CurrentPage:after="OnPageChanged"
-                TotalItems="_totalItems" 
-                PageSize="_pageSize" 
-                TotalPages="_totalPages" 
-                HasPreviousPage="_hasPreviousPage" 
-                HasNextPage="_hasNextPage">
-    
-    <MudTable Items="@Elements" Hover="true" Loading="@_loading" LoadingProgressColor="Color.Info">
+<TableComponent TitlePage="Usuarios"
+                CreateUrl="@CreateUrl">
+
+    <MudTable Items="@Elements" Hover="true" Loading="@_loading" FixedHeader="@fixed_header" FixedFooter="@fixed_footer" Height="@(fixed_header || fixed_footer ?"350px":"")" LoadingProgressColor="Color.Info" Class="w-full" Style="min-width: 600px; max-width: 800px;">
         <HeaderContent>
             <MudTh>Id</MudTh>
-            <MudTh>Fullname</MudTh>
-            <MudTh>Email</MudTh>
+            <MudTh>Nombre completo</MudTh>
+            <MudTh>Correo Electrónico</MudTh>
+            <MudTh Class="text-center">Acciones</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Id">@context.Id</MudTd>
             <MudTd DataLabel="Fullname">@context.FullName</MudTd>
             <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd Class="flex gap-3 justify-center items-center">
+                <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" />
+                <MudFab Color="Color.Error" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" />
+            </MudTd>
         </RowTemplate>
+        <PagerContent>
+        <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" RowsPerPageString="Items por página" />
+    </PagerContent>
     </MudTable>
 </TableComponent>
 
@@ -39,6 +41,10 @@
     private bool _hasPreviousPage = false;
     private bool _hasNextPage = false;
     private IEnumerable<UserDto> Elements = new List<UserDto>();
+    bool fixed_header = true;
+    bool fixed_footer = true;
+
+    private string CreateUrl = "/usuarios/crear";
 
     private async Task LoadDataAsync(int page = 1, int pageSize = 10)
     {
