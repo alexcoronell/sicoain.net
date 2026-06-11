@@ -3,14 +3,16 @@
 @using sicoain.shared.DTOs
 @using sicoain.shared.DTOs.Users
 @using sicoain.client.Components
+@using MudBlazor
 
 @inject IUserService UserService
 @page "/usuarios"
 
-<TableComponent TitlePage="Usuarios"
-                CreateUrl="@CreateUrl">
+<TableComponent TitlePage="Usuarios" CreateUrl="@CreateUrl">
 
-    <MudTable Items="@Elements" Hover="true" Loading="@_loading" FixedHeader="@fixed_header" FixedFooter="@fixed_footer" Height="@(fixed_header || fixed_footer ?"350px":"")" LoadingProgressColor="Color.Info" Class="w-full" Style="min-width: 600px; max-width: 800px;">
+    <MudTable Items="@Elements" ServerData="@LoadServerData" Hover="true" Loading="@_loading"
+              FixedHeader="@fixed_header" FixedFooter="@fixed_footer" Height="@(fixed_header || fixed_footer ?"350px":"")"
+              LoadingProgressColor="Color.Info" Class="w-full" Style="min-width: 600px; max-width: 800px;">
         <HeaderContent>
             <MudTh>Id</MudTh>
             <MudTh>Nombre completo</MudTh>
@@ -27,54 +29,60 @@
             </MudTd>
         </RowTemplate>
         <PagerContent>
-        <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" RowsPerPageString="Items por página" />
-    </PagerContent>
+            <MudTablePager PageSizeOptions="@_pageSizeOptions" RowsPerPageString="@rowsPerPageString"
+                           InfoFormat="@infoFormat" AllItemsText="@allItemsText" />
+        </PagerContent>
     </MudTable>
 </TableComponent>
 
 @code {
     private bool _loading;
-    private int _totalItems;
-    private int _currentPage = 1;
-    private int _pageSize = 10;
-    private int _totalPages = 0;
-    private bool _hasPreviousPage = false;
-    private bool _hasNextPage = false;
     private IEnumerable<UserDto> Elements = new List<UserDto>();
-    bool fixed_header = true;
-    bool fixed_footer = true;
+    private readonly bool fixed_header = true;
+    private readonly bool fixed_footer = true;
+    private readonly string rowsPerPageString = "Items por página:";
+    private readonly string infoFormat = "{first_item}-{last_item} - Total {all_items} usuarios";
+    private readonly string allItemsText = "Todos";
+    private readonly string CreateUrl = "/usuarios/crear";
+    private int[] _pageSizeOptions = new[] { 10, 25, 50, 100 };
 
-    private string CreateUrl = "/usuarios/crear";
+    private static int[] ComputePageSizeOptions(int totalItems)
+    {
+        if (totalItems <= 10)
+            return new[] { totalItems };
 
-    private async Task LoadDataAsync(int page = 1, int pageSize = 10)
+        if (totalItems < 25)
+            return new[] { 10, totalItems };
+
+        if (totalItems < 50)
+            return new[] { 10, 25, totalItems };
+
+        return new[] { 10, 25, 50, 100, totalItems };
+    }
+
+    private async Task<TableData<UserDto>> LoadServerData(TableState state, CancellationToken cancellationToken)
     {
         _loading = true;
+        StateHasChanged();
 
         try
         {
-            var response = await UserService.GetAllAsync(page, pageSize);
+            PagedResponse<UserDto>? response = await UserService.GetAllAsync(
+                pageNumber: state.Page + 1,
+                pageSize: state.PageSize);
 
             Elements = response.Items;
-            _totalItems = response.TotalCount;
-            _currentPage = response.PageNumber;
-            _pageSize = response.PageSize;
-            _totalPages = response.TotalPages;
-            _hasPreviousPage = response.HasPreviousPage;
-            _hasNextPage = response.HasNextPage;
+            _pageSizeOptions = ComputePageSizeOptions(response.TotalCount);
+
+            return new TableData<UserDto>
+            {
+                Items = response.Items,
+                TotalItems = response.TotalCount
+            };
         }
         finally
         {
             _loading = false;
         }
-    }
-
-    private async Task OnPageChanged()
-    {
-        await LoadDataAsync(_currentPage, _pageSize);
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadDataAsync();
     }
 }
