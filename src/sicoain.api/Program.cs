@@ -206,6 +206,7 @@ builder.Services.AddScoped<IHealthPromotionEntityService, HealthPromotionEntityS
 builder.Services.AddScoped<IOccupationalRiskAdministratorService, OccupationalRiskAdministratorService>();
 builder.Services.AddScoped<IPositionService, PositionService>();
 builder.Services.AddScoped<IRiskClassService, RiskClassService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IWitnessService, WitnessService>();
 
 
