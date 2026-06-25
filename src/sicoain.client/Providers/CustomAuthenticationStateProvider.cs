@@ -5,7 +5,7 @@ using sicoain.shared.DTOs.Users;
 
 namespace sicoain.client.Providers
 {
-    public class CustomAuthenticationStateProvider: AuthenticationStateProvider
+    public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly IAuthService _authService;
         private ClaimsPrincipal _currentUser = new(new ClaimsIdentity());
@@ -21,7 +21,7 @@ namespace sicoain.client.Providers
             try
             {
                 UserDto userDto = await _authService.GetCurrentUserAsync();
-                if(userDto != null && !string.IsNullOrEmpty(userDto.Email))
+                if (userDto != null && !string.IsNullOrEmpty(userDto.Email))
                 {
                     var claims = new List<Claim>
                     {
@@ -38,11 +38,11 @@ namespace sicoain.client.Providers
                     _currentUser = new ClaimsPrincipal(new ClaimsIdentity());
                 }
             }
-            catch(UnauthorizedAccessException)
+            catch (UnauthorizedAccessException)
             {
                 _currentUser = new(new ClaimsIdentity());
             }
-            catch(Exception)
+            catch (Exception)
             {
                 _currentUser = new(new ClaimsIdentity());
             }
