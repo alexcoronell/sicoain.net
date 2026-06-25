@@ -189,15 +189,19 @@
 
         _successMessage = string.Empty;
         _errorMessage = string.Empty;
+        _permissionsLoaded = false;
     }
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (IsEditMode)
+        if (IsEditMode && !_permissionsLoaded)
         {
+            _permissionsLoaded = true;
             await LoadPermissionsAsync();
         }
     }
+
+    private bool _permissionsLoaded;
 
     private async Task LoadPermissionsAsync()
     {
