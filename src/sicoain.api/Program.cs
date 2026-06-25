@@ -274,6 +274,28 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+    /* Development-only: fix identity gaps and prevent future jumps */
+    if (app.Environment.IsDevelopment())
+    {
+        /* Disable IDENTITY_CACHE to prevent future gaps on SQL Server restart */
+        await dbContext.Database.ExecuteSqlRawAsync(
+            "ALTER DATABASE SCOPED CONFIGURATION SET IDENTITY_CACHE = OFF;")
+            .ConfigureAwait(false);
+
+        /* Reseed identity columns so next ID = max(Id) + 1 (fixes cache-jump gaps) */
+        string[] identityTables = ["Users", "CustomRoles"];
+        foreach (var table in identityTables)
+        {
+            await dbContext.Database
+                .ExecuteSqlAsync($"""
+                    DECLARE @maxId INT = (SELECT ISNULL(MAX(Id), 0) FROM [{table}]);
+                    DBCC CHECKIDENT ('[{table}]', RESEED, @maxId);
+                    """).ConfigureAwait(false);
+        }
+
+        Console.WriteLine("Fixed identity gaps for development");
+    }
+
     /* Create roles in Identity if they don't exist */
     await RoleSeeder.SeedAsync(services).ConfigureAwait(false);
     Console.WriteLine("Base roles seed in Identity");

@@ -3,8 +3,10 @@
 @using sicoain.client.Abstractions
 @using sicoain.client.Providers
 @using sicoain.shared.DTOs
+@using sicoain.shared.DTOs.Roles
 @using sicoain.shared.DTOs.Users
 
+@inject IRoleService RoleService
 @inject IUserService UserService
 
 <MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors"
@@ -25,6 +27,14 @@
                   HelperText="Corfirma la contraseña" InputType="InputType.Password" Required="true"
                   RequiredError="La confirmación de contraseña es requerida!" For="@(() => _confirmPassword)"
                   Autocomplete="new-password" Disabled="@(_isLoading)" Validation="@ValidateConfirmPassword" />
+    <MudSelect T="string" Label="Roles" MultiSelection="true" @bind-SelectedValues="_selectedRoleNames"
+               AnchorOrigin="Origin.BottomCenter" Class="w-100 mb-6" Disabled="@(_isLoading || _isLoadingRoles)"
+               HelperText="Selecciona uno o más roles para el usuario" StringSelectionMode="SelectionMode.MultiSelection">
+        @foreach (var role in _roleDtos)
+        {
+            <MudSelectItem Value="@role.Name">@role.Name</MudSelectItem>
+        }
+    </MudSelect>
     <div class="d-flex align-center justify-center gap-3 pt-3">
         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success"
                    Disabled="@(_isLoading)" Size="Size.Large" OnClick="@(async () => await HandleSaveAsync())">Guardar
@@ -58,7 +68,31 @@
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private bool _isLoading = false;
+    private bool _isLoadingRoles = false;
 
+    private IEnumerable<RoleDto> _roleDtos = [];
+    private IReadOnlyCollection<string> _selectedRoleNames = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAllRoles();
+    }
+
+    private async Task GetAllRoles()
+    {
+        _isLoadingRoles = true;
+        StateHasChanged();
+        try
+        {
+            PagedResponse<RoleDto>? response = await RoleService.GetAllAsync();
+            _roleDtos = response.Items;
+            Console.Write(response);
+        }
+        finally
+        {
+            _isLoadingRoles = false;
+        }
+    }
     private string? ValidateFullName(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -109,7 +143,8 @@
         {
             Email = _email,
             Password = _password,
-            FullName = _fullname
+            FullName = _fullname,
+            Roles = _selectedRoleNames.Count > 0 ? [.. _selectedRoleNames] : null
         };
 
         try

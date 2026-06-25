@@ -9,6 +9,7 @@ using sicoain.client.Abstractions;
 using sicoain.client.Handlers;
 using sicoain.client.Services;
 using sicoain.client.Providers;
+using sicoain.shared.Entities;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -36,6 +37,7 @@ builder.Services.AddScoped(sp =>
 
 //Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 // Register the custom authentication state provider
