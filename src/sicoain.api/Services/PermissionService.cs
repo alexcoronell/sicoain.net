@@ -65,7 +65,7 @@ namespace sicoain.api.Services
 
         public async Task<List<string>> GetRolePermissionsAsync(int roleId)
         {
-            var role = await _context.CustomRoles.FindAsync(roleId);
+            var role = await _context.CustomRoles.FindAsync(roleId).ConfigureAwait(false);
             if (role == null || role.IsDeleted)
                 return new List<string>();
 

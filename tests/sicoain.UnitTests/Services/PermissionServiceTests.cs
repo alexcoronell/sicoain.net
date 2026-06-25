@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using Moq;
 using sicoain.api.Abstractions;
 using sicoain.api.Data;
 using sicoain.api.Services;
+using sicoain.shared.DTOs.Permissions;
 using sicoain.shared.Entities;
 using Xunit;
 
@@ -18,6 +20,7 @@ namespace sicoain.UnitTests.Services
         private readonly Mock<UserManager<User>> _userManagerMock;
         private readonly Mock<RoleManager<IdentityRole<int>>> _roleManagerMock;
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
         private readonly PermissionService _service;
 
         public PermissionServiceTests()
@@ -37,7 +40,13 @@ namespace sicoain.UnitTests.Services
             _roleManagerMock = new Mock<RoleManager<IdentityRole<int>>>(
                 roleStoreMock.Object, null, null, null, null);
 
-            _service = new PermissionService(_userManagerMock.Object, _roleManagerMock.Object, _context);
+            // Setup AutoMapper
+            var expression = new MapperConfigurationExpression();
+            expression.CreateMap<Permissions, PermissionDto>();
+            var config = new MapperConfiguration(expression, new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory());
+            _mapper = config.CreateMapper();
+
+            _service = new PermissionService(_userManagerMock.Object, _roleManagerMock.Object, _context, _mapper);
         }
 
         [Fact]
