@@ -15,38 +15,79 @@ namespace sicoain.client.Providers
             _authService = authService;
         }
 
-        // We are trying to get the current user from the backend
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             try
             {
+                // Try to get the current user with the existing access token
                 UserDto userDto = await _authService.GetCurrentUserAsync();
                 if (userDto != null && !string.IsNullOrEmpty(userDto.Email))
                 {
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
-                        new Claim(ClaimTypes.Name, userDto.FullName ?? string.Empty),
-                        new Claim(ClaimTypes.Email, userDto.Email)
-                    };
+                    SetAuthenticatedUser(userDto);
+                    return new AuthenticationState(_currentUser);
+                }
 
-                    var identity = new ClaimsIdentity(claims, "apiauth");
-                    _currentUser = new ClaimsPrincipal(identity);
-                }
-                else
-                {
-                    _currentUser = new ClaimsPrincipal(new ClaimsIdentity());
-                }
+                _currentUser = new(new ClaimsIdentity());
+                return new AuthenticationState(_currentUser);
             }
             catch (UnauthorizedAccessException)
             {
-                _currentUser = new(new ClaimsIdentity());
+                // Access token expired — try to refresh before giving up
+                return await TryRefreshAndGetUserAsync();
             }
             catch (Exception)
             {
                 _currentUser = new(new ClaimsIdentity());
+                return new AuthenticationState(_currentUser);
             }
-            return new AuthenticationState(_currentUser);
+        }
+
+        private async Task<AuthenticationState> TryRefreshAndGetUserAsync()
+        {
+            try
+            {
+                var refreshed = await _authService.RefreshTokenAsync();
+                if (!refreshed)
+                {
+                    _currentUser = new(new ClaimsIdentity());
+                    return new AuthenticationState(_currentUser);
+                }
+
+                // Refresh succeeded, now retry getting the user
+                UserDto userDto = await _authService.GetCurrentUserAsync();
+                if (userDto != null && !string.IsNullOrEmpty(userDto.Email))
+                {
+                    SetAuthenticatedUser(userDto);
+                    return new AuthenticationState(_currentUser);
+                }
+
+                _currentUser = new(new ClaimsIdentity());
+                return new AuthenticationState(_currentUser);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Refresh token also expired or invalid — real logout
+                _currentUser = new(new ClaimsIdentity());
+                return new AuthenticationState(_currentUser);
+            }
+            catch (Exception)
+            {
+                _currentUser = new(new ClaimsIdentity());
+                return new AuthenticationState(_currentUser);
+            }
+        }
+
+        private void SetAuthenticatedUser(UserDto userDto)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
+                new Claim(ClaimTypes.Name, userDto.FullName ?? string.Empty),
+                new Claim(ClaimTypes.Email, userDto.Email)
+            };
+
+            var identity = new ClaimsIdentity(claims, "apiauth");
+            _currentUser = new ClaimsPrincipal(identity);
         }
 
         // Method to notify that the user has logged in
