@@ -17,16 +17,23 @@
                   RequiredError="El nombre completo es requerido!" For="@(() => _fullname)" Disabled="@(_isLoading)"
                   Validation="@ValidateFullName" />
     <MudTextField Class="w-100 mb-3" T="string" @bind-Value="@_email" Label="Correo Electrónico"
-                  HelperText="Ingresa el correo electrónico" Required="true" RequiredError="El email es requerido!"
-                  For="@(() => _email)" Autocomplete="off" InputType="InputType.Email" Disabled="@(_isLoading)" />
-    <MudTextField Class="w-100 mb-6" T="string" @bind-Value="@_password" Label="Contraseña"
-                  @bind-Value:after="OnPasswordChanged" HelperText="Escribe tu contraseña" InputType="InputType.Password"
-                  Required="true" RequiredError="La contraseña es requerida!" For="@(() => _password)" Autocomplete="new-password"
-                  MinLength=8 Disabled="@(_isLoading)" />
-    <MudTextField Class="w-100 mb-6" T="string" @bind-Value="@_confirmPassword" Label="Confirmar Contraseña"
-                  HelperText="Corfirma la contraseña" InputType="InputType.Password" Required="true"
-                  RequiredError="La confirmación de contraseña es requerida!" For="@(() => _confirmPassword)"
-                  Autocomplete="new-password" Disabled="@(_isLoading)" Validation="@ValidateConfirmPassword" />
+                  HelperText="Ingresa el correo electrónico" Required="@(!IsEditMode)"
+                  RequiredError="El email es requerido!" For="@(() => _email)" Autocomplete="off"
+                  InputType="InputType.Email" Disabled="@(_isLoading)" />
+
+    @if (!IsEditMode)
+    {
+        <MudTextField Class="w-100 mb-6" T="string" @bind-Value="@_password" Label="Contraseña"
+                      @bind-Value:after="OnPasswordChanged" HelperText="Escribe tu contraseña"
+                      InputType="InputType.Password" Required="true"
+                      RequiredError="La contraseña es requerida!" For="@(() => _password)"
+                      Autocomplete="new-password" MinLength=8 Disabled="@(_isLoading)" />
+        <MudTextField Class="w-100 mb-6" T="string" @bind-Value="@_confirmPassword" Label="Confirmar Contraseña"
+                      HelperText="Confirma la contraseña" InputType="InputType.Password" Required="true"
+                      RequiredError="La confirmación de contraseña es requerida!" For="@(() => _confirmPassword)"
+                      Autocomplete="new-password" Disabled="@(_isLoading)" Validation="@ValidateConfirmPassword" />
+    }
+
     <MudSelect T="string" Label="Roles" MultiSelection="true" @bind-SelectedValues="_selectedRoleNames"
                AnchorOrigin="Origin.BottomCenter" Class="w-100 mb-6" Disabled="@(_isLoading || _isLoadingRoles)"
                HelperText="Selecciona uno o más roles para el usuario" StringSelectionMode="SelectionMode.MultiSelection">
@@ -37,7 +44,9 @@
     </MudSelect>
     <div class="d-flex align-center justify-center gap-3 pt-3">
         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success"
-                   Disabled="@(_isLoading)" Size="Size.Large" OnClick="@(async () => await HandleSaveAsync())">Guardar
+                   Disabled="@(_isLoading)" Size="Size.Large"
+                   OnClick="@(async () => await HandleSaveAsync())">
+            @(IsEditMode ? "Actualizar" : "Guardar")
         </MudButton>
         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Disabled="@(_isLoading)"
                    Size="Size.Large" Href="/usuarios">Volver</MudButton>
@@ -56,12 +65,13 @@
 
 @code
 {
+    [Parameter] public UserDto? User { get; set; }
+
     private MudForm? _form;
     private bool _success;
     private string[] _errors = Array.Empty<string>();
 
     private string _email = string.Empty;
-
     private string _fullname = string.Empty;
     private string _password = string.Empty;
     private string _confirmPassword = string.Empty;
@@ -70,12 +80,23 @@
     private bool _isLoading = false;
     private bool _isLoadingRoles = false;
 
+    private bool IsEditMode => User is not null;
+
     private IEnumerable<RoleDto> _roleDtos = [];
     private IReadOnlyCollection<string> _selectedRoleNames = [];
 
     protected override async Task OnInitializedAsync()
     {
         await GetAllRoles();
+
+        if (IsEditMode)
+        {
+            _email = User!.Email;
+            _fullname = User!.FullName;
+
+            var userRoles = await UserService.GetUserRolesAsync(User.Id);
+            _selectedRoleNames = userRoles.ToList();
+        }
     }
 
     private async Task GetAllRoles()
@@ -86,13 +107,13 @@
         {
             PagedResponse<RoleDto>? response = await RoleService.GetAllAsync();
             _roleDtos = response.Items;
-            Console.Write(response);
         }
         finally
         {
             _isLoadingRoles = false;
         }
     }
+
     private string? ValidateFullName(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -139,23 +160,16 @@
             }
         }
 
-        CreateUserRequest? request = new CreateUserRequest
-        {
-            Email = _email,
-            Password = _password,
-            FullName = _fullname,
-            Roles = _selectedRoleNames.Count > 0 ? [.. _selectedRoleNames] : null
-        };
-
         try
         {
-            var result = await UserService.CreateAsync(request);
-            Console.WriteLine(result);
-            _successMessage = "El usuario fue guardado correctamente";
-            StateHasChanged();
-            await Task.Delay(3000);
-            _successMessage = string.Empty;
-            if (_form is not null) await _form.ResetAsync();
+            if (IsEditMode)
+            {
+                await HandleUpdateAsync();
+            }
+            else
+            {
+                await HandleCreateAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -169,5 +183,52 @@
             _isLoading = false;
             StateHasChanged();
         }
+    }
+
+    private async Task HandleCreateAsync()
+    {
+        var request = new CreateUserRequest
+        {
+            Email = _email,
+            Password = _password,
+            FullName = _fullname,
+            Roles = _selectedRoleNames.Count > 0 ? [.. _selectedRoleNames] : null
+        };
+
+        var result = await UserService.CreateAsync(request);
+        _successMessage = "El usuario fue guardado correctamente";
+        StateHasChanged();
+        await Task.Delay(3000);
+        _successMessage = string.Empty;
+        if (_form is not null) await _form.ResetAsync();
+    }
+
+    private async Task HandleUpdateAsync()
+    {
+        var updateRequest = new UpdateUserRequest
+        {
+            FullName = _fullname,
+            Email = _email
+        };
+
+        await UserService.UpdateAsync(User!.Id, updateRequest);
+
+        // Sync roles: assign new ones, remove unselected ones
+        var currentRoles = (await UserService.GetUserRolesAsync(User.Id)).ToList();
+        var selectedRoles = _selectedRoleNames.ToList();
+
+        var rolesToAdd = selectedRoles.Except(currentRoles);
+        var rolesToRemove = currentRoles.Except(selectedRoles);
+
+        foreach (var role in rolesToAdd)
+            await UserService.AssignRoleAsync(User.Id, role);
+
+        foreach (var role in rolesToRemove)
+            await UserService.RemoveRoleAsync(User.Id, role);
+
+        _successMessage = "El usuario fue actualizado correctamente";
+        StateHasChanged();
+        await Task.Delay(3000);
+        _successMessage = string.Empty;
     }
 }

@@ -1,0 +1,57 @@
+@using sicoain.client.Abstractions
+@using sicoain.client.Services
+@using sicoain.shared.DTOs
+@using sicoain.shared.DTOs.Users
+@using sicoain.client.Components
+
+@inject IUserService UserService
+@inject NavigationManager Navigation
+@page "/usuarios/editar/{Id:int}"
+
+<div>
+    <MudText Typo="Typo.h2" Class="text-center block">
+        Editar Usuario
+    </MudText>
+
+    @if (_loadingUser)
+    {
+        <MudProgressCircular Indeterminate="true" Class="mx-auto" />
+    }
+    else if (_notFound)
+    {
+        <MudAlert Severity="Severity.Warning">Usuario no encontrado</MudAlert>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/usuarios" Class="mt-3">
+            Volver a usuarios
+        </MudButton>
+    }
+    else if (_user is not null)
+    {
+        <UserForm User="@_user" />
+    }
+</div>
+
+@code
+{
+    [Parameter] public int Id { get; set; }
+
+    private UserDto? _user;
+    private bool _loadingUser = true;
+    private bool _notFound;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _user = await UserService.GetByIdAsync(Id);
+            _notFound = _user is null;
+        }
+        catch
+        {
+            _notFound = true;
+        }
+        finally
+        {
+            _loadingUser = false;
+        }
+    }
+}

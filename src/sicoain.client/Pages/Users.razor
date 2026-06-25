@@ -24,7 +24,8 @@
             <MudTd DataLabel="Fullname">@context.FullName</MudTd>
             <MudTd DataLabel="Email">@context.Email</MudTd>
             <MudTd Class="flex gap-3 justify-center items-center">
-                <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit" />
+                <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
+                        Href="@($"/usuarios/editar/{context.Id}")" />
                 <MudFab Color="Color.Error" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" />
             </MudTd>
         </RowTemplate>
