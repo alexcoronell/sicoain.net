@@ -1,0 +1,94 @@
+@using sicoain.client.Abstractions
+@using sicoain.client.Services
+@using sicoain.shared.DTOs
+@using sicoain.shared.DTOs.Roles
+@using sicoain.client.Components
+@using MudBlazor
+
+@inject IRoleService RoleService
+@page "/roles"
+
+<TableComponent TitlePage="Roles" CreateUrl="@CreateUrl">
+
+    <MudTable Items="@Elements" ServerData="@LoadServerData" Hover="true" Loading="@_loading"
+              FixedHeader="@fixed_header" FixedFooter="@fixed_footer" Height="@(fixed_header || fixed_footer ?"350px":"")"
+               LoadingProgressColor="Color.Info" Class="w-full">
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Nombre</MudTh>
+            <MudTh>Descripción</MudTh>
+            <MudTh class="text-center">Activo</MudTh>
+            <MudTh Class="text-center">Acciones</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="IsActive" Class="text-center">
+                <MudIcon Icon="@(context.IsActive ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
+                         Color="@(context.IsActive ? Color.Success : Color.Error)" />
+            </MudTd>
+            <MudTd Class="flex gap-3 justify-center items-center">
+                <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
+                        Href="@($"/roles/editar/{context.Id}")" />
+                <MudFab Color="Color.Error" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="@_pageSizeOptions" RowsPerPageString="@rowsPerPageString"
+                           InfoFormat="@infoFormat" AllItemsText="@allItemsText" />
+        </PagerContent>
+    </MudTable>
+</TableComponent>
+
+@code {
+    private bool _loading;
+    private IEnumerable<RoleDto> Elements = new List<RoleDto>();
+    private readonly bool fixed_header = true;
+    private readonly bool fixed_footer = true;
+    private readonly string rowsPerPageString = "Items por página:";
+    private readonly string infoFormat = "{first_item}-{last_item} - Total {all_items} roles";
+    private readonly string allItemsText = "Todos";
+    private readonly string CreateUrl = "/roles/crear";
+    private int[] _pageSizeOptions = new[] { 10, 25, 50, 100 };
+
+    private static int[] ComputePageSizeOptions(int totalItems)
+    {
+        if (totalItems <= 10)
+            return new[] { totalItems };
+
+        if (totalItems < 25)
+            return new[] { 10, totalItems };
+
+        if (totalItems < 50)
+            return new[] { 10, 25, totalItems };
+
+        return new[] { 10, 25, 50, 100, totalItems };
+    }
+
+    private async Task<TableData<RoleDto>> LoadServerData(TableState state, CancellationToken cancellationToken)
+    {
+        _loading = true;
+        StateHasChanged();
+
+        try
+        {
+            PagedResponse<RoleDto>? response = await RoleService.GetAllAsync(
+                pageNumber: state.Page + 1,
+                pageSize: state.PageSize);
+
+            Elements = response.Items;
+            _pageSizeOptions = ComputePageSizeOptions(response.TotalCount);
+
+            return new TableData<RoleDto>
+            {
+                Items = response.Items,
+                TotalItems = response.TotalCount
+            };
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

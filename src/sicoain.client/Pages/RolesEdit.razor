@@ -1,0 +1,55 @@
+@using sicoain.client.Abstractions
+@using sicoain.shared.DTOs.Roles
+@using sicoain.client.Components
+
+@inject IRoleService RoleService
+@inject NavigationManager Navigation
+@page "/roles/editar/{Id:int}"
+
+<div>
+    <MudText Typo="Typo.h2" Class="text-center block">
+        Editar Rol
+    </MudText>
+
+    @if (_loadingRole)
+    {
+        <MudProgressCircular Indeterminate="true" Class="mx-auto" />
+    }
+    else if (_notFound)
+    {
+        <MudAlert Severity="Severity.Warning">Rol no encontrado</MudAlert>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/roles" Class="mt-3">
+            Volver a roles
+        </MudButton>
+    }
+    else if (_role is not null)
+    {
+        <RoleForm Role="@_role" />
+    }
+</div>
+
+@code
+{
+    [Parameter] public int Id { get; set; }
+
+    private RoleDto? _role;
+    private bool _loadingRole = true;
+    private bool _notFound;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _role = await RoleService.GetByIdAsync(Id);
+            _notFound = _role is null;
+        }
+        catch
+        {
+            _notFound = true;
+        }
+        finally
+        {
+            _loadingRole = false;
+        }
+    }
+}

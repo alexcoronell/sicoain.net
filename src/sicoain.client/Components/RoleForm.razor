@@ -1,0 +1,156 @@
+@using sicoain.client.Abstractions
+@using sicoain.shared.DTOs
+@using sicoain.shared.DTOs.Roles
+
+@inject IRoleService RoleService
+@inject NavigationManager Navigation
+
+<MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors"
+         OnEnterPressed="@(() => { if (_form is not null) _form.ValidateAsync(); })" Class="mx-auto w-100"
+         Style="padding: 1.5rem;">
+    <MudTextField Class="w-100 mb-3" T="string" @bind-Value="@_name" Label="Nombre del Rol" MaxLength=50
+                  MinLength=5 HelperText="Nombre único del rol (mín. 5 caracteres)" Required="true"
+                  RequiredError="El nombre del rol es requerido!" For="@(() => _name)" Disabled="@(_isLoading || IsEditMode)" />
+
+    <MudTextField Class="w-100 mb-3" T="string" @bind-Value="@_description" Label="Descripción"
+                  HelperText="Descripción del propósito del rol" Lines="3" MaxLength=500
+                  Disabled="@(_isLoading)" />
+
+    <MudSwitch @bind-Value="@_isActive" Class="w-100 mb-6" Color="Color.Primary" Disabled="@(_isLoading)">
+        <ChildContent>
+            Rol activo
+        </ChildContent>
+    </MudSwitch>
+
+    <div class="d-flex align-center justify-center gap-3 pt-3">
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success"
+                   Disabled="@(_isLoading)" Size="Size.Large"
+                   OnClick="@(async () => await HandleSaveAsync())">
+            @(IsEditMode ? "Actualizar" : "Guardar")
+        </MudButton>
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Disabled="@(_isLoading)"
+                   Size="Size.Large" Href="/roles">Volver</MudButton>
+    </div>
+</MudForm>
+
+@if (_successMessage.Length > 0)
+{
+    <MudAlert Severity="Severity.Success">@_successMessage</MudAlert>
+}
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <MudAlert Severity="Severity.Error">
+        @_errorMessage
+    </MudAlert>
+}
+
+@code {
+    [Parameter] public RoleDto? Role { get; set; }
+
+    private MudForm? _form;
+    private bool _success;
+    private string[] _errors = Array.Empty<string>();
+
+    private string _name = string.Empty;
+    private string _description = string.Empty;
+    private bool _isActive = true;
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+    private bool _isLoading = false;
+
+    private bool IsEditMode => Role is not null;
+
+    protected override void OnParametersSet()
+    {
+        if (IsEditMode)
+        {
+            _name = Role!.Name;
+            _description = Role.Description;
+            _isActive = Role.IsActive;
+        }
+        else
+        {
+            _name = string.Empty;
+            _description = string.Empty;
+            _isActive = true;
+        }
+
+        _successMessage = string.Empty;
+        _errorMessage = string.Empty;
+    }
+
+    private async Task HandleSaveAsync()
+    {
+        _errorMessage = string.Empty;
+        _isLoading = true;
+        StateHasChanged();
+
+        if (_form is not null)
+        {
+            await _form.ValidateAsync();
+            if (!_success)
+            {
+                _isLoading = false;
+                return;
+            }
+        }
+
+        try
+        {
+            if (IsEditMode)
+            {
+                await HandleUpdateAsync();
+            }
+            else
+            {
+                await HandleCreateAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.";
+            Console.Error.WriteLine($"Error: {ex.Message}");
+            _success = false;
+            if (_form is not null) await _form.ValidateAsync();
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleCreateAsync()
+    {
+        var request = new CreateRoleRequest
+        {
+            Name = _name,
+            Description = _description,
+            IsActive = _isActive
+        };
+
+        await RoleService.CreateAsync(request);
+        _successMessage = "El rol fue guardado correctamente";
+        StateHasChanged();
+        await Task.Delay(3000);
+        _successMessage = string.Empty;
+        if (_form is not null) await _form.ResetAsync();
+    }
+
+    private async Task HandleUpdateAsync()
+    {
+        var request = new UpdateRoleRequest
+        {
+            Description = _description,
+            IsActive = _isActive
+        };
+
+        await RoleService.UpdateAsync(Role!.Id, request);
+
+        _successMessage = "El rol fue actualizado correctamente";
+        StateHasChanged();
+        await Task.Delay(3000);
+        _successMessage = string.Empty;
+    }
+}
