@@ -306,15 +306,34 @@
         var permissionsToAdd = selectedPermissions.Except(currentPermissions);
         var permissionsToRemove = currentPermissions.Except(selectedPermissions);
 
+        var permissionErrors = new List<string>();
+
         foreach (var perm in permissionsToAdd)
-            await PermissionService.AssignPermissionAsync(Role.Id, perm);
+        {
+            var success = await PermissionService.AssignPermissionAsync(Role.Id, perm);
+            if (!success)
+                permissionErrors.Add($"No se pudo asignar el permiso '{perm}'.");
+        }
 
         foreach (var perm in permissionsToRemove)
-            await PermissionService.RemovePermissionAsync(Role.Id, perm);
+        {
+            var success = await PermissionService.RemovePermissionAsync(Role.Id, perm);
+            if (!success)
+                permissionErrors.Add($"No se pudo remover el permiso '{perm}'.");
+        }
 
-        _successMessage = "El rol fue actualizado correctamente";
+        if (permissionErrors.Count > 0)
+        {
+            _errorMessage = string.Join(" | ", permissionErrors);
+        }
+        else
+        {
+            _successMessage = "El rol fue actualizado correctamente";
+        }
+
         StateHasChanged();
         await Task.Delay(3000);
         _successMessage = string.Empty;
+        _errorMessage = string.Empty;
     }
 }
