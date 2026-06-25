@@ -12,17 +12,19 @@
 
     <MudTable Items="@Elements" ServerData="@LoadServerData" Hover="true" Loading="@_loading"
               FixedHeader="@fixed_header" FixedFooter="@fixed_footer" Height="@(fixed_header || fixed_footer ?"350px":"")"
-              LoadingProgressColor="Color.Info" Class="w-full" Style="min-width: 600px; max-width: 800px;">
+               LoadingProgressColor="Color.Info" Class="w-full" Style="min-width: 1200px;">
         <HeaderContent>
             <MudTh>Id</MudTh>
             <MudTh>Nombre completo</MudTh>
             <MudTh>Correo Electrónico</MudTh>
+            <MudTh>Roles</MudTh>
             <MudTh Class="text-center">Acciones</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Id">@context.Id</MudTd>
             <MudTd DataLabel="Fullname">@context.FullName</MudTd>
             <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Roles">@string.Join(", ", GetUserRoles(context.Id))</MudTd>
             <MudTd Class="flex gap-3 justify-center items-center">
                 <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
                         Href="@($"/usuarios/editar/{context.Id}")" />
@@ -39,6 +41,7 @@
 @code {
     private bool _loading;
     private IEnumerable<UserDto> Elements = new List<UserDto>();
+    private Dictionary<int, IEnumerable<string>> _userRoles = [];
     private readonly bool fixed_header = true;
     private readonly bool fixed_footer = true;
     private readonly string rowsPerPageString = "Items por página:";
@@ -46,6 +49,9 @@
     private readonly string allItemsText = "Todos";
     private readonly string CreateUrl = "/usuarios/crear";
     private int[] _pageSizeOptions = new[] { 10, 25, 50, 100 };
+
+    private IEnumerable<string> GetUserRoles(int userId)
+        => _userRoles.TryGetValue(userId, out var roles) ? roles : [];
 
     private static int[] ComputePageSizeOptions(int totalItems)
     {
@@ -74,6 +80,14 @@
 
             Elements = response.Items;
             _pageSizeOptions = ComputePageSizeOptions(response.TotalCount);
+
+            // Load roles for visible users
+            _userRoles = [];
+            foreach (var user in Elements)
+            {
+                var roles = await UserService.GetUserRolesAsync(user.Id);
+                _userRoles[user.Id] = roles;
+            }
 
             return new TableData<UserDto>
             {
