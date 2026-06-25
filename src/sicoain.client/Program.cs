@@ -39,6 +39,7 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 
 // Register the custom authentication state provider
 builder.Services.AddAuthorizationCore();

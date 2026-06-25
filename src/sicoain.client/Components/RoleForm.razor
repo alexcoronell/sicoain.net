@@ -1,8 +1,10 @@
 @using sicoain.client.Abstractions
 @using sicoain.shared.DTOs
 @using sicoain.shared.DTOs.Roles
+@using sicoain.shared.DTOs.Permissions
 
 @inject IRoleService RoleService
+@inject IPermissionService PermissionService
 @inject NavigationManager Navigation
 
 <MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors"
@@ -16,11 +18,60 @@
                   HelperText="Descripción del propósito del rol" Lines="3" MaxLength=500
                   Disabled="@(_isLoading)" />
 
-    <MudSwitch @bind-Value="@_isActive" Class="w-100 mb-6" Color="Color.Primary" Disabled="@(_isLoading)">
+    <MudSwitch @bind-Value="@_isActive" Class="w-100 mb-4" Color="Color.Primary" Disabled="@(_isLoading)">
         <ChildContent>
             Rol activo
         </ChildContent>
     </MudSwitch>
+
+    @if (IsEditMode)
+    {
+        <MudText Typo="Typo.h6" Class="mt-4 mb-2">Permisos del Rol</MudText>
+
+        @if (_isLoadingPermissions)
+        {
+            <div class="d-flex justify-center my-4">
+                <MudProgressCircular Indeterminate="true" Size="Size.Medium" />
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(_permissionError))
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">@_permissionError</MudAlert>
+        }
+        else
+        {
+            <MudPaper Class="pa-4 mb-4" Elevation="0" Outlined="true">
+                @if (_allPermissions.Count == 0)
+                {
+                    <MudText Typo="Typo.body2" Class="text-medium-emphasis">
+                        No hay permisos disponibles.
+                    </MudText>
+                }
+                else
+                {
+                    @foreach (var group in _permissionsByModule)
+                    {
+                        <MudText Typo="Typo.subtitle1" Class="mt-3 mb-1 font-weight-bold">
+                            @group.Key
+                        </MudText>
+                        <div class="pl-4">
+                            @foreach (var permission in group.OrderBy(p => p.Name))
+                            {
+                                <MudCheckBox T="bool" Color="Color.Primary"
+                                             Checked="@_selectedPermissionNames.Contains(permission.Name)"
+                                             CheckedChanged="@((bool val) => TogglePermission(permission.Name, val))"
+                                             Disabled="@(_isLoading)">
+                                    <ChildContent>
+                                        @(permission.Description ?? permission.Name)
+                                    </ChildContent>
+                                </MudCheckBox>
+                            }
+                        </div>
+                    }
+                }
+            </MudPaper>
+        }
+    }
 
     <div class="d-flex align-center justify-center gap-3 pt-3">
         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success"
@@ -61,6 +112,15 @@
 
     private bool IsEditMode => Role is not null;
 
+    // Permission-related fields
+    private List<PermissionDto> _allPermissions = [];
+    private HashSet<string> _selectedPermissionNames = [];
+    private bool _isLoadingPermissions = false;
+    private string _permissionError = string.Empty;
+
+    private ILookup<string, PermissionDto> _permissionsByModule =>
+        _allPermissions.ToLookup(p => p.Module);
+
     protected override void OnParametersSet()
     {
         if (IsEditMode)
@@ -74,10 +134,53 @@
             _name = string.Empty;
             _description = string.Empty;
             _isActive = true;
+            _allPermissions.Clear();
+            _selectedPermissionNames.Clear();
+            _permissionError = string.Empty;
         }
 
         _successMessage = string.Empty;
         _errorMessage = string.Empty;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsEditMode)
+        {
+            await LoadPermissionsAsync();
+        }
+    }
+
+    private async Task LoadPermissionsAsync()
+    {
+        _isLoadingPermissions = true;
+        _permissionError = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            _allPermissions = await PermissionService.GetAllAsync();
+            var currentPermissions = await PermissionService.GetRolePermissionsAsync(Role!.Id);
+            _selectedPermissionNames = [.. currentPermissions];
+        }
+        catch (Exception ex)
+        {
+            _permissionError = "Error al cargar los permisos. Por favor, intenta de nuevo.";
+            Console.Error.WriteLine($"Error loading permissions: {ex.Message}");
+        }
+        finally
+        {
+            _isLoadingPermissions = false;
+            StateHasChanged();
+        }
+    }
+
+    private void TogglePermission(string permissionName, bool isSelected)
+    {
+        if (isSelected)
+            _selectedPermissionNames.Add(permissionName);
+        else
+            _selectedPermissionNames.Remove(permissionName);
     }
 
     private async Task HandleSaveAsync()
@@ -147,6 +250,19 @@
         };
 
         await RoleService.UpdateAsync(Role!.Id, request);
+
+        // Sync permissions: add new ones, remove unselected ones
+        var currentPermissions = (await PermissionService.GetRolePermissionsAsync(Role.Id)).ToList();
+        var selectedPermissions = _selectedPermissionNames.ToList();
+
+        var permissionsToAdd = selectedPermissions.Except(currentPermissions);
+        var permissionsToRemove = currentPermissions.Except(selectedPermissions);
+
+        foreach (var perm in permissionsToAdd)
+            await PermissionService.AssignPermissionAsync(Role.Id, perm);
+
+        foreach (var perm in permissionsToRemove)
+            await PermissionService.RemovePermissionAsync(Role.Id, perm);
 
         _successMessage = "El rol fue actualizado correctamente";
         StateHasChanged();
