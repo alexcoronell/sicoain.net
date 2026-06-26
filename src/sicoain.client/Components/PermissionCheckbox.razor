@@ -1,0 +1,44 @@
+<div class="d-flex align-center gap-2" style="min-height: 36px;">
+    <input type="checkbox"
+           id="@_inputId"
+           checked="@_isChecked"
+           disabled="@Disabled"
+           @onchange="@OnChange" />
+    <label for="@_inputId" style="margin-bottom: 0; cursor: pointer; user-select: none;">
+        @Label
+    </label>
+</div>
+
+@code {
+    private string _inputId = string.Empty;
+
+    [Parameter] public bool InitiallyChecked { get; set; }
+    [Parameter] public EventCallback<bool> CheckedChanged { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string Label { get; set; } = string.Empty;
+
+    private bool _isChecked;
+    private bool _initialized;
+
+    protected override void OnInitialized()
+    {
+        _inputId = $"perm-{Guid.NewGuid():N}";
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!_initialized)
+        {
+            _isChecked = InitiallyChecked;
+            _initialized = true;
+        }
+    }
+
+    private async Task OnChange(ChangeEventArgs e)
+    {
+        var newValue = (bool)(e.Value ?? false);
+        _isChecked = newValue;
+        if (CheckedChanged.HasDelegate)
+            await CheckedChanged.InvokeAsync(newValue);
+    }
+}

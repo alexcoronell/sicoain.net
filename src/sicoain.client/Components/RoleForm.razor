@@ -46,7 +46,7 @@
         }
         else
         {
-            <MudPaper Class="pa-4 mb-4" Elevation="0" Outlined="true">
+            <MudPaper Class="pa-4 mb-4" Elevation="0" Outlined="true" @key="@_renderVersion">
                 @if (_allPermissions.Count == 0)
                 {
                     <MudText Typo="Typo.body2" Class="text-medium-emphasis">
@@ -64,14 +64,11 @@
                                 </MudText>
                                 @foreach (var permission in group.OrderBy(p => p.Name))
                                 {
-                                    <MudCheckBox T="bool" Color="Color.Primary"
-                                                 Checked="@_selectedPermissionNames.Contains(permission.Name)"
-                                                 CheckedChanged="@((bool val) => TogglePermission(permission.Name, val))"
-                                                 Disabled="@(_isLoading)">
-                                        <ChildContent>
-                                            @TranslateAction(permission.Action)
-                                        </ChildContent>
-                                    </MudCheckBox>
+                                    var permissionName = permission.Name;
+                                    <PermissionCheckbox InitiallyChecked="@(_permissionChecked.TryGetValue(permissionName, out var val) && val)"
+                                                        CheckedChanged="@((bool v) => _permissionChecked[permissionName] = v)"
+                                                        Disabled="@(_isLoading)"
+                                                        Label="@TranslateAction(permission.Action)" />
                                 }
                             </MudItem>
                         }
@@ -122,9 +119,10 @@
 
     // Permission-related fields
     private List<PermissionDto> _allPermissions = [];
-    private HashSet<string> _selectedPermissionNames = [];
+    private Dictionary<string, bool> _permissionChecked = [];
     private bool _isLoadingPermissions = false;
     private string _permissionError = string.Empty;
+    private int _renderVersion = 0;
 
     private ILookup<string, PermissionDto> _permissionsByModule =>
         _allPermissions.ToLookup(p => p.Module);
@@ -169,13 +167,21 @@
         };
     }
 
-    protected override void OnParametersSet()
+    private bool _permissionsLoaded;
+
+    protected override async Task OnParametersSetAsync()
     {
         if (IsEditMode)
         {
             _name = Role!.Name;
             _description = Role.Description;
             _isActive = Role.IsActive;
+
+            if (!_permissionsLoaded)
+            {
+                _permissionsLoaded = true;
+                await LoadPermissionsAsync();
+            }
         }
         else
         {
@@ -183,25 +189,14 @@
             _description = string.Empty;
             _isActive = true;
             _allPermissions.Clear();
-            _selectedPermissionNames.Clear();
+            _permissionChecked.Clear();
             _permissionError = string.Empty;
+            _permissionsLoaded = false;
         }
 
         _successMessage = string.Empty;
         _errorMessage = string.Empty;
-        _permissionsLoaded = false;
     }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (IsEditMode && !_permissionsLoaded)
-        {
-            _permissionsLoaded = true;
-            await LoadPermissionsAsync();
-        }
-    }
-
-    private bool _permissionsLoaded;
 
     private async Task LoadPermissionsAsync()
     {
@@ -213,7 +208,11 @@
         {
             _allPermissions = await PermissionService.GetAllAsync();
             var currentPermissions = await PermissionService.GetRolePermissionsAsync(Role!.Id);
-            _selectedPermissionNames = [.. currentPermissions];
+
+            // Build a dictionary with ALL permissions; mark selected ones as true
+            var currentSet = currentPermissions.ToHashSet();
+            _permissionChecked = _allPermissions.ToDictionary(p => p.Name, p => currentSet.Contains(p.Name));
+            _renderVersion++; // Force Blazor to recreate all MudCheckBox instances
         }
         catch (Exception ex)
         {
@@ -225,14 +224,6 @@
             _isLoadingPermissions = false;
             StateHasChanged();
         }
-    }
-
-    private void TogglePermission(string permissionName, bool isSelected)
-    {
-        if (isSelected)
-            _selectedPermissionNames.Add(permissionName);
-        else
-            _selectedPermissionNames.Remove(permissionName);
     }
 
     private async Task HandleSaveAsync()
@@ -305,7 +296,7 @@
 
         // Sync permissions: add new ones, remove unselected ones
         var currentPermissions = (await PermissionService.GetRolePermissionsAsync(Role.Id)).ToList();
-        var selectedPermissions = _selectedPermissionNames.ToList();
+        var selectedPermissions = _permissionChecked.Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 
         var permissionsToAdd = selectedPermissions.Except(currentPermissions);
         var permissionsToRemove = currentPermissions.Except(selectedPermissions);
