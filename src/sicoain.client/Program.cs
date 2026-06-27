@@ -19,12 +19,15 @@ builder.Services.AddMudServices();
 // Register the CSRF handler (requires IJSRuntime, is injected automatically)
 builder.Services.AddTransient<CsrfHandler>();
 builder.Services.AddTransient<CredentialsHandler>();
+builder.Services.AddSingleton<SessionExpiredNotifier>();
+builder.Services.AddTransient<AuthRefreshHandler>();
 
 // Configure an HttpClient with a name that includes the CSRF handler
 builder.Services.AddHttpClient("SicoainApi", client =>
 {
     client.BaseAddress = new Uri("http://localhost:5078");
 })
+.AddHttpMessageHandler<AuthRefreshHandler>()
 .AddHttpMessageHandler<CredentialsHandler>()
 .AddHttpMessageHandler<CsrfHandler>();
 

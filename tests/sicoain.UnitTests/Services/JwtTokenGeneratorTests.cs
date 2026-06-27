@@ -22,7 +22,7 @@ namespace sicoain.UnitTests.Services
         {
             var jwtSettingsMock = new Mock<IConfigurationSection>();
             jwtSettingsMock.Setup(x => x["SecretKey"]).Returns("ThisIsASecretKeyForTestingPurposes!@#$%");
-            jwtSettingsMock.Setup(x => x["ExpirationMinutes"]).Returns("60");
+            jwtSettingsMock.Setup(x => x["ExpirationMinutes"]).Returns("15");
             jwtSettingsMock.Setup(x => x["Issuer"]).Returns("TestIssuer");
             jwtSettingsMock.Setup(x => x["Audience"]).Returns("TestAudience");
 
@@ -67,7 +67,7 @@ namespace sicoain.UnitTests.Services
             var handler = new JwtSecurityTokenHandler();
             var jwt = handler.ReadJwtToken(token);
 
-            jwt.ValidTo.Should().BeCloseTo(DateTime.UtcNow.AddMinutes(60), TimeSpan.FromMinutes(1));
+            jwt.ValidTo.Should().BeCloseTo(DateTime.UtcNow.AddMinutes(15), TimeSpan.FromMinutes(1));
         }
 
         [Fact]

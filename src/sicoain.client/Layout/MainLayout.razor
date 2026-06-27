@@ -1,3 +1,7 @@
+@implements IDisposable
+@inject sicoain.client.Services.SessionExpiredNotifier SessionExpiredNotifier
+@inject NavigationManager Navigation
+
 @inherits LayoutComponentBase
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -34,6 +38,21 @@
 {
     private bool _open = false;
     private bool _isAuthenticated = false;
+
+    protected override void OnInitialized()
+    {
+        SessionExpiredNotifier.SessionExpired += OnSessionExpired;
+    }
+
+    private void OnSessionExpired()
+    {
+        _ = InvokeAsync(() => Navigation.NavigateTo("/", forceLoad: false));
+    }
+
+    public void Dispose()
+    {
+        SessionExpiredNotifier.SessionExpired -= OnSessionExpired;
+    }
 
     private void ToggleDrawer()
     {

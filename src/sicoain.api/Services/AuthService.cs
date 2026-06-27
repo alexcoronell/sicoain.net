@@ -20,6 +20,7 @@ public class AuthService : IAuthService
     private readonly ICookieManager _cookieManager;
     private readonly IIpAddressProvider _ipProvider;
     private readonly IPermissionService _permissionService;
+    private readonly IConfiguration _configuration;
 
     public AuthService(
         UserManager<User> userManager,
@@ -29,7 +30,8 @@ public class AuthService : IAuthService
         IRefreshTokenRepository refreshTokenRepository,
         ICookieManager cookieManager,
         IIpAddressProvider ipProvider,
-        IPermissionService permissionService)
+        IPermissionService permissionService,
+        IConfiguration configuration)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -39,7 +41,16 @@ public class AuthService : IAuthService
         _cookieManager = cookieManager;
         _ipProvider = ipProvider;
         _permissionService = permissionService;
+        _configuration = configuration;
     }
+
+    private int AccessTokenMinutes =>
+        int.Parse(_configuration.GetSection("JwtSettings")["ExpirationMinutes"]!
+            ?? "15", CultureInfo.InvariantCulture);
+
+    private int RefreshTokenDays =>
+        int.Parse(_configuration.GetSection("JwtSettings")["RefreshTokenExpirationDays"]!
+            ?? "7", CultureInfo.InvariantCulture);
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
     {
@@ -84,8 +95,8 @@ public class AuthService : IAuthService
         await _refreshTokenRepository.AddAsync(refreshTokenEntity).ConfigureAwait(false);
         await _refreshTokenRepository.SaveChangesAsync().ConfigureAwait(false);
 
-        _cookieManager.SetTokenCookie("access_token", accessToken, 15);
-        _cookieManager.SetTokenCookie("refresh_token", refreshToken, 7 * 24 * 60);
+        _cookieManager.SetTokenCookie("access_token", accessToken, AccessTokenMinutes);
+        _cookieManager.SetTokenCookie("refresh_token", refreshToken, RefreshTokenDays * 24 * 60);
 
         return new AuthResponse(
             Success: true,
@@ -140,8 +151,8 @@ public class AuthService : IAuthService
         await _refreshTokenRepository.AddAsync(newRefreshTokenEntity).ConfigureAwait(false);
         await _refreshTokenRepository.SaveChangesAsync().ConfigureAwait(false);
 
-        _cookieManager.SetTokenCookie("access_token", newAccessToken, 15);
-        _cookieManager.SetTokenCookie("refresh_token", newRefreshToken, 7 * 24 * 60);
+        _cookieManager.SetTokenCookie("access_token", newAccessToken, AccessTokenMinutes);
+        _cookieManager.SetTokenCookie("refresh_token", newRefreshToken, RefreshTokenDays * 24 * 60);
 
         return new AuthResponse(
             Success: true,

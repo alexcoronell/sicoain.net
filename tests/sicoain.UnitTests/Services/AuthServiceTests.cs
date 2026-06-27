@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
 using sicoain.api.Abstractions;
@@ -27,6 +28,7 @@ namespace sicoain.UnitTests.Services
         private readonly Mock<ICookieManager> _cookieManagerMock;
         private readonly Mock<IIpAddressProvider> _ipProviderMock;
         private readonly Mock<IPermissionService> _permissionServiceMock;
+        private readonly Mock<IConfiguration> _configurationMock;
         private readonly AuthService _authService;
 
         public AuthServiceTests()
@@ -62,6 +64,12 @@ namespace sicoain.UnitTests.Services
             _cookieManagerMock = new Mock<ICookieManager>();
             _ipProviderMock = new Mock<IIpAddressProvider>();
             _permissionServiceMock = new Mock<IPermissionService>();
+            _configurationMock = new Mock<IConfiguration>();
+
+            var jwtSettingsSectionMock = new Mock<IConfigurationSection>();
+            jwtSettingsSectionMock.Setup(x => x["ExpirationMinutes"]).Returns("15");
+            jwtSettingsSectionMock.Setup(x => x["RefreshTokenExpirationDays"]).Returns("7");
+            _configurationMock.Setup(x => x.GetSection("JwtSettings")).Returns(jwtSettingsSectionMock.Object);
 
             _authService = new AuthService(
                 _userManagerMock.Object,
@@ -71,7 +79,8 @@ namespace sicoain.UnitTests.Services
                 _refreshTokenRepositoryMock.Object,
                 _cookieManagerMock.Object,
                 _ipProviderMock.Object,
-                _permissionServiceMock.Object);
+                _permissionServiceMock.Object,
+                _configurationMock.Object);
         }
 
         #region LoginAsync Tests
