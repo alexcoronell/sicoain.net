@@ -40,10 +40,11 @@ builder.Services.AddScoped(sp =>
 
 //Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<IBusinessService, BusinessService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
-builder.Services.AddScoped<IBusinessService, BusinessService>();
 
 // Register the custom authentication state provider
 builder.Services.AddAuthorizationCore();
