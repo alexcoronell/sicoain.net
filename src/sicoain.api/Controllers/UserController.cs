@@ -136,7 +136,7 @@ namespace sicoain.api.Controllers
                 return BadRequest(new { message = "La nueva contraseña y la confirmación no coinciden" });
 
             var result = await _userService.ChangePasswordAsync(id, request).ConfigureAwait(false);
-            if (!result)                 return BadRequest(new { message = "Error al cambiar la contraseña. Verifica tu contraseña actual." });
+            if (!result) return BadRequest(new { message = "Error al cambiar la contraseña. Verifica tu contraseña actual." });
 
             return Ok(new { message = "Password changed successfully" });
         }
