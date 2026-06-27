@@ -1,0 +1,12 @@
+@using sicoain.client.Abstractions
+@using sicoain.client.Components
+
+@inject IBusinessService BusinessService
+@page "/empresas/crear"
+
+<div>
+    <MudText Typo="Typo.h2" Class="text-center block">
+        Crear Empresa
+    </MudText>
+    <BusinessForm />
+</div>

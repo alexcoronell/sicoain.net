@@ -1,0 +1,156 @@
+@using sicoain.client.Abstractions
+@using sicoain.client.Exceptions
+@using sicoain.shared.DTOs.Business
+
+@inject IBusinessService BusinessService
+@inject NavigationManager Navigation
+
+<MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors"
+         OnEnterPressed="@(() => { if (_form is not null) _form.ValidateAsync(); })" Class="w-100 mx-auto"
+         Style="padding: 1.5rem; max-width: 600px">
+    <MudTextField Class="w-100 mb-3" T="string" @bind-Value="@_name" Label="Nombre de la empresa" MaxLength="100"
+                  MinLength="3" HelperText="Ingresa el nombre de la empresa" Required="true"
+                  RequiredError="El nombre de la empresa es requerido!" For="@(() => _name)" Disabled="@(_isLoading)"
+                  Validation="@ValidateName" />
+    <MudTextField Class="w-100 mb-6" T="string" @bind-Value="@_addressStreet" Label="Dirección"
+                  HelperText="Ingresa la dirección de la empresa (opcional)" For="@(() => _addressStreet)"
+                  Disabled="@(_isLoading)" MaxLength="200" />
+    <div class="d-flex align-center justify-center gap-3 pt-3">
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success"
+                   Disabled="@(_isLoading)" Size="Size.Large"
+                   OnClick="@(async () => await HandleSaveAsync())">
+            @(IsEditMode ? "Actualizar" : "Guardar")
+        </MudButton>
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Disabled="@(_isLoading)"
+                   Size="Size.Large" Href="/empresas">Volver</MudButton>
+    </div>
+</MudForm>
+@if (_successMessage.Length > 0)
+{
+    <MudAlert Severity="Severity.Success" Class="mx-auto" Style="max-width: 600px;">@_successMessage</MudAlert>
+}
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <MudAlert Severity="Severity.Error" Class="mx-auto" Style="max-width: 600px;">
+        @_errorMessage
+    </MudAlert>
+}
+
+@code
+{
+    [Parameter] public BusinessDto? Business { get; set; }
+
+    private MudForm? _form;
+    private bool _success;
+    private string[] _errors = Array.Empty<string>();
+
+    private string _name = string.Empty;
+    private string _addressStreet = string.Empty;
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+    private bool _isLoading = false;
+
+    private bool IsEditMode => Business is not null;
+
+    protected override void OnInitialized()
+    {
+        if (IsEditMode)
+        {
+            _name = Business!.Name;
+            _addressStreet = Business.AddressStreet ?? string.Empty;
+        }
+    }
+
+    private string? ValidateName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        if (value.Length < 3)
+            return "El nombre debe tener al menos 3 caracteres.";
+
+        if (value.Length > 100)
+            return "El nombre no puede exceder los 100 caracteres.";
+
+        return null;
+    }
+
+    private async Task HandleSaveAsync()
+    {
+        _errorMessage = string.Empty;
+        _isLoading = true;
+        StateHasChanged();
+
+        if (_form is not null)
+        {
+            await _form.ValidateAsync();
+            if (!_success)
+            {
+                _isLoading = false;
+                return;
+            }
+        }
+
+        try
+        {
+            if (IsEditMode)
+            {
+                await HandleUpdateAsync();
+            }
+            else
+            {
+                await HandleCreateAsync();
+            }
+        }
+        catch (ApiException ex)
+        {
+            _errorMessage = ex.Message;
+            _success = false;
+            if (_form is not null) await _form.ValidateAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.";
+            Console.Error.WriteLine($"Error: {ex.Message}");
+            _success = false;
+            if (_form is not null) await _form.ValidateAsync();
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleCreateAsync()
+    {
+        var request = new CreateBusinessRequest
+        {
+            Name = _name,
+            AddressStreet = string.IsNullOrWhiteSpace(_addressStreet) ? null : _addressStreet
+        };
+
+        await BusinessService.CreateAsync(request);
+        _successMessage = "La empresa fue guardada correctamente";
+        StateHasChanged();
+        await Task.Delay(3000);
+        _successMessage = string.Empty;
+        if (_form is not null) await _form.ResetAsync();
+    }
+
+    private async Task HandleUpdateAsync()
+    {
+        var request = new UpdateBusinessRequest
+        {
+            Name = string.IsNullOrWhiteSpace(_name) ? null : _name,
+            AddressStreet = string.IsNullOrWhiteSpace(_addressStreet) ? null : _addressStreet
+        };
+
+        await BusinessService.UpdateAsync(Business!.Id, request);
+
+        _successMessage = "La empresa fue actualizada correctamente";
+        StateHasChanged();
+        await Task.Delay(3000);
+        _successMessage = string.Empty;
+    }
+}

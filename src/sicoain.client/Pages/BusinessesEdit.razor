@@ -1,0 +1,55 @@
+@using sicoain.client.Abstractions
+@using sicoain.client.Components
+@using sicoain.shared.DTOs.Business
+
+@inject IBusinessService BusinessService
+@inject NavigationManager Navigation
+@page "/empresas/editar/{Id:int}"
+
+<div>
+    <MudText Typo="Typo.h2" Class="text-center block">
+        Editar Empresa
+    </MudText>
+
+    @if (_loadingBusiness)
+    {
+        <MudProgressCircular Indeterminate="true" Class="mx-auto" />
+    }
+    else if (_notFound)
+    {
+        <MudAlert Severity="Severity.Warning">Empresa no encontrada</MudAlert>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/empresas" Class="mt-3">
+            Volver a empresas
+        </MudButton>
+    }
+    else if (_business is not null)
+    {
+        <BusinessForm Business="@_business" />
+    }
+</div>
+
+@code
+{
+    [Parameter] public int Id { get; set; }
+
+    private BusinessDto? _business;
+    private bool _loadingBusiness = true;
+    private bool _notFound;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _business = await BusinessService.GetByIdAsync(Id);
+            _notFound = _business is null;
+        }
+        catch
+        {
+            _notFound = true;
+        }
+        finally
+        {
+            _loadingBusiness = false;
+        }
+    }
+}
