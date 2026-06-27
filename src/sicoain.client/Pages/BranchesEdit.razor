@@ -1,0 +1,55 @@
+@using sicoain.client.Abstractions
+@using sicoain.client.Components
+@using sicoain.shared.DTOs.Branches
+
+@inject IBranchService BranchService
+@inject NavigationManager Navigation
+@page "/sucursales/editar/{Id:int}"
+
+<div>
+    <MudText Typo="Typo.h2" Class="text-center block">
+        Editar Sucursal
+    </MudText>
+
+    @if (_loadingBranch)
+    {
+        <MudProgressCircular Indeterminate="true" Class="mx-auto" />
+    }
+    else if (_notFound)
+    {
+        <MudAlert Severity="Severity.Warning">Sucursal no encontrada</MudAlert>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/sucursales" Class="mt-3">
+            Volver a sucursales
+        </MudButton>
+    }
+    else if (_branch is not null)
+    {
+        <BranchForm Branch="@_branch" />
+    }
+</div>
+
+@code
+{
+    [Parameter] public int Id { get; set; }
+
+    private BranchDto? _branch;
+    private bool _loadingBranch = true;
+    private bool _notFound;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _branch = await BranchService.GetByIdAsync(Id);
+            _notFound = _branch is null;
+        }
+        catch
+        {
+            _notFound = true;
+        }
+        finally
+        {
+            _loadingBranch = false;
+        }
+    }
+}
