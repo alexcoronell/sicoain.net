@@ -7,5 +7,7 @@ namespace sicoain.shared.DTOs.Business
         [Required, MinLength(3), MaxLength(100)]
         public required string Name { get; init; }
         public string? AddressStreet { get; init; }
+        public List<string>? Emails { get; init; }
+        public List<string>? Phones { get; init; }
     }
 }

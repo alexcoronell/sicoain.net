@@ -12,9 +12,47 @@
                   MinLength="3" HelperText="Ingresa el nombre de la empresa" Required="true"
                   RequiredError="El nombre de la empresa es requerido!" For="@(() => _name)" Disabled="@(_isLoading)"
                   Validation="@ValidateName" />
-    <MudTextField Class="w-100 mb-6" T="string" @bind-Value="@_addressStreet" Label="Dirección"
+    <MudTextField Class="w-100 mb-4" T="string" @bind-Value="@_addressStreet" Label="Dirección"
                   HelperText="Ingresa la dirección de la empresa (opcional)" For="@(() => _addressStreet)"
                   Disabled="@(_isLoading)" MaxLength="200" />
+
+    @* --- Correos Electrónicos --- *@
+    <MudText Typo="Typo.subtitle1" Class="mb-2 mt-4">Correos Electrónicos</MudText>
+    @foreach (var (email, index) in _emails.Select((e, i) => (e, i)))
+    {
+        <div class="d-flex align-center gap-2 mb-2">
+            <MudTextField Class="flex-grow-1" T="string" @bind-Value="_emails[index]"
+                          Label="Correo electrónico" Placeholder="correo@ejemplo.com"
+                          Disabled="@(_isLoading)" Immediate="true" />
+            <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Color="Color.Error"
+                           Disabled="@(_isLoading)" Size="Size.Small"
+                           OnClick="@(() => RemoveEmail(index))" />
+        </div>
+    }
+    <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.AddCircle"
+               Disabled="@(_isLoading)" Class="mb-4" OnClick="@AddEmail">
+        Agregar correo
+    </MudButton>
+
+    @* --- Teléfonos --- *@
+    <MudText Typo="Typo.subtitle1" Class="mb-2 mt-2">Teléfonos</MudText>
+    @foreach (var (phone, index) in _phones.Select((p, i) => (p, i)))
+    {
+        <div class="d-flex align-center gap-2 mb-2">
+            <MudTextField Class="flex-grow-1" T="string" @bind-Value="_phones[index]"
+                          Label="Teléfono" Placeholder="3001234567"
+                          Disabled="@(_isLoading)" Immediate="true" />
+            <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Color="Color.Error"
+                           Disabled="@(_isLoading)" Size="Size.Small"
+                           OnClick="@(() => RemovePhone(index))" />
+        </div>
+    }
+    <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.AddCircle"
+               Disabled="@(_isLoading)" Class="mb-4" OnClick="@AddPhone">
+        Agregar teléfono
+    </MudButton>
+
+    @* --- Botones --- *@
     <div class="d-flex align-center justify-center gap-3 pt-3">
         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success"
                    Disabled="@(_isLoading)" Size="Size.Large"
@@ -46,6 +84,8 @@
 
     private string _name = string.Empty;
     private string _addressStreet = string.Empty;
+    private List<string> _emails = [];
+    private List<string> _phones = [];
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private bool _isLoading = false;
@@ -58,6 +98,8 @@
         {
             _name = Business!.Name;
             _addressStreet = Business.AddressStreet ?? string.Empty;
+            _emails = Business.Emails?.Select(e => e.Email).ToList() ?? [];
+            _phones = Business.Phones?.Select(p => p.PhoneNumber).ToList() ?? [];
         }
     }
 
@@ -74,6 +116,12 @@
 
         return null;
     }
+
+    private void AddEmail() => _emails.Add(string.Empty);
+    private void RemoveEmail(int index) => _emails.RemoveAt(index);
+
+    private void AddPhone() => _phones.Add(string.Empty);
+    private void RemovePhone(int index) => _phones.RemoveAt(index);
 
     private async Task HandleSaveAsync()
     {
@@ -122,12 +170,29 @@
         }
     }
 
+    private List<string> GetNonEmptyEmails()
+        => _emails.Where(e => !string.IsNullOrWhiteSpace(e)).Select(e => e.Trim()).ToList();
+
+    private List<string> GetNonEmptyPhones()
+        => _phones.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()).ToList();
+
+    private async Task ResetFormAsync()
+    {
+        _name = string.Empty;
+        _addressStreet = string.Empty;
+        _emails = [];
+        _phones = [];
+        if (_form is not null) await _form.ResetAsync();
+    }
+
     private async Task HandleCreateAsync()
     {
         var request = new CreateBusinessRequest
         {
             Name = _name,
-            AddressStreet = string.IsNullOrWhiteSpace(_addressStreet) ? null : _addressStreet
+            AddressStreet = string.IsNullOrWhiteSpace(_addressStreet) ? null : _addressStreet,
+            Emails = GetNonEmptyEmails(),
+            Phones = GetNonEmptyPhones()
         };
 
         await BusinessService.CreateAsync(request);
@@ -135,7 +200,7 @@
         StateHasChanged();
         await Task.Delay(3000);
         _successMessage = string.Empty;
-        if (_form is not null) await _form.ResetAsync();
+        await ResetFormAsync();
     }
 
     private async Task HandleUpdateAsync()
@@ -143,7 +208,9 @@
         var request = new UpdateBusinessRequest
         {
             Name = string.IsNullOrWhiteSpace(_name) ? null : _name,
-            AddressStreet = string.IsNullOrWhiteSpace(_addressStreet) ? null : _addressStreet
+            AddressStreet = string.IsNullOrWhiteSpace(_addressStreet) ? null : _addressStreet,
+            Emails = GetNonEmptyEmails(),
+            Phones = GetNonEmptyPhones()
         };
 
         await BusinessService.UpdateAsync(Business!.Id, request);
