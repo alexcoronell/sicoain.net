@@ -1,6 +1,7 @@
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
 @using sicoain.client.Abstractions
+@using sicoain.client.Exceptions
 @using sicoain.client.Providers
 @using sicoain.shared.DTOs
 @using sicoain.shared.DTOs.Roles
@@ -10,8 +11,8 @@
 @inject IUserService UserService
 
 <MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors"
-         OnEnterPressed="@(() => { if (_form is not null) _form.ValidateAsync(); })" Class="mx-auto w-100"
-         Style="padding: 1.5rem;">
+         OnEnterPressed="@(() => { if (_form is not null) _form.ValidateAsync(); })" Class="w-100 mx-auto"
+         Style="padding: 1.5rem; max-width: 600px">
     <MudTextField Class="w-100 mb-3" T="string" @bind-Value="@_fullname" Label="Nombre Completo" MaxLength=100
                   MinLength=2 HelperText="Ingresa el nombre completo" Required="true"
                   RequiredError="El nombre completo es requerido!" For="@(() => _fullname)" Disabled="@(_isLoading)"
@@ -54,11 +55,11 @@
 </MudForm>
 @if (_successMessage.Length > 0)
 {
-    <MudAlert Severity="Severity.Success">@_successMessage</MudAlert>
+    <MudAlert Severity="Severity.Success" Class="mx-auto" Style="max-width: 600px;">@_successMessage</MudAlert>
 }
 @if (!string.IsNullOrEmpty(_errorMessage))
 {
-    <MudAlert Severity="Severity.Error">
+    <MudAlert Severity="Severity.Error" Class="mx-auto" Style="max-width: 600px;">
         @_errorMessage
     </MudAlert>
 }
@@ -171,6 +172,12 @@
                 await HandleCreateAsync();
             }
         }
+        catch (ApiException ex)
+        {
+            _errorMessage = ex.Message;
+            _success = false;
+            if (_form is not null) await _form.ValidateAsync();
+        }
         catch (Exception ex)
         {
             _errorMessage = "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.";
@@ -220,11 +227,39 @@
         var rolesToAdd = selectedRoles.Except(currentRoles);
         var rolesToRemove = currentRoles.Except(selectedRoles);
 
+        var roleErrors = new List<string>();
+
         foreach (var role in rolesToAdd)
-            await UserService.AssignRoleAsync(User.Id, role);
+        {
+            try
+            {
+                await UserService.AssignRoleAsync(User.Id, role);
+            }
+            catch (ApiException ex)
+            {
+                roleErrors.Add(ex.Message);
+            }
+        }
 
         foreach (var role in rolesToRemove)
-            await UserService.RemoveRoleAsync(User.Id, role);
+        {
+            try
+            {
+                await UserService.RemoveRoleAsync(User.Id, role);
+            }
+            catch (ApiException ex)
+            {
+                roleErrors.Add(ex.Message);
+            }
+        }
+
+        if (roleErrors.Count > 0)
+        {
+            _errorMessage = "El usuario se actualizó, pero ocurrieron errores al sincronizar los roles:"
+                            + Environment.NewLine + string.Join(Environment.NewLine, roleErrors);
+            StateHasChanged();
+            return;
+        }
 
         _successMessage = "El usuario fue actualizado correctamente";
         StateHasChanged();

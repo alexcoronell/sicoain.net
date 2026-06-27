@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using sicoain.client.Abstractions;
 using sicoain.client.Constants;
+using sicoain.client.Exceptions;
 using sicoain.shared.DTOs;
 
 namespace sicoain.client.Services
@@ -65,7 +67,12 @@ namespace sicoain.client.Services
                 .PostAsJsonAsync(_endpointPath, request)
                 .ConfigureAwait(false);
 
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await ReadErrorAsync(response).ConfigureAwait(false);
+                throw new ApiException(error);
+            }
+
             var result = await response.Content
                 .ReadFromJsonAsync<TDto>()
                 .ConfigureAwait(false);
@@ -83,7 +90,12 @@ namespace sicoain.client.Services
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
 
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await ReadErrorAsync(response).ConfigureAwait(false);
+                throw new ApiException(error);
+            }
+
             return await response.Content
                 .ReadFromJsonAsync<TDto>()
                 .ConfigureAwait(false);
@@ -101,6 +113,74 @@ namespace sicoain.client.Services
 
             response.EnsureSuccessStatusCode();
             return true;
+        }
+
+        /// <summary>
+        /// Reads a non-success HTTP response and extracts a user-facing error message
+        /// from the body. Supports both <c>ValidationProblemDetails</c> (FluentValidation)
+        /// and our custom <c>{ message: "..." }</c> format.
+        /// </summary>
+        protected static async Task<string> ReadErrorAsync(HttpResponseMessage response)
+        {
+            try
+            {
+                var body = await response.Content
+                    .ReadAsStringAsync()
+                    .ConfigureAwait(false);
+
+                if (string.IsNullOrWhiteSpace(body))
+                    return $"Error del servidor: {(int)response.StatusCode}";
+
+                using var doc = JsonDocument.Parse(body);
+                var root = doc.RootElement;
+
+                // Try our custom { message: "..." } format first (ConflictException, BadRequest)
+                if (root.TryGetProperty("message", out var msgProp) &&
+                    msgProp.ValueKind == JsonValueKind.String)
+                {
+                    var msg = msgProp.GetString();
+                    if (!string.IsNullOrWhiteSpace(msg))
+                        return msg;
+                }
+
+                // Try ValidationProblemDetails { errors: { field: [msg, ...] } } format
+                if (root.TryGetProperty("errors", out var errorsProp) &&
+                    errorsProp.ValueKind == JsonValueKind.Object)
+                {
+                    var messages = new List<string>();
+                    foreach (var field in errorsProp.EnumerateObject())
+                    {
+                        if (field.Value.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var err in field.Value.EnumerateArray())
+                            {
+                                if (err.ValueKind == JsonValueKind.String)
+                                {
+                                    var text = err.GetString();
+                                    if (!string.IsNullOrWhiteSpace(text))
+                                        messages.Add(text);
+                                }
+                            }
+                        }
+                    }
+
+                    if (messages.Count > 0)
+                        return string.Join(Environment.NewLine, messages.Distinct());
+                }
+
+                // Try ProblemDetails { title: "..." } format (fallback)
+                if (root.TryGetProperty("title", out var titleProp) &&
+                    titleProp.ValueKind == JsonValueKind.String)
+                {
+                    return titleProp.GetString() ?? $"Error del servidor: {(int)response.StatusCode}";
+                }
+            }
+            catch
+            {
+                // If we can't parse the error body, fall through to generic message
+            }
+
+            return $"Error del servidor: {(int)response.StatusCode}";
         }
     }
 }

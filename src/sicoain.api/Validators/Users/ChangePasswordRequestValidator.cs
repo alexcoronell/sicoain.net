@@ -8,15 +8,15 @@ namespace sicoain.api.Validators.Users
         public ChangePasswordRequestValidator()
         {
             RuleFor(x => x.CurrentPassword)
-                .NotEmpty().WithMessage("Current password is required.");
+                .NotEmpty().WithMessage("La contraseña actual es obligatoria.");
 
             RuleFor(x => x.NewPassword)
-                .NotEmpty().WithMessage("New password is required.")
-                .MinimumLength(8).WithMessage("New password must be at least 8 characters.");
+                .NotEmpty().WithMessage("La nueva contraseña es obligatoria.")
+                .MinimumLength(8).WithMessage("La nueva contraseña debe tener al menos 8 caracteres.");
 
             RuleFor(x => x.ConfirmNewPassword)
-                .NotEmpty().WithMessage("Password confirmation is required.")
-                .Equal(x => x.NewPassword).WithMessage("New password and confirmation do not match.");
+                .NotEmpty().WithMessage("La confirmación de contraseña es obligatoria.")
+                .Equal(x => x.NewPassword).WithMessage("La nueva contraseña y la confirmación no coinciden.");
         }
     }
 }

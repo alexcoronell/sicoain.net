@@ -69,6 +69,10 @@ namespace sicoain.api.Controllers
             {
                 return Conflict(new { message = ex.Message });
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPatch("{id}")]
@@ -83,6 +87,10 @@ namespace sicoain.api.Controllers
             {
                 return Conflict(new { message = ex.Message });
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
 
@@ -93,7 +101,7 @@ namespace sicoain.api.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var result = await _userService.AssignRoleAsync(id, request.RoleName).ConfigureAwait(false);
-            if (!result) return BadRequest(new { message = "Failed to assign role: User or role not found" });
+            if (!result) return BadRequest(new { message = "No se pudo asignar el rol: usuario o rol no encontrado" });
 
             return Ok(new { message = "Role assigned successfully" });
         }
@@ -105,7 +113,7 @@ namespace sicoain.api.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var result = await _userService.RemoveRoleAsync(id, request.RoleName).ConfigureAwait(false);
-            if (!result) return BadRequest(new { message = "Failed to remove role: User or role not found" });
+            if (!result) return BadRequest(new { message = "No se pudo remover el rol: usuario o rol no encontrado" });
 
             return Ok(new { message = "Role removed successfully" });
         }
@@ -121,14 +129,14 @@ namespace sicoain.api.Controllers
                 string.IsNullOrWhiteSpace(request.NewPassword) ||
                 string.IsNullOrWhiteSpace(request.ConfirmNewPassword))
             {
-                return BadRequest(new { message = "All password fields are required" });
+                return BadRequest(new { message = "Todos los campos de contraseña son obligatorios" });
             }
 
             if (request.NewPassword != request.ConfirmNewPassword)
-                return BadRequest(new { message = "New password and confirmation do not match" });
+                return BadRequest(new { message = "La nueva contraseña y la confirmación no coinciden" });
 
             var result = await _userService.ChangePasswordAsync(id, request).ConfigureAwait(false);
-            if (!result) return BadRequest(new { message = "Password change failed. Check your current password." });
+            if (!result)                 return BadRequest(new { message = "Error al cambiar la contraseña. Verifica tu contraseña actual." });
 
             return Ok(new { message = "Password changed successfully" });
         }

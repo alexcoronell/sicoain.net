@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using sicoain.client.Abstractions;
+using sicoain.client.Exceptions;
 using sicoain.shared.DTOs.Users;
 
 namespace sicoain.client.Services
@@ -49,7 +50,11 @@ namespace sicoain.client.Services
                 .PatchAsJsonAsync($"{_endpointPath}/assign-role/{userId}", request)
                 .ConfigureAwait(false);
 
-            return response.IsSuccessStatusCode;
+            if (response.IsSuccessStatusCode)
+                return true;
+
+            var error = await ReadErrorAsync(response).ConfigureAwait(false);
+            throw new ApiException(error);
         }
 
         public async Task<bool> RemoveRoleAsync(int userId, string roleName)
@@ -59,7 +64,11 @@ namespace sicoain.client.Services
                 .PatchAsJsonAsync($"{_endpointPath}/remove-role/{userId}", request)
                 .ConfigureAwait(false);
 
-            return response.IsSuccessStatusCode;
+            if (response.IsSuccessStatusCode)
+                return true;
+
+            var error = await ReadErrorAsync(response).ConfigureAwait(false);
+            throw new ApiException(error);
         }
 
         public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequest request)

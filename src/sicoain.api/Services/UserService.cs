@@ -62,7 +62,7 @@ namespace sicoain.api.Services
             // Check for duplicate email before attempting creation
             var existingUser = await _userManager.FindByEmailAsync(request.Email).ConfigureAwait(false);
             if (existingUser != null)
-                throw new ConflictException($"A user with email '{request.Email}' already exists.");
+                throw new ConflictException($"Ya existe un usuario con el correo '{request.Email}'.");
 
             var user = new User
             {
@@ -96,7 +96,7 @@ namespace sicoain.api.Services
                 // Check for duplicate email before updating
                 var existingUser = await _userManager.FindByEmailAsync(request.Email).ConfigureAwait(false);
                 if (existingUser != null)
-                    throw new ConflictException($"A user with email '{request.Email}' already exists.");
+                    throw new ConflictException($"Ya existe un usuario con el correo '{request.Email}'.");
 
                 user.Email = request.Email;
                 user.UserName = request.Email;
@@ -114,7 +114,7 @@ namespace sicoain.api.Services
 
             var result = await _userManager.UpdateAsync(user).ConfigureAwait(false);
             if (!result.Succeeded)
-                throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+                throw new InvalidOperationException("Error al actualizar el usuario: " + string.Join(", ", result.Errors.Select(e => e.Description)));
 
             return _mapper.Map<UserDto>(user);
         }
