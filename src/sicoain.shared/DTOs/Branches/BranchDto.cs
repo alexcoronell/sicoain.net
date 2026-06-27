@@ -6,5 +6,7 @@ namespace sicoain.shared.DTOs.Branches
         public string? AddressStreet { get; init; }
         public int? BusinessId { get; init; }
         public string? BusinessName { get; init; }
+        public List<BranchEmailDto>? Emails { get; init; }
+        public List<BranchPhoneDto>? Phones { get; init; }
     }
 }
