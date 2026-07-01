@@ -7,6 +7,7 @@
 @inject IUserService UserService
 @inject NavigationManager Navigation
 @page "/usuarios/editar/{Id:int}"
+@attribute [Authorize]
 
 <div>
     <MudText Typo="Typo.h2" Class="text-center block">

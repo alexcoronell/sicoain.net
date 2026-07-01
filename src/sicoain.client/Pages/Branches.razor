@@ -4,6 +4,7 @@
 
 @inject IBranchService BranchService
 @page "/sucursales"
+@attribute [Authorize]
 <PageTitle>SICOAIN | Sistema de Control de Accidentes e Incidentes | Sucursales</PageTitle>
 
 <TableComponent TitlePage="Sucursales" CreateUrl="@CreateUrl">

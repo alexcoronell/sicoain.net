@@ -7,6 +7,7 @@
 
 @inject IRoleService RoleService
 @page "/roles"
+@attribute [Authorize]
 
 <TableComponent TitlePage="Roles" CreateUrl="@CreateUrl">
 

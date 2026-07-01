@@ -5,6 +5,7 @@
 @inject IBusinessService BusinessService
 @inject NavigationManager Navigation
 @page "/empresas/editar/{Id:int}"
+@attribute [Authorize]
 
 <div>
     <MudText Typo="Typo.h2" Class="text-center block">

@@ -5,6 +5,7 @@
 @inject IBranchService BranchService
 @inject NavigationManager Navigation
 @page "/sucursales/editar/{Id:int}"
+@attribute [Authorize]
 
 <div>
     <MudText Typo="Typo.h2" Class="text-center block">

@@ -5,6 +5,7 @@
 @inject IRoleService RoleService
 @inject NavigationManager Navigation
 @page "/roles/editar/{Id:int}"
+@attribute [Authorize]
 
 <div>
     <MudText Typo="Typo.h2" Class="text-center block">

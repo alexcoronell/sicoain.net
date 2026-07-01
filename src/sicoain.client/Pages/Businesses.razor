@@ -4,6 +4,7 @@
 
 @inject IBusinessService BusinessService
 @page "/empresas"
+@attribute [Authorize]
 <PageTitle>SICOAIN | Sistema de Control de Accidentes e Incidentes | Empresas</PageTitle>
 
 <TableComponent TitlePage="Empresas" CreateUrl="@CreateUrl">

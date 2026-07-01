@@ -1,4 +1,7 @@
 @page "/"
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager Navigation
+
 <PageTitle>SICOAIN | Sistema de Control de Accidentes e Incidentes | Ingresar</PageTitle>
 <MudCard
     Outlined="true"
@@ -8,3 +11,14 @@
         <LoginComponent />
     </MudCardContent>
 </MudCard>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            Navigation.NavigateTo("/dashboard", forceLoad: false);
+        }
+    }
+}
