@@ -1,0 +1,13 @@
+@using sicoain.client.Abstractions
+@using sicoain.client.Components
+
+@inject IHealthPromotionEntitiyService HealthPromotionEntityService
+@page "/eps/crear"
+@attribute [Authorize]
+
+<div>
+    <MudText Typo="Typo.h2" Class="text-center block">
+        Crear EPS
+    </MudText>
+    <HealthPromotionEntityForm />
+</div>

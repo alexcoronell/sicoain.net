@@ -1,0 +1,227 @@
+@using sicoain.client.Abstractions
+@using sicoain.client.Exceptions
+@using sicoain.shared.DTOs.HealthPromotionEntities
+
+@inject IHealthPromotionEntitiyService HealthPromotionEntityService
+@inject NavigationManager Navigation
+
+<MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors"
+         OnEnterPressed="@(() => { if (_form is not null) _form.ValidateAsync(); })" Class="w-100 mx-auto"
+         Style="padding: 1.5rem; max-width: 600px">
+    <MudTextField Class="w-100 mb-3" T="string" @bind-Value="@_name" Label="Nombre de la EPS" MaxLength="100"
+                  MinLength="3" HelperText="Ingresa el nombre de la EPS" Required="true"
+                  RequiredError="El nombre de la EPS es requerido!" For="@(() => _name)" Disabled="@(_isLoading)"
+                  Validation="@ValidateName" />
+    <MudTextField Class="w-100 mb-4" T="string" @bind-Value="@_addressStreet" Label="Dirección"
+                  HelperText="Ingresa la dirección de la EPS (opcional)" For="@(() => _addressStreet)"
+                  Disabled="@(_isLoading)" MaxLength="200" />
+
+    @* --- Correos Electrónicos --- *@
+    <MudText Typo="Typo.subtitle1" Class="mb-2 mt-4">Correos Electrónicos</MudText>
+    @foreach (var (email, index) in _emails.Select((e, i) => (e, i)))
+    {
+        <div class="d-flex align-center gap-2 mb-2">
+            <MudTextField Class="flex-grow-1" T="string" @bind-Value="_emails[index]"
+                          Label="Correo electrónico" Placeholder="correo@ejemplo.com"
+                          Disabled="@(_isLoading)" Immediate="true" />
+            <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Color="Color.Error"
+                           Disabled="@(_isLoading)" Size="Size.Small"
+                           OnClick="@(() => RemoveEmail(index))" />
+        </div>
+    }
+    <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.AddCircle"
+               Disabled="@(_isLoading)" Class="mb-4" OnClick="@AddEmail">
+        Agregar correo
+    </MudButton>
+
+    @* --- Teléfonos --- *@
+    <MudText Typo="Typo.subtitle1" Class="mb-2 mt-2">Teléfonos</MudText>
+    @foreach (var (phone, index) in _phones.Select((p, i) => (p, i)))
+    {
+        <div class="d-flex align-center gap-2 mb-2">
+            <MudTextField Class="flex-grow-1" T="string" @bind-Value="_phones[index]"
+                          Label="Teléfono" Placeholder="3001234567"
+                          Disabled="@(_isLoading)" Immediate="true" />
+            <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Color="Color.Error"
+                           Disabled="@(_isLoading)" Size="Size.Small"
+                           OnClick="@(() => RemovePhone(index))" />
+        </div>
+    }
+    <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.AddCircle"
+               Disabled="@(_isLoading)" Class="mb-4" OnClick="@AddPhone">
+        Agregar teléfono
+    </MudButton>
+
+    @* --- Botones --- *@
+    <div class="d-flex align-center justify-center gap-3 pt-3">
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success"
+                   Disabled="@(_isLoading)" Size="Size.Large"
+                   OnClick="@(async () => await HandleSaveAsync())">
+            @(IsEditMode ? "Actualizar" : "Guardar")
+        </MudButton>
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Disabled="@(_isLoading)"
+                   Size="Size.Large" Href="/eps">Volver</MudButton>
+    </div>
+</MudForm>
+@if (_successMessage.Length > 0)
+{
+    <MudAlert Severity="Severity.Success" Class="mx-auto" Style="max-width: 600px;">@_successMessage</MudAlert>
+}
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <MudAlert Severity="Severity.Error" Class="mx-auto" Style="max-width: 600px;">
+        @_errorMessage
+    </MudAlert>
+}
+
+@code
+{
+    [Parameter] public HealthPromotionEntityDto? Entity { get; set; }
+
+    private MudForm? _form;
+    private bool _success;
+    private string[] _errors = Array.Empty<string>();
+
+    private string _name = string.Empty;
+    private string _addressStreet = string.Empty;
+    private List<string> _emails = [];
+    private List<string> _phones = [];
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+    private bool _isLoading = false;
+
+    private bool IsEditMode => Entity is not null;
+
+    protected override void OnInitialized()
+    {
+        if (IsEditMode)
+        {
+            _name = Entity!.Name ?? string.Empty;
+            _addressStreet = Entity.AddressStreet ?? string.Empty;
+            _emails = Entity.Emails?.Select(e => e.Email).ToList() ?? [];
+            _phones = Entity.Phones?.Select(p => p.PhoneNumber).ToList() ?? [];
+        }
+    }
+
+    private string? ValidateName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        if (value.Length < 3)
+            return "El nombre debe tener al menos 3 caracteres.";
+
+        if (value.Length > 100)
+            return "El nombre no puede exceder los 100 caracteres.";
+
+        return null;
+    }
+
+    private void AddEmail() => _emails.Add(string.Empty);
+    private void RemoveEmail(int index) => _emails.RemoveAt(index);
+
+    private void AddPhone() => _phones.Add(string.Empty);
+    private void RemovePhone(int index) => _phones.RemoveAt(index);
+
+    private async Task HandleSaveAsync()
+    {
+        _errorMessage = string.Empty;
+        _isLoading = true;
+        StateHasChanged();
+
+        if (_form is not null)
+        {
+            await _form.ValidateAsync();
+            if (!_success)
+            {
+                _isLoading = false;
+                return;
+            }
+        }
+
+        try
+        {
+            if (IsEditMode)
+            {
+                await HandleUpdateAsync();
+            }
+            else
+            {
+                await HandleCreateAsync();
+            }
+        }
+        catch (ApiException ex)
+        {
+            _errorMessage = ex.Message;
+            _success = false;
+            if (_form is not null) await _form.ValidateAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.";
+            Console.Error.WriteLine($"Error: {ex.Message}");
+            _success = false;
+            if (_form is not null) await _form.ValidateAsync();
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private List<string> GetNonEmptyEmails()
+        => _emails.Where(e => !string.IsNullOrWhiteSpace(e)).Select(e => e.Trim()).ToList();
+
+    private List<string> GetNonEmptyPhones()
+        => _phones.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()).ToList();
+
+    private async Task ResetFormAsync()
+    {
+        _name = string.Empty;
+        _addressStreet = string.Empty;
+        _emails = [];
+        _phones = [];
+        if (_form is not null) await _form.ResetAsync();
+    }
+
+    private async Task HandleCreateAsync()
+    {
+        var request = new CreateHealthPromotionEntityRequest
+        {
+            Name = _name,
+            AddressStreet = string.IsNullOrWhiteSpace(_addressStreet) ? null : _addressStreet,
+            Notes = null,
+            Emails = GetNonEmptyEmails(),
+            Phones = GetNonEmptyPhones()
+        };
+
+        await HealthPromotionEntityService.CreateAsync(request);
+        _successMessage = "La EPS fue guardada correctamente";
+        StateHasChanged();
+        await Task.Delay(3000);
+        _successMessage = string.Empty;
+        await ResetFormAsync();
+        Navigation.NavigateTo("/eps");
+    }
+
+    private async Task HandleUpdateAsync()
+    {
+        var request = new UpdateHealthPromotionEntityRequest
+        {
+            Name = string.IsNullOrWhiteSpace(_name) ? null : _name,
+            AddressStreet = string.IsNullOrWhiteSpace(_addressStreet) ? null : _addressStreet,
+            Notes = null,
+            Emails = GetNonEmptyEmails(),
+            Phones = GetNonEmptyPhones()
+        };
+
+        await HealthPromotionEntityService.UpdateAsync(Entity!.Id, request);
+
+        _successMessage = "La EPS fue actualizada correctamente";
+        StateHasChanged();
+        await Task.Delay(3000);
+        _successMessage = string.Empty;
+        Navigation.NavigateTo("/eps");
+    }
+}

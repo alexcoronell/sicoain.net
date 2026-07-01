@@ -15,14 +15,12 @@
             <MudTh>Id</MudTh>
             <MudTh>Nombre</MudTh>
             <MudTh>Dirección</MudTh>
-            <MudTh>Notas</MudTh>
             <MudTh Class="text-center">Acciones</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Id">@context.Id</MudTd>
             <MudTd DataLabel="Nombre">@context.Name</MudTd>
             <MudTd DataLabel="Dirección">@context.AddressStreet</MudTd>
-            <MudTd DataLabel="Notas">@context.Notes</MudTd>
             <MudTd Class="flex gap-3 justify-center items-center">
                 <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
                         Href="@($"/eps/editar/{context.Id}")" />

@@ -18,6 +18,8 @@ namespace sicoain.api.Mappings
             // ========================================================================
             CreateMap<CreateHealthPromotionEntityRequest, HealthPromotionEntity>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Phones, opt => opt.Ignore())
+                .ForMember(dest => dest.Emails, opt => opt.Ignore())
                 .ForMember(dest => dest.Employees, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
@@ -32,6 +34,8 @@ namespace sicoain.api.Mappings
             // ========================================================================
             CreateMap<UpdateHealthPromotionEntityRequest, HealthPromotionEntity>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Phones, opt => opt.Ignore())
+                .ForMember(dest => dest.Emails, opt => opt.Ignore())
                 .ForMember(dest => dest.Employees, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))

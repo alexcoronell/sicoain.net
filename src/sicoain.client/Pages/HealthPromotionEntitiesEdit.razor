@@ -1,0 +1,56 @@
+@using sicoain.client.Abstractions
+@using sicoain.client.Components
+@using sicoain.shared.DTOs.HealthPromotionEntities
+
+@inject IHealthPromotionEntitiyService HealthPromotionEntityService
+@inject NavigationManager Navigation
+@page "/eps/editar/{Id:int}"
+@attribute [Authorize]
+
+<div>
+    <MudText Typo="Typo.h2" Class="text-center block">
+        Editar EPS
+    </MudText>
+
+    @if (_loadingEntity)
+    {
+        <MudProgressCircular Indeterminate="true" Class="mx-auto" />
+    }
+    else if (_notFound)
+    {
+        <MudAlert Severity="Severity.Warning">EPS no encontrada</MudAlert>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/eps" Class="mt-3">
+            Volver a EPS
+        </MudButton>
+    }
+    else if (_entity is not null)
+    {
+        <HealthPromotionEntityForm Entity="@_entity" />
+    }
+</div>
+
+@code
+{
+    [Parameter] public int Id { get; set; }
+
+    private HealthPromotionEntityDto? _entity;
+    private bool _loadingEntity = true;
+    private bool _notFound;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _entity = await HealthPromotionEntityService.GetByIdAsync(Id);
+            _notFound = _entity is null;
+        }
+        catch
+        {
+            _notFound = true;
+        }
+        finally
+        {
+            _loadingEntity = false;
+        }
+    }
+}

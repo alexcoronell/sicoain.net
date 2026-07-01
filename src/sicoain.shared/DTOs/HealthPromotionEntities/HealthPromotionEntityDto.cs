@@ -6,5 +6,8 @@ namespace sicoain.shared.DTOs.HealthPromotionEntities
         public string? AddressStreet { get; init; }
 
         public string? Notes { get; init; }
+
+        public List<HealthPromotionEntityEmailDto>? Emails { get; init; }
+        public List<HealthPromotionEntityPhoneDto>? Phones { get; init; }
     }
 }
