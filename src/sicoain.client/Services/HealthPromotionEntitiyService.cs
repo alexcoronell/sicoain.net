@@ -8,7 +8,7 @@ namespace sicoain.client.Services
         IHealthPromotionEntitiyService
     {
         public HealthPromotionEntitiyService(HttpClient httpClient)
-            : base(httpClient, "health-promotion-entities")
+            : base(httpClient, "HealthPromotionEntities")
         {
         }
 

@@ -45,6 +45,7 @@ builder.Services.AddScoped<IBusinessService, BusinessService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IHealthPromotionEntitiyService, HealthPromotionEntitiyService>();
 
 // Register the custom authentication state provider
 builder.Services.AddAuthorizationCore();
