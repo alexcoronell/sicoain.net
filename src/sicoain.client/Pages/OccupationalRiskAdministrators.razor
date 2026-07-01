@@ -1,4 +1,93 @@
+@using sicoain.client.Abstractions
+@using sicoain.shared.DTOs
+@using sicoain.shared.DTOs.OccupationalRiskAdministrators
+
+@inject IOccupationalRiskAdministratorService OccupationalRiskAdministratorService
 @page "/ARL"
 @attribute [Authorize]
-<PageTitle>SICOAIN | Sistema de Control de Accidentes e Incidentes | ARL</PageTitle>
-<h1>ARL</h1>
+
+<TableComponent TitlePage="ARL" CreateUrl="@CreateUrl">
+
+    <MudTable Items="@Elements" ServerData="@LoadServerData" Hover="true" Loading="@_loading"
+              FixedHeader="@fixed_header" FixedFooter="@fixed_footer" Height="@(fixed_header || fixed_footer ?"350px":"")"
+              LoadingProgressColor="Color.Info" Class="w-full" Style="min-width: 1200px;">
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Nombre</MudTh>
+            <MudTh>Dirección</MudTh>
+            <MudTh Class="text-center">Acciones</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Nombre">@context.Name</MudTd>
+            <MudTd DataLabel="Dirección">@context.AddressStreet</MudTd>
+            <MudTd Class="flex gap-3 justify-center items-center">
+                <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
+                        Href="@($"/ARL/editar/{context.Id}")" />
+                <MudFab Color="Color.Error" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" />
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText Class="text-center pa-8" Typo="Typo.body2" Color="Color.Default">
+                No hay ARL registradas.
+            </MudText>
+        </NoRecordsContent>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="@_pageSizeOptions" RowsPerPageString="@rowsPerPageString"
+                           InfoFormat="@infoFormat" AllItemsText="@allItemsText" />
+        </PagerContent>
+    </MudTable>
+
+</TableComponent>
+
+@code {
+    private bool _loading;
+    private IEnumerable<OccupationalRiskAdministratorDto> Elements = new List<OccupationalRiskAdministratorDto>();
+    private readonly bool fixed_header = true;
+    private readonly bool fixed_footer = true;
+    private readonly string rowsPerPageString = "Items por página:";
+    private readonly string infoFormat = "{first_item}-{last_item} - Total {all_items} ARL";
+    private readonly string allItemsText = "Todos";
+    private readonly string CreateUrl = "/ARL/crear";
+    private int[] _pageSizeOptions = new[] { 10, 25, 50, 100 };
+
+    private static int[] ComputePageSizeOptions(int totalItems)
+    {
+        if (totalItems <= 10)
+            return new[] { totalItems };
+
+        if (totalItems < 25)
+            return new[] { 10, totalItems };
+
+        if (totalItems < 50)
+            return new[] { 10, 25, totalItems };
+
+        return new[] { 10, 25, 50, 100, totalItems };
+    }
+
+    private async Task<TableData<OccupationalRiskAdministratorDto>> LoadServerData(TableState state, CancellationToken cancellationToken)
+    {
+        _loading = true;
+        StateHasChanged();
+
+        try
+        {
+            PagedResponse<OccupationalRiskAdministratorDto>? response = await OccupationalRiskAdministratorService.GetAllAsync(
+                pageNumber: state.Page + 1,
+                pageSize: state.PageSize);
+
+            Elements = response.Items;
+            _pageSizeOptions = ComputePageSizeOptions(response.TotalCount);
+
+            return new TableData<OccupationalRiskAdministratorDto>
+            {
+                Items = response.Items,
+                TotalItems = response.TotalCount
+            };
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

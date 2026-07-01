@@ -1,0 +1,56 @@
+@using sicoain.client.Abstractions
+@using sicoain.client.Components
+@using sicoain.shared.DTOs.OccupationalRiskAdministrators
+
+@inject IOccupationalRiskAdministratorService OccupationalRiskAdministratorService
+@inject NavigationManager Navigation
+@page "/ARL/editar/{Id:int}"
+@attribute [Authorize]
+
+<div>
+    <MudText Typo="Typo.h2" Class="text-center block">
+        Editar ARL
+    </MudText>
+
+    @if (_loadingEntity)
+    {
+        <MudProgressCircular Indeterminate="true" Class="mx-auto" />
+    }
+    else if (_notFound)
+    {
+        <MudAlert Severity="Severity.Warning">ARL no encontrada</MudAlert>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/ARL" Class="mt-3">
+            Volver a ARL
+        </MudButton>
+    }
+    else if (_entity is not null)
+    {
+        <OccupationalRiskAdministratorForm Entity="@_entity" />
+    }
+</div>
+
+@code
+{
+    [Parameter] public int Id { get; set; }
+
+    private OccupationalRiskAdministratorDto? _entity;
+    private bool _loadingEntity = true;
+    private bool _notFound;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _entity = await OccupationalRiskAdministratorService.GetByIdAsync(Id);
+            _notFound = _entity is null;
+        }
+        catch
+        {
+            _notFound = true;
+        }
+        finally
+        {
+            _loadingEntity = false;
+        }
+    }
+}
