@@ -11,28 +11,29 @@
 
 <TableComponent TitlePage="Roles" CreateUrl="@CreateUrl">
 
+    <div style="max-width: 600px; margin: 0 auto; width: 100%;">
     <MudTable Items="@Elements" ServerData="@LoadServerData" Hover="true" Loading="@_loading"
               FixedHeader="@fixed_header" FixedFooter="@fixed_footer" Height="@(fixed_header || fixed_footer ?"350px":"")"
                LoadingProgressColor="Color.Info" Class="w-full">
         <HeaderContent>
             <MudTh>Id</MudTh>
             <MudTh>Nombre</MudTh>
-            <MudTh>Descripción</MudTh>
             <MudTh class="text-center">Activo</MudTh>
             <MudTh Class="text-center">Acciones</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Id">@context.Id</MudTd>
             <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="Description">@context.Description</MudTd>
             <MudTd DataLabel="IsActive" Class="text-center">
                 <MudIcon Icon="@(context.IsActive ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
                          Color="@(context.IsActive ? Color.Success : Color.Error)" />
             </MudTd>
-            <MudTd Class="flex gap-3 justify-center items-center">
-                <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
-                        Href="@($"/roles/editar/{context.Id}")" />
-                <MudFab Color="Color.Error" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" />
+            <MudTd Class="text-center">
+                <div style="display: flex; justify-content: center; gap: 8px; align-items: center; width: 100%;">
+                    <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
+                            Href="@($"/roles/editar/{context.Id}")" />
+                    <MudFab Color="Color.Error" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" />
+                </div>
             </MudTd>
         </RowTemplate>
         <PagerContent>
@@ -40,6 +41,7 @@
                            InfoFormat="@infoFormat" AllItemsText="@allItemsText" />
         </PagerContent>
     </MudTable>
+    </div>
 </TableComponent>
 
 @code {

@@ -9,14 +9,14 @@
 
 <MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors"
          OnEnterPressed="@(() => { if (_form is not null) _form.ValidateAsync(); })" Class="w-100"
-         Style="padding: 1.5rem; max-width: 1200px; margin: 0 auto;">
+         Style="padding: 1.5rem; max-width: 500px; margin: 0 auto;">
     <MudGrid>
-        <MudItem xs="12" md="6">
-            <MudTextField Class="w-100 mb-3" T="string" @bind-Value="@_name" Label="Nombre del Rol" MaxLength=50
+        <MudItem xs="12">
+            <MudTextField Class="w-100 mb-2" T="string" @bind-Value="@_name" Label="Nombre del Rol" MaxLength=50
                           MinLength=5 HelperText="Nombre único del rol (mín. 5 caracteres)" Required="true"
                           RequiredError="El nombre del rol es requerido!" For="@(() => _name)" Disabled="@(_isLoading || IsEditMode)" />
         </MudItem>
-        <MudItem xs="12" md="6">
+        <MudItem xs="12">
             <MudTextField Class="w-100 mb-3" T="string" @bind-Value="@_description" Label="Descripción"
                           HelperText="Descripción del propósito del rol" Lines="3" MaxLength=500
                           Disabled="@(_isLoading)" />
@@ -58,7 +58,7 @@
                     <MudGrid>
                         @foreach (var group in _permissionsByModule)
                         {
-                            <MudItem xs="12" md="@_moduleColumnSize">
+                            <MudItem xs="12" sm="6" md="3">
                                 <MudText Typo="Typo.subtitle1" Class="mt-2 mb-1 font-weight-bold">
                                     @TranslateModule(group.Key)
                                 </MudText>
@@ -126,17 +126,6 @@
 
     private ILookup<string, PermissionDto> _permissionsByModule =>
         _allPermissions.ToLookup(p => p.Module);
-
-    private int _moduleColumnSize
-    {
-        get
-        {
-            var moduleCount = _permissionsByModule.Count();
-            if (moduleCount <= 2) return 6;
-            if (moduleCount <= 4) return 4;
-            return 3;
-        }
-    }
 
     private static string TranslateModule(string module)
     {
