@@ -10,7 +10,7 @@
 @attribute [Authorize]
 
 <TableComponent TitlePage="Usuarios" CreateUrl="@CreateUrl">
-<div style="max-width: 900px; width: 100%; margin: 0 auto;">
+<div style="max-width: 950px; width: 100%; margin: 0 auto;">
 <MudTable Items="@Elements" ServerData="@LoadServerData" Hover="true" Loading="@_loading"
               FixedHeader="@fixed_header" FixedFooter="@fixed_footer" Height="@(fixed_header || fixed_footer ?"350px":"")"
                LoadingProgressColor="Color.Info" Style="width: 900px !important;" Class="users-table">
@@ -19,6 +19,7 @@
             <MudTh>Nombre completo</MudTh>
             <MudTh>Correo Electrónico</MudTh>
             <MudTh>Roles</MudTh>
+            <MudTh Class="text-center">Activo</MudTh>
             <MudTh Class="text-center">Acciones</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -26,6 +27,10 @@
             <MudTd DataLabel="Fullname">@context.FullName</MudTd>
             <MudTd DataLabel="Email">@context.Email</MudTd>
             <MudTd DataLabel="Roles">@string.Join(", ", GetUserRoles(context.Id))</MudTd>
+            <MudTd DataLabel="IsActive" Class="text-center">
+                <MudIcon Icon="@(context.IsActive ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
+                         Color="@(context.IsActive ? Color.Success : Color.Error)" />
+            </MudTd>
             <MudTd Class="text-center">
                 <div style="display: flex; justify-content: center; gap: 8px; align-items: center; width: 100%;">
                     <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"

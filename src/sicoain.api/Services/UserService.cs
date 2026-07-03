@@ -108,7 +108,7 @@ namespace sicoain.api.Services
                 user.FullName = request.FullName;
 
             if (request.IsActive.HasValue)
-                user.IsDeleted = !request.IsActive.Value;
+                user.IsActive = request.IsActive.Value;
 
             user.UpdatedAt = DateTime.UtcNow;
 

@@ -43,6 +43,11 @@
             <MudSelectItem Value="@role.Name">@role.Name</MudSelectItem>
         }
     </MudSelect>
+
+    <MudSwitch @bind-Value="@_isActive" Class="mb-4" Color="Color.Primary" Disabled="@(_isLoading)">
+        <ChildContent>Usuario activo</ChildContent>
+    </MudSwitch>
+
     <div class="d-flex align-center justify-center gap-3 pt-3">
         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success"
                    Disabled="@(_isLoading)" Size="Size.Large"
@@ -80,6 +85,7 @@
     private string _successMessage = string.Empty;
     private bool _isLoading = false;
     private bool _isLoadingRoles = false;
+    private bool _isActive = true;
 
     private bool IsEditMode => User is not null;
 
@@ -94,9 +100,14 @@
         {
             _email = User!.Email;
             _fullname = User!.FullName;
+            _isActive = User.IsActive;
 
             var userRoles = await UserService.GetUserRolesAsync(User.Id);
             _selectedRoleNames = userRoles.ToList();
+        }
+        else
+        {
+            _isActive = true;
         }
     }
 
@@ -215,7 +226,8 @@
         var updateRequest = new UpdateUserRequest
         {
             FullName = _fullname,
-            Email = _email
+            Email = _email,
+            IsActive = _isActive
         };
 
         await UserService.UpdateAsync(User!.Id, updateRequest);

@@ -10,7 +10,7 @@ namespace sicoain.api.Mappings
         {
             // Entity -> DTO
             CreateMap<User, UserDto>()
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => !src.IsDeleted))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
