@@ -60,13 +60,12 @@
         });
     }
 
-    private Task HandleLogoutAsync()
+    private async Task HandleLogoutAsync()
     {
-        AuthService.LogoutAsync();
+        await AuthService.LogoutAsync();
         var cursoProvider = AuthProvider as CustomAuthenticationStateProvider;
         cursoProvider?.MarkUserAsLoggedOut();
-        Navigation.NavigateTo("/", true);
-        return Task.CompletedTask;
+        Navigation.NavigateTo("/", false);
     }
 
     public void Dispose()
