@@ -10,10 +10,10 @@
 @attribute [Authorize]
 
 <TableComponent TitlePage="Usuarios" CreateUrl="@CreateUrl">
-
-    <MudTable Items="@Elements" ServerData="@LoadServerData" Hover="true" Loading="@_loading"
+<div style="max-width: 900px; width: 100%; margin: 0 auto;">
+<MudTable Items="@Elements" ServerData="@LoadServerData" Hover="true" Loading="@_loading"
               FixedHeader="@fixed_header" FixedFooter="@fixed_footer" Height="@(fixed_header || fixed_footer ?"350px":"")"
-               LoadingProgressColor="Color.Info" Class="w-full" Style="min-width: 1200px;">
+               LoadingProgressColor="Color.Info" Style="width: 900px !important;" Class="users-table">
         <HeaderContent>
             <MudTh>Id</MudTh>
             <MudTh>Nombre completo</MudTh>
@@ -26,10 +26,12 @@
             <MudTd DataLabel="Fullname">@context.FullName</MudTd>
             <MudTd DataLabel="Email">@context.Email</MudTd>
             <MudTd DataLabel="Roles">@string.Join(", ", GetUserRoles(context.Id))</MudTd>
-            <MudTd Class="flex gap-3 justify-center items-center">
-                <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
-                        Href="@($"/usuarios/editar/{context.Id}")" />
-                <MudFab Color="Color.Error" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" />
+            <MudTd Class="text-center">
+                <div style="display: flex; justify-content: center; gap: 8px; align-items: center; width: 100%;">
+                    <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
+                            Href="@($"/usuarios/editar/{context.Id}")" />
+                    <MudFab Color="Color.Error" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" />
+                </div>
             </MudTd>
         </RowTemplate>
         <PagerContent>
@@ -37,6 +39,7 @@
                            InfoFormat="@infoFormat" AllItemsText="@allItemsText" />
         </PagerContent>
     </MudTable>
+    </div>
 </TableComponent>
 
 @code {

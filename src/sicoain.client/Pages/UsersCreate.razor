@@ -8,9 +8,11 @@
 @page "/usuarios/crear"
 @attribute [Authorize]
 
-<div>
+<div style="width: 100%;">
     <MudText Typo="Typo.h2" Class="text-center block">
         Crear Usuario
     </MudText>
-    <UserForm />
+    <div style="max-width: 500px; width: 100%; margin: 0 auto;">
+        <UserForm />
+    </div>
 </div>

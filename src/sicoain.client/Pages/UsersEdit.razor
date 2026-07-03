@@ -9,7 +9,7 @@
 @page "/usuarios/editar/{Id:int}"
 @attribute [Authorize]
 
-<div>
+<div style="width: 100%;">
     <MudText Typo="Typo.h2" Class="text-center block">
         Editar Usuario
     </MudText>
@@ -27,7 +27,9 @@
     }
     else if (_user is not null)
     {
-        <UserForm User="@_user" />
+        <div style="max-width: 500px; width: 100%; margin: 0 auto;">
+            <UserForm User="@_user" />
+        </div>
     }
 </div>
 

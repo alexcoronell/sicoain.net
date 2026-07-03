@@ -11,8 +11,8 @@
 @inject IUserService UserService
 
 <MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors"
-         OnEnterPressed="@(() => { if (_form is not null) _form.ValidateAsync(); })" Class="w-100 mx-auto"
-         Style="padding: 1.5rem; max-width: 600px">
+         OnEnterPressed="@(() => { if (_form is not null) _form.ValidateAsync(); })" Class="w-100"
+         Style="padding: 1.5rem;">
     <MudTextField Class="w-100 mb-3" T="string" @bind-Value="@_fullname" Label="Nombre Completo" MaxLength=100
                   MinLength=2 HelperText="Ingresa el nombre completo" Required="true"
                   RequiredError="El nombre completo es requerido!" For="@(() => _fullname)" Disabled="@(_isLoading)"
@@ -55,11 +55,11 @@
 </MudForm>
 @if (_successMessage.Length > 0)
 {
-    <MudAlert Severity="Severity.Success" Class="mx-auto" Style="max-width: 600px;">@_successMessage</MudAlert>
+    <MudAlert Severity="Severity.Success" Class="mx-auto" Style="max-width: 500px;">@_successMessage</MudAlert>
 }
 @if (!string.IsNullOrEmpty(_errorMessage))
 {
-    <MudAlert Severity="Severity.Error" Class="mx-auto" Style="max-width: 600px;">
+    <MudAlert Severity="Severity.Error" Class="mx-auto" Style="max-width: 500px;">
         @_errorMessage
     </MudAlert>
 }
