@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using sicoain.shared.Enums;
 
 namespace sicoain.shared.DTOs
 {
@@ -10,5 +7,6 @@ namespace sicoain.shared.DTOs
         public int Id { get; init; }
         public required string PhoneNumber { get; init; }
         public bool IsMain { get; init; }
+        public PhoneType PhoneType { get; init; } = PhoneType.Mobile;
     }
 }

@@ -39,8 +39,7 @@
     @foreach (var (item, index) in _emails.Select((e, i) => (e, i)))
     {
         <div class="d-flex align-center gap-2 mb-2">
-            <MudSwitch T="bool" Checked="@item.IsMain"
-                       CheckedChanged="@((bool val) => OnEmailMainChanged(index, val))"
+            <MudSwitch T="bool" @bind-Checked="_emails[index].IsMain"
                        Color="Color.Primary" Size="Size.Small" />
             <MudTextField Class="flex-grow-1" T="string" @bind-Value="_emails[index].Value"
                           Label="Correo electrónico" Placeholder="correo@ejemplo.com"
@@ -60,8 +59,7 @@
     @foreach (var (item, index) in _phones.Select((p, i) => (p, i)))
     {
         <div class="d-flex align-center gap-2 mb-2">
-            <MudSwitch T="bool" Checked="@item.IsMain"
-                       CheckedChanged="@((bool val) => OnPhoneMainChanged(index, val))"
+            <MudSwitch T="bool" @bind-Checked="_phones[index].IsMain"
                        Color="Color.Primary" Size="Size.Small" />
             <MudSelect T="PhoneType" @bind-Value="_phones[index].PhoneType" Disabled="@(_isLoading)"
                        Density="Density.Compact" Variant="Variant.Text" Class="mr-2" Style="min-width: 100px;">
@@ -144,7 +142,8 @@
             {
                 Id = p.Id,
                 Value = p.PhoneNumber,
-                IsMain = p.IsMain
+                IsMain = p.IsMain,
+                PhoneType = p.PhoneType
             }).ToList() ?? [];
         }
     }
@@ -194,20 +193,6 @@
         _phones.RemoveAt(index);
         if (wasMain && _phones.Count > 0)
             _phones[0].IsMain = true;
-    }
-
-    private void OnEmailMainChanged(int changedIndex, bool value)
-    {
-        if (!value) return;
-        for (int i = 0; i < _emails.Count; i++)
-            _emails[i].IsMain = i == changedIndex;
-    }
-
-    private void OnPhoneMainChanged(int changedIndex, bool value)
-    {
-        if (!value) return;
-        for (int i = 0; i < _phones.Count; i++)
-            _phones[i].IsMain = i == changedIndex;
     }
 
     private async Task HandleSaveAsync()
