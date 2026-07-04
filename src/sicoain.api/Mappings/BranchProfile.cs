@@ -68,7 +68,6 @@ namespace sicoain.api.Mappings
                 .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.DeletedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(_ => false))
-                .ForMember(dest => dest.PhoneType, opt => opt.Ignore())
                 .ForMember(dest => dest.Branch, opt => opt.Ignore());
 
             // ========================================================================
@@ -83,7 +82,6 @@ namespace sicoain.api.Mappings
                 .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.DeletedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
-                .ForMember(dest => dest.PhoneType, opt => opt.Ignore())
                 .ForMember(dest => dest.BranchId, opt => opt.Ignore())
                 .ForMember(dest => dest.Branch, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

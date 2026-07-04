@@ -11,7 +11,7 @@ namespace sicoain.shared.DTOs.Branches
         [Required, Range(1, int.MaxValue)]
         public int? BusinessId { get; init; }
 
-        public List<string>? Emails { get; init; }
-        public List<string>? Phones { get; init; }
+        public List<CreateEntityEmailRequest>? Emails { get; init; }
+        public List<CreateEntityPhoneRequest>? Phones { get; init; }
     }
 }

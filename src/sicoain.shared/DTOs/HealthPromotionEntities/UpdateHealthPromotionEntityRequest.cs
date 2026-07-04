@@ -1,3 +1,5 @@
+using sicoain.shared.DTOs;
+
 namespace sicoain.shared.DTOs.HealthPromotionEntities
 {
     public record UpdateHealthPromotionEntityRequest
@@ -6,7 +8,7 @@ namespace sicoain.shared.DTOs.HealthPromotionEntities
         public string? AddressStreet { get; init; }
         public string? Notes { get; init; }
 
-        public List<string>? Emails { get; init; }
-        public List<string>? Phones { get; init; }
+        public List<UpdateEntityEmailRequest>? Emails { get; init; }
+        public List<UpdateEntityPhoneRequest>? Phones { get; init; }
     }
 }

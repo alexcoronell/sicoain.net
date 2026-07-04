@@ -8,7 +8,7 @@ namespace sicoain.shared.DTOs.OccupationalRiskAdministrators
         public required string Name { get; init; }
         public string? AddressStreet { get; init; }
 
-        public List<string>? Emails { get; init; }
-        public List<string>? Phones { get; init; }
+        public List<CreateEntityEmailRequest>? Emails { get; init; }
+        public List<CreateEntityPhoneRequest>? Phones { get; init; }
     }
 }

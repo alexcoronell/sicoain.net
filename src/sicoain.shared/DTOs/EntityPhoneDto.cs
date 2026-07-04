@@ -9,5 +9,6 @@ namespace sicoain.shared.DTOs
     {
         public int Id { get; init; }
         public required string PhoneNumber { get; init; }
+        public bool IsMain { get; init; }
     }
 }

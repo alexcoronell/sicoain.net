@@ -1,3 +1,5 @@
+using sicoain.shared.DTOs;
+
 namespace sicoain.shared.DTOs.Branches
 {
     public record UpdateBranchRequest
@@ -5,7 +7,7 @@ namespace sicoain.shared.DTOs.Branches
         public string? Name { get; init; }
         public string? AddressStreet { get; init; }
         public int? BusinessId { get; init; }
-        public List<string>? Emails { get; init; }
-        public List<string>? Phones { get; init; }
+        public List<UpdateEntityEmailRequest>? Emails { get; init; }
+        public List<UpdateEntityPhoneRequest>? Phones { get; init; }
     }
 }

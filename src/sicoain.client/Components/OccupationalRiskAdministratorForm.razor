@@ -1,6 +1,8 @@
 @using sicoain.client.Abstractions
 @using sicoain.client.Exceptions
+@using sicoain.shared.DTOs
 @using sicoain.shared.DTOs.OccupationalRiskAdministrators
+@using sicoain.shared.Enums
 
 @inject IOccupationalRiskAdministratorService OccupationalRiskAdministratorService
 @inject NavigationManager Navigation
@@ -18,10 +20,13 @@
 
     @* --- Correos Electrónicos --- *@
     <MudText Typo="Typo.subtitle1" Class="mb-2 mt-4">Correos Electrónicos</MudText>
-    @foreach (var (email, index) in _emails.Select((e, i) => (e, i)))
+    @foreach (var (item, index) in _emails.Select((e, i) => (e, i)))
     {
         <div class="d-flex align-center gap-2 mb-2">
-            <MudTextField Class="flex-grow-1" T="string" @bind-Value="_emails[index]"
+            <MudSwitch T="bool" Checked="@item.IsMain"
+                       CheckedChanged="@((bool val) => OnEmailMainChanged(index, val))"
+                       Color="Color.Primary" Size="Size.Small" />
+            <MudTextField Class="flex-grow-1" T="string" @bind-Value="_emails[index].Value"
                           Label="Correo electrónico" Placeholder="correo@ejemplo.com"
                           Disabled="@(_isLoading)" Immediate="true" />
             <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Color="Color.Error"
@@ -36,10 +41,20 @@
 
     @* --- Teléfonos --- *@
     <MudText Typo="Typo.subtitle1" Class="mb-2 mt-2">Teléfonos</MudText>
-    @foreach (var (phone, index) in _phones.Select((p, i) => (p, i)))
+    @foreach (var (item, index) in _phones.Select((p, i) => (p, i)))
     {
         <div class="d-flex align-center gap-2 mb-2">
-            <MudTextField Class="flex-grow-1" T="string" @bind-Value="_phones[index]"
+            <MudSwitch T="bool" Checked="@item.IsMain"
+                       CheckedChanged="@((bool val) => OnPhoneMainChanged(index, val))"
+                       Color="Color.Primary" Size="Size.Small" />
+            <MudSelect T="PhoneType" @bind-Value="_phones[index].PhoneType" Disabled="@(_isLoading)"
+                       Density="Density.Compact" Variant="Variant.Text" Class="mr-2" Style="min-width: 100px;">
+                @foreach (PhoneType pt in Enum.GetValues<PhoneType>())
+                {
+                    <MudSelectItem Value="pt">@pt</MudSelectItem>
+                }
+            </MudSelect>
+            <MudTextField Class="flex-grow-1" T="string" @bind-Value="_phones[index].Value"
                           Label="Teléfono" Placeholder="3001234567"
                           Disabled="@(_isLoading)" Immediate="true" />
             <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Color="Color.Error"
@@ -84,8 +99,8 @@
 
     private string _name = string.Empty;
     private string _addressStreet = string.Empty;
-    private List<string> _emails = [];
-    private List<string> _phones = [];
+    private List<EmailItem> _emails = [];
+    private List<PhoneItem> _phones = [];
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private bool _isLoading = false;
@@ -98,8 +113,18 @@
         {
             _name = Entity!.Name ?? string.Empty;
             _addressStreet = Entity.AddressStreet ?? string.Empty;
-            _emails = Entity.Emails?.Select(e => e.Email).ToList() ?? [];
-            _phones = Entity.Phones?.Select(p => p.PhoneNumber).ToList() ?? [];
+            _emails = Entity.Emails?.Select(e => new EmailItem
+            {
+                Id = e.Id,
+                Value = e.Email,
+                IsMain = e.IsMain
+            }).ToList() ?? [];
+            _phones = Entity.Phones?.Select(p => new PhoneItem
+            {
+                Id = p.Id,
+                Value = p.PhoneNumber,
+                IsMain = p.IsMain
+            }).ToList() ?? [];
         }
     }
 
@@ -117,11 +142,39 @@
         return null;
     }
 
-    private void AddEmail() => _emails.Add(string.Empty);
-    private void RemoveEmail(int index) => _emails.RemoveAt(index);
+    private void AddEmail() => _emails.Add(new EmailItem());
 
-    private void AddPhone() => _phones.Add(string.Empty);
-    private void RemovePhone(int index) => _phones.RemoveAt(index);
+    private void RemoveEmail(int index)
+    {
+        bool wasMain = _emails[index].IsMain;
+        _emails.RemoveAt(index);
+        if (wasMain && _emails.Count > 0)
+            _emails[0].IsMain = true;
+    }
+
+    private void AddPhone() => _phones.Add(new PhoneItem());
+
+    private void RemovePhone(int index)
+    {
+        bool wasMain = _phones[index].IsMain;
+        _phones.RemoveAt(index);
+        if (wasMain && _phones.Count > 0)
+            _phones[0].IsMain = true;
+    }
+
+    private void OnEmailMainChanged(int changedIndex, bool value)
+    {
+        if (!value) return;
+        for (int i = 0; i < _emails.Count; i++)
+            _emails[i].IsMain = i == changedIndex;
+    }
+
+    private void OnPhoneMainChanged(int changedIndex, bool value)
+    {
+        if (!value) return;
+        for (int i = 0; i < _phones.Count; i++)
+            _phones[i].IsMain = i == changedIndex;
+    }
 
     private async Task HandleSaveAsync()
     {
@@ -170,12 +223,6 @@
         }
     }
 
-    private List<string> GetNonEmptyEmails()
-        => _emails.Where(e => !string.IsNullOrWhiteSpace(e)).Select(e => e.Trim()).ToList();
-
-    private List<string> GetNonEmptyPhones()
-        => _phones.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()).ToList();
-
     private async Task ResetFormAsync()
     {
         _name = string.Empty;
@@ -191,8 +238,21 @@
         {
             Name = _name,
             AddressStreet = string.IsNullOrWhiteSpace(_addressStreet) ? null : _addressStreet,
-            Emails = GetNonEmptyEmails(),
-            Phones = GetNonEmptyPhones()
+            Emails = _emails
+                .Where(e => !string.IsNullOrWhiteSpace(e.Value))
+                .Select(e => new CreateEntityEmailRequest
+                {
+                    Email = e.Value.Trim(),
+                    IsMain = e.IsMain
+                }).ToList(),
+            Phones = _phones
+                .Where(p => !string.IsNullOrWhiteSpace(p.Value))
+                .Select(p => new CreateEntityPhoneRequest
+                {
+                    Phone = p.Value.Trim(),
+                    IsMain = p.IsMain,
+                    PhoneType = p.PhoneType
+                }).ToList()
         };
 
         await OccupationalRiskAdministratorService.CreateAsync(request);
@@ -210,8 +270,23 @@
         {
             Name = string.IsNullOrWhiteSpace(_name) ? null : _name,
             AddressStreet = string.IsNullOrWhiteSpace(_addressStreet) ? null : _addressStreet,
-            Emails = GetNonEmptyEmails(),
-            Phones = GetNonEmptyPhones()
+            Emails = _emails
+                .Where(e => !string.IsNullOrWhiteSpace(e.Value))
+                .Select(e => new UpdateEntityEmailRequest
+                {
+                    Id = e.Id,
+                    Email = e.Value.Trim(),
+                    IsMain = e.IsMain
+                }).ToList(),
+            Phones = _phones
+                .Where(p => !string.IsNullOrWhiteSpace(p.Value))
+                .Select(p => new UpdateEntityPhoneRequest
+                {
+                    Id = p.Id,
+                    Phone = p.Value.Trim(),
+                    IsMain = p.IsMain,
+                    PhoneType = p.PhoneType
+                }).ToList()
         };
 
         await OccupationalRiskAdministratorService.UpdateAsync(Entity!.Id, request);
@@ -221,5 +296,20 @@
         await Task.Delay(3000);
         _successMessage = string.Empty;
         Navigation.NavigateTo("/ARL");
+    }
+
+    private class EmailItem
+    {
+        public int? Id { get; set; }
+        public string Value { get; set; } = string.Empty;
+        public bool IsMain { get; set; }
+    }
+
+    private class PhoneItem
+    {
+        public int? Id { get; set; }
+        public string Value { get; set; } = string.Empty;
+        public bool IsMain { get; set; }
+        public PhoneType PhoneType { get; set; } = PhoneType.Mobile;
     }
 }

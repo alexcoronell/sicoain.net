@@ -6,5 +6,6 @@ namespace sicoain.shared.DTOs
     {
         [Required, EmailAddress]
         public required string Email { get; init; }
+        public bool IsMain { get; init; }
     }
 }

@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using sicoain.shared.Enums;
 
 namespace sicoain.shared.DTOs
 {
     public record UpdateEntityPhoneRequest
     {
+        public int? Id { get; init; }
         [Required, MaxLength(20)]
         public required string Phone { get; init; }
+        public bool IsMain { get; init; }
+        public PhoneType PhoneType { get; init; } = PhoneType.Mobile;
     }
 }

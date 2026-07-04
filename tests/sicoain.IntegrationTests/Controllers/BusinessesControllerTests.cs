@@ -10,7 +10,7 @@ using sicoain.shared.Entities;
 
 namespace sicoain.IntegrationTests.Controllers;
 
-public class BusinessesControllerTests : IClassFixture<IntegrationTestWebAppFactory>
+public partial class BusinessesControllerTests : IClassFixture<IntegrationTestWebAppFactory>
 {
     private readonly HttpClient _client;
     private readonly CookieHandler _cookieHandler;

@@ -56,33 +56,37 @@ namespace sicoain.api.Services
             _context.Set<Business>().Add(entity);
             await _context.SaveChangesAsync().ConfigureAwait(false);
 
-            // Create emails from the string list
+            // Create emails from the typed list
             if (request.Emails is { Count: > 0 })
             {
-                var emails = request.Emails
-                    .Where(e => !string.IsNullOrWhiteSpace(e))
+                var emailEntities = request.Emails
+                    .Where(e => !string.IsNullOrWhiteSpace(e.Email))
                     .Select(e => new BusinessEmail
                     {
                         BusinessId = entity.Id,
-                        Email = e.Trim(),
+                        Email = e.Email.Trim(),
+                        IsMain = e.IsMain,
                         Business = null!
-                    });
-                _context.Set<BusinessEmail>().AddRange(emails);
+                    }).ToList();
+                IsMainHelper.EnsureSingleMain(emailEntities);
+                _context.Set<BusinessEmail>().AddRange(emailEntities);
             }
 
-            // Create phones from the string list (default to Mobile type)
+            // Create phones from the typed list
             if (request.Phones is { Count: > 0 })
             {
-                var phones = request.Phones
-                    .Where(p => !string.IsNullOrWhiteSpace(p))
+                var phoneEntities = request.Phones
+                    .Where(p => !string.IsNullOrWhiteSpace(p.Phone))
                     .Select(p => new BusinessPhone
                     {
                         BusinessId = entity.Id,
-                        Phone = p.Trim(),
-                        PhoneType = PhoneType.Mobile,
+                        Phone = p.Phone.Trim(),
+                        PhoneType = p.PhoneType,
+                        IsMain = p.IsMain,
                         Business = null!
-                    });
-                _context.Set<BusinessPhone>().AddRange(phones);
+                    }).ToList();
+                IsMainHelper.EnsureSingleMain(phoneEntities);
+                _context.Set<BusinessPhone>().AddRange(phoneEntities);
             }
 
             await _context.SaveChangesAsync().ConfigureAwait(false);
@@ -110,62 +114,93 @@ namespace sicoain.api.Services
             // ---- Sync emails ----
             if (request.Emails != null)
             {
-                var requestedEmails = request.Emails
-                    .Where(e => !string.IsNullOrWhiteSpace(e))
-                    .Select(e => e.Trim())
-                    .ToHashSet(StringComparer.Ordinal);
-
-                var existingEmails = entity.Emails?.Select(e => e.Email).ToHashSet(StringComparer.Ordinal) ?? [];
-
-                // Remove emails that are no longer in the list
-                var emailsToRemove = entity.Emails?
-                    .Where(e => !requestedEmails.Contains(e.Email))
+                var requestedItems = request.Emails
+                    .Where(e => !string.IsNullOrWhiteSpace(e.Email))
                     .ToList();
-                if (emailsToRemove?.Count > 0)
-                    _context.Set<BusinessEmail>().RemoveRange(emailsToRemove);
 
-                // Add new emails
-                var emailsToAdd = requestedEmails
-                    .Where(e => !existingEmails.Contains(e))
-                    .Select(e => new BusinessEmail
+                var existingEmails = entity.Emails?.ToList() ?? [];
+
+                // Remove items not in the request
+                var requestedIds = requestedItems.Where(r => r.Id.HasValue).Select(r => r.Id!.Value).ToHashSet();
+                var toRemove = existingEmails.Where(e => !requestedIds.Contains(e.Id)).ToList();
+                if (toRemove.Count > 0)
+                    _context.Set<BusinessEmail>().RemoveRange(toRemove);
+
+                // Update existing items by Id
+                foreach (var existing in existingEmails)
+                {
+                    var match = requestedItems.FirstOrDefault(r => r.Id == existing.Id);
+                    if (match != null)
+                    {
+                        existing.Email = match.Email.Trim();
+                        existing.IsMain = match.IsMain;
+                    }
+                }
+
+                // Add new items (no Id)
+                var newItems = requestedItems
+                    .Where(r => !r.Id.HasValue)
+                    .Select(r => new BusinessEmail
                     {
                         BusinessId = entity.Id,
-                        Email = e,
+                        Email = r.Email.Trim(),
+                        IsMain = r.IsMain,
                         Business = null!
-                    });
-                if (emailsToAdd.Any())
-                    _context.Set<BusinessEmail>().AddRange(emailsToAdd);
+                    }).ToList();
+
+                if (newItems.Count > 0)
+                    _context.Set<BusinessEmail>().AddRange(newItems);
+
+                // Normalize IsMain across all remaining emails
+                var allEmails = existingEmails.Except(toRemove).Concat(newItems).ToList();
+                IsMainHelper.EnsureSingleMain(allEmails);
             }
 
             // ---- Sync phones ----
             if (request.Phones != null)
             {
-                var requestedPhones = request.Phones
-                    .Where(p => !string.IsNullOrWhiteSpace(p))
-                    .Select(p => p.Trim())
-                    .ToHashSet(StringComparer.Ordinal);
-
-                var existingPhones = entity.Phones?.Select(p => p.Phone).ToHashSet(StringComparer.Ordinal) ?? [];
-
-                // Remove phones that are no longer in the list
-                var phonesToRemove = entity.Phones?
-                    .Where(p => !requestedPhones.Contains(p.Phone))
+                var requestedItems = request.Phones
+                    .Where(p => !string.IsNullOrWhiteSpace(p.Phone))
                     .ToList();
-                if (phonesToRemove?.Count > 0)
-                    _context.Set<BusinessPhone>().RemoveRange(phonesToRemove);
 
-                // Add new phones
-                var phonesToAdd = requestedPhones
-                    .Where(p => !existingPhones.Contains(p))
-                    .Select(p => new BusinessPhone
+                var existingPhones = entity.Phones?.ToList() ?? [];
+
+                // Remove items not in the request
+                var requestedIds = requestedItems.Where(r => r.Id.HasValue).Select(r => r.Id!.Value).ToHashSet();
+                var toRemove = existingPhones.Where(e => !requestedIds.Contains(e.Id)).ToList();
+                if (toRemove.Count > 0)
+                    _context.Set<BusinessPhone>().RemoveRange(toRemove);
+
+                // Update existing items by Id
+                foreach (var existing in existingPhones)
+                {
+                    var match = requestedItems.FirstOrDefault(r => r.Id == existing.Id);
+                    if (match != null)
+                    {
+                        existing.Phone = match.Phone.Trim();
+                        existing.PhoneType = match.PhoneType;
+                        existing.IsMain = match.IsMain;
+                    }
+                }
+
+                // Add new items (no Id)
+                var newItems = requestedItems
+                    .Where(r => !r.Id.HasValue)
+                    .Select(r => new BusinessPhone
                     {
                         BusinessId = entity.Id,
-                        Phone = p,
-                        PhoneType = PhoneType.Mobile,
+                        Phone = r.Phone.Trim(),
+                        PhoneType = r.PhoneType,
+                        IsMain = r.IsMain,
                         Business = null!
-                    });
-                if (phonesToAdd.Any())
-                    _context.Set<BusinessPhone>().AddRange(phonesToAdd);
+                    }).ToList();
+
+                if (newItems.Count > 0)
+                    _context.Set<BusinessPhone>().AddRange(newItems);
+
+                // Normalize IsMain across all remaining phones
+                var allPhones = existingPhones.Except(toRemove).Concat(newItems).ToList();
+                IsMainHelper.EnsureSingleMain(allPhones);
             }
 
             await _context.SaveChangesAsync().ConfigureAwait(false);
