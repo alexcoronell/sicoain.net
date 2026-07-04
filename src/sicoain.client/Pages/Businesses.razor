@@ -16,16 +16,42 @@
             <MudTh>Id</MudTh>
             <MudTh>Nombre</MudTh>
             <MudTh>Direción</MudTh>
+            <MudTh>Correo(s)</MudTh>
+            <MudTh>Teléfono(s)</MudTh>
             <MudTh Class="text-center">Acciones</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Id">@context.Id</MudTd>
             <MudTd DataLabel="Fullname">@context.Name</MudTd>
-            <MudTd DataLabel="Email">@context.AddressStreet</MudTd>
-            <MudTd Class="flex gap-3 justify-center items-center">
+            <MudTd DataLabel="Dirección">@context.AddressStreet</MudTd>
+            <MudTd DataLabel="Correo(s)">
+                @if (context.Emails?.Any() == true)
+                {
+                    var main = context.Emails.FirstOrDefault(e => e.IsMain) ?? context.Emails.First();
+                    <a href="mailto:@main.Email" style="text-decoration: underline; cursor: pointer;">@main.Email</a>
+                    @if (context.Emails.Count > 1)
+                    {
+                        <span class="text-caption ml-1 text-medium-emphasis">+@(context.Emails.Count - 1)</span>
+                    }
+                }
+            </MudTd>
+            <MudTd DataLabel="Teléfono(s)">
+                @if (context.Phones?.Any() == true)
+                {
+                    var main = context.Phones.FirstOrDefault(p => p.IsMain) ?? context.Phones.First();
+                    <a href="tel:@main.PhoneNumber" style="text-decoration: underline; cursor: pointer;">@main.PhoneNumber</a>
+                    @if (context.Phones.Count > 1)
+                    {
+                        <span class="text-caption ml-1 text-medium-emphasis">+@(context.Phones.Count - 1)</span>
+                    }
+                }
+            </MudTd>
+            <MudTd>
+                <div style="display: flex; justify-content: center; gap: 8px; align-items: center; width: 100%;">
                 <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
                         Href="@($"/empresas/editar/{context.Id}")" />
                 <MudFab Color="Color.Error" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete" />
+                </div>
             </MudTd>
         </RowTemplate>
         <NoRecordsContent>

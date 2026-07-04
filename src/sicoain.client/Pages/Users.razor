@@ -31,7 +31,7 @@
                 <MudIcon Icon="@(context.IsActive ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Cancel)"
                          Color="@(context.IsActive ? Color.Success : Color.Error)" />
             </MudTd>
-            <MudTd Class="text-center">
+            <MudTd>
                 <div style="display: flex; justify-content: center; gap: 8px; align-items: center; width: 100%;">
                     <MudFab Color="Color.Info" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
                             Href="@($"/usuarios/editar/{context.Id}")" />
