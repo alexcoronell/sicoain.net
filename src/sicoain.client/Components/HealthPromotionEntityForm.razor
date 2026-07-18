@@ -23,7 +23,7 @@
     @foreach (var (item, index) in _emails.Select((e, i) => (e, i)))
     {
         <div class="d-flex align-center gap-2 mb-2">
-            <MudSwitch T="bool" @bind-Checked="_emails[index].IsMain"
+            <MudSwitch T="bool" @bind-Value="_emails[index].IsMain"
                         Color="Color.Primary" Size="Size.Small" />
             <MudTextField Class="flex-grow-1" T="string" @bind-Value="_emails[index].Value"
                           Label="Correo electrónico" Placeholder="correo@ejemplo.com"
@@ -43,7 +43,7 @@
     @foreach (var (item, index) in _phones.Select((p, i) => (p, i)))
     {
         <div class="d-flex align-center gap-2 mb-2">
-            <MudSwitch T="bool" @bind-Checked="_phones[index].IsMain"
+            <MudSwitch T="bool" @bind-Value="_phones[index].IsMain"
                         Color="Color.Primary" Size="Size.Small" />
             <MudSelect T="PhoneType" @bind-Value="_phones[index].PhoneType" Disabled="@(_isLoading)"
                        Density="Density.Compact" Variant="Variant.Text" Class="mr-2" Style="min-width: 100px;">

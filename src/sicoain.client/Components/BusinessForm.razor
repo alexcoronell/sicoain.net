@@ -20,16 +20,10 @@
 
     @* --- Correos Electrónicos --- *@
     <MudText Typo="Typo.subtitle1" Class="mb-2 mt-4">Correos Electrónicos</MudText>
-    @if (IsEditMode)
-    {
-        <MudAlert Severity="Severity.Info" Class="mb-2" Style="font-size: 0.8rem; white-space: pre-wrap;">
-            @_emailDebug
-        </MudAlert>
-    }
     @foreach (var (item, index) in _emails.Select((e, i) => (e, i)))
     {
         <div class="d-flex align-center gap-2 mb-2">
-            <MudCheckBox T="bool" @bind-Checked="_emails[index].IsMain" Color="Color.Primary" Size="Size.Small" />
+            <MudCheckBox T="bool" @bind-Value="_emails[index].IsMain" Color="Color.Primary" Size="Size.Small" />
             <MudText Typo="Typo.body2" Class="mr-2">Principal</MudText>
             <MudTextField Class="flex-grow-1" T="string" @bind-Value="_emails[index].Value"
                           Label="Correo electrónico" Placeholder="correo@ejemplo.com"
@@ -49,7 +43,7 @@
     @foreach (var (item, index) in _phones.Select((p, i) => (p, i)))
     {
         <div class="d-flex align-center gap-2 mb-2">
-            <MudCheckBox T="bool" @bind-Checked="_phones[index].IsMain" Color="Color.Primary" Size="Size.Small" />
+            <MudCheckBox T="bool" @bind-Value="_phones[index].IsMain" Color="Color.Primary" Size="Size.Small" />
             <MudText Typo="Typo.body2" Class="mr-2">Principal</MudText>
             <MudSelect T="PhoneType" @bind-Value="_phones[index].PhoneType" Label="Tipo" Disabled="@(_isLoading)"
                        Density="Density.Compact" Variant="Variant.Text" Class="mr-2" Style="min-width: 120px;">
@@ -108,7 +102,6 @@
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private bool _isLoading = false;
-    private string _emailDebug = string.Empty;
 
     private bool IsEditMode => Business is not null;
 
@@ -131,12 +124,6 @@
                 IsMain = p.IsMain,
                 PhoneType = p.PhoneType
             }).ToList() ?? [];
-
-            // Debug: mostrar los valores reales que llegan del API
-            _emailDebug = $"Emails desde API ({Business.Emails?.Count ?? 0}):\n" +
-                string.Join("\n", (Business.Emails ?? []).Select(e => $"  id={e.Id} email={e.Email} IsMain={e.IsMain}")) +
-                $"\n\n_emails locales ({_emails.Count}):\n" +
-                string.Join("\n", _emails.Select(e => $"  id={e.Id} value={e.Value} IsMain={e.IsMain}"));
         }
     }
 
