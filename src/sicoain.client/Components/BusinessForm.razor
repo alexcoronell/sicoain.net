@@ -20,19 +20,20 @@
 
     @* --- Correos Electrónicos --- *@
     <MudText Typo="Typo.subtitle1" Class="mb-2 mt-4">Correos Electrónicos</MudText>
-    @foreach (var (item, index) in _emails.Select((e, i) => (e, i)))
-    {
-        <div class="d-flex align-center gap-2 mb-2">
-            <MudCheckBox T="bool" @bind-Value="_emails[index].IsMain" Color="Color.Primary" Size="Size.Small" />
-            <MudText Typo="Typo.body2" Class="mr-2">Principal</MudText>
-            <MudTextField Class="flex-grow-1" T="string" @bind-Value="_emails[index].Value"
-                          Label="Correo electrónico" Placeholder="correo@ejemplo.com"
-                          Disabled="@(_isLoading)" Immediate="true" />
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Color="Color.Error"
-                           Disabled="@(_isLoading)" Size="Size.Small"
-                           OnClick="@(() => RemoveEmail(index))" />
-        </div>
-    }
+    <MudRadioGroup T="int?" @bind-Value="_selectedMainEmail">
+        @foreach (var (item, index) in _emails.Select((e, i) => (e, i)))
+        {
+            <div class="d-flex align-center gap-2 mb-2">
+                <MudRadio T="int?" Value="@GetItemId(item, index)" Color="Color.Primary" Size="Size.Small" />
+                <MudTextField Class="flex-grow-1" T="string" @bind-Value="_emails[index].Value"
+                              Label="Correo electrónico" Placeholder="correo@ejemplo.com"
+                              Disabled="@(_isLoading)" Immediate="true" />
+                <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Color="Color.Error"
+                               Disabled="@(_isLoading)" Size="Size.Small"
+                               OnClick="@(() => RemoveEmail(index))" />
+            </div>
+        }
+    </MudRadioGroup>
     <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.AddCircle"
                Disabled="@(_isLoading)" Class="mb-4" OnClick="@AddEmail">
         Agregar correo
@@ -40,26 +41,27 @@
 
     @* --- Teléfonos --- *@
     <MudText Typo="Typo.subtitle1" Class="mb-2 mt-2">Teléfonos</MudText>
-    @foreach (var (item, index) in _phones.Select((p, i) => (p, i)))
-    {
-        <div class="d-flex align-center gap-2 mb-2">
-            <MudCheckBox T="bool" @bind-Value="_phones[index].IsMain" Color="Color.Primary" Size="Size.Small" />
-            <MudText Typo="Typo.body2" Class="mr-2">Principal</MudText>
-            <MudSelect T="PhoneType" @bind-Value="_phones[index].PhoneType" Label="Tipo" Disabled="@(_isLoading)"
-                       Density="Density.Compact" Variant="Variant.Text" Class="mr-2" Style="min-width: 120px;">
-                @foreach (PhoneType pt in Enum.GetValues<PhoneType>())
-                {
-                    <MudSelectItem Value="pt">@pt</MudSelectItem>
-                }
-            </MudSelect>
-            <MudTextField Class="flex-grow-1" T="string" @bind-Value="_phones[index].Value"
-                          Label="Teléfono" Placeholder="3001234567"
-                          Disabled="@(_isLoading)" Immediate="true" />
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Color="Color.Error"
-                           Disabled="@(_isLoading)" Size="Size.Small"
-                           OnClick="@(() => RemovePhone(index))" />
-        </div>
-    }
+    <MudRadioGroup T="int?" @bind-Value="_selectedMainPhone">
+        @foreach (var (item, index) in _phones.Select((p, i) => (p, i)))
+        {
+            <div class="d-flex align-center gap-2 mb-2">
+                <MudRadio T="int?" Value="@GetItemId(item, index)" Color="Color.Primary" Size="Size.Small" />
+                <MudSelect T="PhoneType" @bind-Value="_phones[index].PhoneType" Label="Tipo" Disabled="@(_isLoading)"
+                           Density="Density.Compact" Variant="Variant.Text" Class="mr-2" Style="min-width: 120px;">
+                    @foreach (PhoneType pt in Enum.GetValues<PhoneType>())
+                    {
+                        <MudSelectItem Value="pt">@pt</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudTextField Class="flex-grow-1" T="string" @bind-Value="_phones[index].Value"
+                              Label="Teléfono" Placeholder="3001234567"
+                              Disabled="@(_isLoading)" Immediate="true" />
+                <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Color="Color.Error"
+                               Disabled="@(_isLoading)" Size="Size.Small"
+                               OnClick="@(() => RemovePhone(index))" />
+            </div>
+        }
+    </MudRadioGroup>
     <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.AddCircle"
                Disabled="@(_isLoading)" Class="mb-4" OnClick="@AddPhone">
         Agregar teléfono
@@ -102,6 +104,8 @@
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private bool _isLoading = false;
+    private int? _selectedMainEmail;
+    private int? _selectedMainPhone;
 
     private bool IsEditMode => Business is not null;
 
@@ -124,8 +128,23 @@
                 IsMain = p.IsMain,
                 PhoneType = p.PhoneType
             }).ToList() ?? [];
+
+            // Seleccionar el principal desde los datos cargados
+            var mainEmail = _emails.FirstOrDefault(e => e.IsMain);
+            if (mainEmail is not null)
+                _selectedMainEmail = mainEmail.Id ?? -(_emails.IndexOf(mainEmail) + 1);
+
+            var mainPhone = _phones.FirstOrDefault(p => p.IsMain);
+            if (mainPhone is not null)
+                _selectedMainPhone = mainPhone.Id ?? -(_phones.IndexOf(mainPhone) + 1);
         }
     }
+
+    private static int GetItemId(EmailItem item, int index)
+        => item.Id ?? -(index + 1);
+
+    private static int GetItemId(PhoneItem item, int index)
+        => item.Id ?? -(index + 1);
 
     private string? ValidateName(string value)
     {
@@ -141,24 +160,67 @@
         return null;
     }
 
-    private void AddEmail() => _emails.Add(new EmailItem());
+    private void AddEmail()
+    {
+        _emails.Add(new EmailItem());
+        _selectedMainEmail = -_emails.Count; // Seleccionar el nuevo como principal
+    }
 
     private void RemoveEmail(int index)
     {
-        bool wasMain = _emails[index].IsMain;
         _emails.RemoveAt(index);
-        if (wasMain && _emails.Count > 0)
-            _emails[0].IsMain = true;
+        SyncMainEmailSelection();
     }
 
-    private void AddPhone() => _phones.Add(new PhoneItem());
+    private void AddPhone()
+    {
+        _phones.Add(new PhoneItem());
+        _selectedMainPhone = -_phones.Count; // Seleccionar el nuevo como principal
+    }
 
     private void RemovePhone(int index)
     {
-        bool wasMain = _phones[index].IsMain;
         _phones.RemoveAt(index);
-        if (wasMain && _phones.Count > 0)
-            _phones[0].IsMain = true;
+        SyncMainPhoneSelection();
+    }
+
+    private void SyncMainEmailSelection()
+    {
+        if (_emails.Count == 0)
+        {
+            _selectedMainEmail = null;
+            return;
+        }
+
+        // Si el seleccionado aún existe, mantenerlo
+        if (_selectedMainEmail.HasValue && _emails.Any(e => GetItemId(e, _emails.IndexOf(e)) == _selectedMainEmail))
+            return;
+
+        // Si no, seleccionar el primero
+        _selectedMainEmail = GetItemId(_emails[0], 0);
+    }
+
+    private void SyncMainPhoneSelection()
+    {
+        if (_phones.Count == 0)
+        {
+            _selectedMainPhone = null;
+            return;
+        }
+
+        if (_selectedMainPhone.HasValue && _phones.Any(p => GetItemId(p, _phones.IndexOf(p)) == _selectedMainPhone))
+            return;
+
+        _selectedMainPhone = GetItemId(_phones[0], 0);
+    }
+
+    private void SyncIsMainFromSelection()
+    {
+        foreach (var (email, index) in _emails.Select((e, i) => (e, i)))
+            email.IsMain = GetItemId(email, index) == _selectedMainEmail;
+
+        foreach (var (phone, index) in _phones.Select((p, i) => (p, i)))
+            phone.IsMain = GetItemId(phone, index) == _selectedMainPhone;
     }
 
     private async Task HandleSaveAsync()
@@ -214,11 +276,14 @@
         _addressStreet = string.Empty;
         _emails = [];
         _phones = [];
+        _selectedMainEmail = null;
+        _selectedMainPhone = null;
         if (_form is not null) await _form.ResetAsync();
     }
 
     private async Task HandleCreateAsync()
     {
+        SyncIsMainFromSelection();
         var request = new CreateBusinessRequest
         {
             Name = _name,
@@ -250,6 +315,7 @@
 
     private async Task HandleUpdateAsync()
     {
+        SyncIsMainFromSelection();
         var request = new UpdateBusinessRequest
         {
             Name = string.IsNullOrWhiteSpace(_name) ? null : _name,
